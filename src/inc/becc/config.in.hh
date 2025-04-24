@@ -18,6 +18,8 @@
 
 #define BECC_USING_JSONCPP @BECC_USING_JSONCPP@
 
+#define BECC_USING_ARGON2 @BECC_USING_ARGON2@
+
 #ifndef INLNSTTC
 #define INLNSTTC inline static
 #endif // INLNSTTC

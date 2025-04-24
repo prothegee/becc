@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 
 # package
 set(BECC_VERSION_MAJOR 0)
-set(BECC_VERSION_MINOR 1)
+set(BECC_VERSION_MINOR 2)
 set(BECC_VERSION_PATCH 0)
 set(BECC_VERSION_RELEASE_DATE 20250424)
 
@@ -99,6 +99,11 @@ set(BEC_HEADERS_FILES_CONSTANTS
 list(APPEND BEC_HEADERS_FILES ${BEC_HEADERS_FILES_CONSTANTS})
 ## enums
 ## functions
+set(BEC_HEADERS_FILES_FUNCTIONS
+    src/inc/becc/functions/cryptography.hh
+    src/inc/becc/functions/utility.hh
+)
+list(APPEND BEC_HEADERS_FILES ${BEC_HEADERS_FILES_FUNCTIONS})
 ## interfaces
 ## modules
 
@@ -113,6 +118,7 @@ list(APPEND
         # constants
         # enums
         # functions
+        src/cryptography.cc
         src/utility.cc
         # interfaces
         # modules
@@ -124,7 +130,6 @@ list(APPEND
 if(NOT "${CMAKE_TOOLCHAIN_FILE}" STREQUAL "")
     message(NOTICE "-- ${PROJECT_NAME}: using CMAKE_TOOLCHAIN_FILE as `${CMAKE_TOOLCHAIN_FILE}`")
 endif()
-
 ## base vcpkg
 set(BECC_USING_VCPKG false)
 if(BUILD_USE_VCPKG)
@@ -189,7 +194,6 @@ if(BUILD_USE_VCPKG)
         message(FATAL_ERROR "-- ${PROJECT_NAME}: vpckg error")
     endif()
 endif()
-
 ## curl
 set(CURL_FOUND)
 set(BECC_USING_CURL false)
@@ -216,7 +220,6 @@ if(BECC_CURL_EXECUTEABLE)
 else()
     message(NOTICE "-- ${PROJECT_NAME}: curl executeable not found")
 endif()
-
 ## openssl
 set(OpenSSL_FOUND)
 set(BECC_USING_OPENSSL false)
@@ -239,7 +242,6 @@ else()
         message(NOTICE "-- ${PROJECT_NAME}: openssl header not found")
     endif()
 endif()
-
 ## jsoncpp
 set(jsoncpp_FOUND)
 set(BECC_USING_JSONCPP false)
@@ -248,6 +250,7 @@ find_package(jsoncpp CONFIG)
 
 if(jsoncpp_FOUND)
     set(BECC_USING_JSONCPP true)
+    message(NOTICE "-- ${PROJECT_NAME}: jsoncpp package found")
 else()
     set(BECC_VENDOR_JSONCPP_DIR ${PROJECT_SOURCE_DIR}/vendors/jsoncpp)
 
@@ -258,6 +261,16 @@ else()
     add_subdirectory(${BECC_VENDOR_JSONCPP_DIR} BECC_JSONCPP)
 
     set(BECC_USING_JSONCPP true)
+
+    message(NOTICE "-- ${PROJECT_NAME}: jsoncpp using internal vendor dir")
+endif()
+## argon2
+set(BECC_USING_ARGON2 false)
+
+find_file(BECC_ARGON2_INCLUDE_DIRS "argon2.h")
+if(BECC_ARGON2_INCLUDE_DIRS)
+    set(BECC_USING_ARGON2 true)
+    message(NOTICE "-- ${PROJECT_NAME}: argon2 header found")
 endif()
 
 # project lib
@@ -275,6 +288,10 @@ if(BECC_USING_JSONCPP)
     else()
         target_link_libraries(${PROJECT_NAME} PRIVATE jsoncpp)
     endif()
+endif()
+## argon2
+if(BECC_USING_ARGON2)
+    target_link_libraries(${PROJECT_NAME} PRIVATE argon2)
 endif()
 
 ## warning
