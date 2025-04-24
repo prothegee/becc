@@ -2,14 +2,14 @@ cmake_minimum_required(VERSION 3.15)
 
 # package
 set(BECC_VERSION_MAJOR 0)
-set(BECC_VERSION_MINOR 1)
+set(BECC_VERSION_MINOR 2)
 set(BECC_VERSION_PATCH 0)
-set(BECC_VERSION_RELEASE_DATE 20250421)
+set(BECC_VERSION_RELEASE_DATE 20250424)
 
 # package project
 project(becc
     VERSION "${BECC_VERSION_MAJOR}.${BECC_VERSION_MINOR}.${BECC_VERSION_PATCH}"
-    LANGUAGES CXX
+    LANGUAGES CXX C
 )
 
 # option/s
@@ -17,6 +17,20 @@ project(becc
 option(BUILD_TESTS              "build project test/s" OFF)
 ## build tools, default false/OFF
 option(BUILD_TOOLS              "build project tool/s" OFF)
+## build use vcpkg
+option(BUILD_USE_VCPKG          "build using vcpkg, will look environment variable of VCPKG_DIR/VCPKG_ROOT & VCPKG_DEFAULT_TRIPLET/DEFAULT_TRIPLET" OFF)
+## build using custom output dir
+option(BUILD_CUSTOM_OUTPUT      "build using custom output if not empty" "")
+
+if(NOT BUILD_CUSTOM_OUTPUT STREQUAL "")
+    set(EXECUTABLE_OUTPUT_PATH         "${CMAKE_CURRENT_SOURCE_DIR}/${BUILD_CUSTOM_OUTPUT}")
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${BUILD_CUSTOM_OUTPUT}")
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${BUILD_CUSTOM_OUTPUT}")
+    set(CMAKE_PDB_OUTPUT_DIRECTORY     "${CMAKE_CURRENT_SOURCE_DIR}/${BUILD_CUSTOM_OUTPUT}")
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${BUILD_CUSTOM_OUTPUT}")
+
+    message(NOTICE "-- ${PROJECT_NAME} using build custom output as "${CMAKE_CURRENT_SOURCE_DIR}/${BUILD_CUSTOM_OUTPUT}"")
+endif()
 
 ## build tests as bool
 if(BUILD_TESTS)
@@ -32,7 +46,6 @@ else()
     set(BUILD_TOOLS false)
 endif()
 
-# vars
 ## build type
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Debug")
@@ -44,6 +57,7 @@ if(NOT DEFINED CMAKE_CXX_STANDARD_REQUIRED)
 endif()
 
 ## cxx standard
+### by default build is set for gnu linux environment
 if(NOT DEFINED CMAKE_CXX_STANDARD)
     set(CMAKE_CXX_STANDARD 17)
 
@@ -52,7 +66,15 @@ if(NOT DEFINED CMAKE_CXX_STANDARD)
     else()
         list(APPEND CMAKE_CXX_FLAGS "-std=c++${CMAKE_CXX_STANDARD}")
     endif()
+else()
+    if(MSVC)
+        list(APPEND CMAKE_CXX_FLAGS "/std:c++${CMAKE_CXX_STANDARD}")
+    else()
+        list(APPEND CMAKE_CXX_FLAGS "-std=c++${CMAKE_CXX_STANDARD}")
+    endif()
 endif()
+
+## reserved: system, processor, build, processor
 
 # include base
 include(CheckIncludeFileCXX)
@@ -60,26 +82,217 @@ include(GenerateExportHeader)
 include(CMakeDependentOption)
 include(CMakePackageConfigHelpers)
 include(FindPackageHandleStandardArgs)
+include(CMakeFindDependencyMacro)
+
+# check deps
+find_dependency(OpenSSL)
 
 # files
 ## headers files
 if(NOT DEFINED BEC_HEADERS_FILES)
     set(BEC_HEADERS_FILES)
 endif()
+## constants
+set(BEC_HEADERS_FILES_CONSTANTS
+    src/inc/becc/constants/string_const.hh
+)
+list(APPEND BEC_HEADERS_FILES ${BEC_HEADERS_FILES_CONSTANTS})
+## enums
+## functions
+set(BEC_HEADERS_FILES_FUNCTIONS
+    src/inc/becc/functions/cryptography.hh
+    src/inc/becc/functions/utility.hh
+)
+list(APPEND BEC_HEADERS_FILES ${BEC_HEADERS_FILES_FUNCTIONS})
+## interfaces
+## modules
 
 ## sources files
 if(NOT DEFINED BEC_SOURCES_FILES)
     set(BEC_SOURCES_FILES)
 endif()
 
-list(APPEND BEC_SOURCES_FILES src/becc.cc)
+list(APPEND
+    BEC_SOURCES_FILES
+        src/becc.cc
+        # constants
+        # enums
+        # functions
+        src/cryptography.cc
+        src/utility.cc
+        # interfaces
+        # modules
+)
 
-# reserved
+# packages, lib related
+## 
+## base toolchain
+if(NOT "${CMAKE_TOOLCHAIN_FILE}" STREQUAL "")
+    message(NOTICE "-- ${PROJECT_NAME}: using CMAKE_TOOLCHAIN_FILE as `${CMAKE_TOOLCHAIN_FILE}`")
+endif()
+## base vcpkg
+set(BECC_USING_VCPKG false)
+if(BUILD_USE_VCPKG)
+    set(BECC_VCPKG_DIR "")
+    set(BECC_VCPKG_TRIPLET "")
+    set(BECC_VCPKG_INSTALLED_DIR "")
+
+    # check VCPKG_DIR env. var.
+    if(NOT "$ENV{VCPKG_DIR}" STREQUAL "")
+        set(BECC_VCPKG_DIR "$ENV{VCPKG_DIR}")
+    endif()
+
+    # check VCPKG_ROOT env. var.
+    if(NOT "$ENV{VCPKG_ROOT}" STREQUAL "")
+        set(BECC_VCPKG_DIR "$ENV{VCPKG_ROOT}")
+    endif()
+
+    if(BUILD_USE_VCPKG AND BECC_VCPKG_DIR STREQUAL "")
+        message(FATAL_ERROR "-- ${PROJECT_NAME}: you are attempting to use vcpkg, but environment variables of `VCPKG_DIR/VCPKG_ROOT` is empty")
+    endif()
+
+    # include toolchain
+    include("${BECC_VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake")
+
+    # check vcpkg triplet env. var.
+    if(NOT "$ENV{VCPKG_TRIPLET}" STREQUAL "")
+        set(BECC_VCPKG_TRIPLET "$ENV{VCPKG_TRIPLET}")
+    endif()
+    if(NOT "$ENV{VCPKG_DEFAULT_TRIPLET}" STREQUAL "")
+        set(BECC_VCPKG_TRIPLET "$ENV{VCPKG_DEFAULT_TRIPLET}")
+    endif()
+
+    # check vcpkg triplet defined var.
+    if(NOT "${VCPKG_TRIPLET}" STREQUAL "")
+        set(BECC_VCPKG_TRIPLET "${VCPKG_TRIPLET}")
+    endif()
+    if(NOT "${VCPKG_DEFAULT_TRIPLET}" STREQUAL "")
+        set(BECC_VCPKG_TRIPLET "${VCPKG_DEFAULT_TRIPLET}")
+    endif()
+
+    if(BECC_VCPKG_TRIPLET STREQUAL "")
+       message(FATAL_ERROR "-- ${PROJECT_NAME}: attempt to use vcpkg but triplet is not defined/set, use `-DVCPKG_TRIPLET=processor_type-system_os_name` or `-DVCPKG_DEFAULT_TRIPLET=processor_type-system_os_name` or set those on your environment variable") 
+    endif()
+
+    # check and set
+    set(BECC_VCPKG_INSTALLED_DIR "${BECC_VCPKG_DIR}/installed/${BECC_VCPKG_TRIPLET}")
+    if(EXISTS "${BECC_VCPKG_INSTALLED_DIR}")
+        # include dirs
+        include_directories("${BECC_VCPKG_INSTALLED_DIR}/include")
+        include_directories("${BECC_VCPKG_INSTALLED_DIR}/debug/include")
+
+        # link bin dirs
+        link_directories("${BECC_VCPKG_INSTALLED_DIR}/bin")
+        link_directories("${BECC_VCPKG_INSTALLED_DIR}/debug/bin")
+
+        # link lib dirs
+        link_directories("${BECC_VCPKG_INSTALLED_DIR}/lib")
+        link_directories("${BECC_VCPKG_INSTALLED_DIR}/debug/lib")
+
+        set(BECC_USING_VCPKG true)
+    else()
+        message(FATAL_ERROR "-- ${PROJECT_NAME}: vpckg error")
+    endif()
+endif()
+## curl
+set(CURL_FOUND)
+set(BECC_USING_CURL false)
+set(BECC_USING_CURL_EXECUTEABLE false)
+
+find_package(CURL)
+
+if(CURL_FOUND)
+    set(BECC_USING_CURL true)
+    message(NOTICE "-- ${PROJECT_NAME}: lib curl found")
+else()
+    message(NOTICE "-- ${PROJECT_NAME}: lib curl not found")
+endif()
+
+if(WIN32)
+    find_file(BECC_CURL_EXECUTEABLE "curl.exe")
+else()
+    find_file(BECC_CURL_EXECUTEABLE "curl")
+endif()
+
+if(BECC_CURL_EXECUTEABLE)
+    set(BECC_USING_CURL_EXECUTEABLE true)
+    message(NOTICE "-- ${PROJECT_NAME}: curl executeable found ${BECC_CURL_EXECUTEABLE}")
+else()
+    message(NOTICE "-- ${PROJECT_NAME}: curl executeable not found")
+endif()
+## openssl
+set(OpenSSL_FOUND)
+set(BECC_USING_OPENSSL false)
+
+find_package(OpenSSL CONFIG)
+if(OpenSSL_FOUND)
+    set(BECC_USING_OPENSSL true)
+    message(NOTICE "-- ${PROJECT_NAME}: lib openssl found")
+else()
+    message(NOTICE "-- ${PROJECT_NAME}: lib openssl not found, attempt to find headers")
+    find_file(BEC_OPENSSL_DIR "openssl/evp.h")
+    if(BEC_OPENSSL_DIR)
+        get_filename_component(OpenSSL_DIR "${BEC_OPENSSL_DIR}" DIRECTORY)
+
+        set(BECC_USING_OPENSSL true)
+        # include_directories(${OpenSSL_DIR})
+
+        message(NOTICE "-- ${PROJECT_NAME}: openssl header found in ${BEC_OPENSSL_DIR}")
+    else()
+        message(NOTICE "-- ${PROJECT_NAME}: openssl header not found")
+    endif()
+endif()
+## jsoncpp
+set(jsoncpp_FOUND)
+set(BECC_USING_JSONCPP false)
+
+find_package(jsoncpp CONFIG)
+
+if(jsoncpp_FOUND)
+    set(BECC_USING_JSONCPP true)
+    message(NOTICE "-- ${PROJECT_NAME}: jsoncpp package found")
+else()
+    set(BECC_VENDOR_JSONCPP_DIR ${PROJECT_SOURCE_DIR}/vendors/jsoncpp)
+
+    set(JSONCPP_WITH_TESTS false)
+    set(JSONCPP_WITH_EXAMPLE false)
+    set(JSONCPP_WITH_CMAKE_PACKAGE true)
+
+    add_subdirectory(${BECC_VENDOR_JSONCPP_DIR} BECC_JSONCPP)
+
+    set(BECC_USING_JSONCPP true)
+
+    message(NOTICE "-- ${PROJECT_NAME}: jsoncpp using internal vendor dir")
+endif()
+## argon2
+set(BECC_USING_ARGON2 false)
+
+find_file(BECC_ARGON2_INCLUDE_DIRS "argon2.h")
+if(BECC_ARGON2_INCLUDE_DIRS)
+    set(BECC_USING_ARGON2 true)
+    message(NOTICE "-- ${PROJECT_NAME}: argon2 header found")
+endif()
 
 # project lib
 add_library(${PROJECT_NAME} ${BEC_SOURCES_FILES})
 
-# reserved
+# target libs
+## openssl
+if(BECC_USING_OPENSSL)
+    target_link_libraries(${PROJECT_NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+endif()
+## jsoncpp
+if(BECC_USING_JSONCPP)
+    if(jsoncpp_FOUND)
+        target_link_libraries(${PROJECT_NAME} PRIVATE JsonCpp::JsonCpp)
+    else()
+        target_link_libraries(${PROJECT_NAME} PRIVATE jsoncpp)
+    endif()
+endif()
+## argon2
+if(BECC_USING_ARGON2)
+    target_link_libraries(${PROJECT_NAME} PRIVATE argon2)
+endif()
 
 ## warning
 if(CMAKE_CXX_FLAGS STREQUAL "")
@@ -99,9 +312,23 @@ generate_export_header(${PROJECT_NAME}
         ${PROJECT_SOURCE_DIR}/src/inc/becc/export.hh
 )
 
+# target include dirs
+## core include: src/inc
+target_include_directories(${PROJECT_NAME}
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/src/inc
+)
+
+# target source
+## dont expand this yet
+target_sources(${PROJECT_NAME}
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
 # build tests
 if(BUILD_TESTS)
-    
+    add_subdirectory(tests BECC_TESTS)
 endif(BUILD_TESTS)
 
 # build tools
