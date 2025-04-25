@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.15)
 set(BECC_VERSION_MAJOR 0)
 set(BECC_VERSION_MINOR 2)
 set(BECC_VERSION_PATCH 0)
-set(BECC_VERSION_RELEASE_DATE 20250424)
+set(BECC_VERSION_RELEASE_DATE 20250425)
 
 # package project
 project(becc
