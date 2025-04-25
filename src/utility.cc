@@ -29,32 +29,37 @@ bool is_numeric(const std::string& input)
 std::string base64encode(const std::string& input)
 {
     std::string result;
-    size_t i = 0;
     size_t len = input.size();
+    size_t i = 0;
 
     while (i < len)
     {
-        size_t group_start = i;
-
-        uint32_t octet_a = (i < len) ? static_cast<uint8_t>(input[i++]) : 0;
-        uint32_t octet_b = (i < len) ? static_cast<uint8_t>(input[i++]) : 0;
-        uint32_t octet_c = (i < len) ? static_cast<uint8_t>(input[i++]) : 0;
+        uint8_t octet_a = i < len ? input[i++] : 0;
+        uint8_t octet_b = i < len ? input[i++] : 0;
+        uint8_t octet_c = i < len ? input[i++] : 0;
 
         uint32_t triple = (octet_a << 16) | (octet_b << 8) | octet_c;
 
-        result.push_back(base64_chars[(triple >> 18)&  0x3F]);
-        result.push_back(base64_chars[(triple >> 12)&  0x3F]);
-        result.push_back(base64_chars[(triple >> 6)&  0x3F]);
-        result.push_back(base64_chars[triple&  0x3F]);
+        result.push_back(BASE64_CHARS[(triple >> 18) & 0x3F]);
+        result.push_back(BASE64_CHARS[(triple >> 12) & 0x3F]);
 
-        size_t bytes_in_group = i - group_start;
-        if (bytes_in_group < 3)
+        if (i > len)
         {
-            size_t pad_length = 3 - bytes_in_group;
-            for (size_t j = 0; j < pad_length; ++j)
-            {
-                result[result.size() - 1 - j] = '=';
-            }
+            // only one byte processed (octet_a)
+            result.push_back('=');
+            result.push_back('=');
+        }
+        else if (i > len - 1)
+        {
+            // two bytes processed (octet_a and octet_b)
+            result.push_back(BASE64_CHARS[(triple >> 6) & 0x3F]);
+            result.push_back('=');
+        }
+        else
+        {
+            // three bytes processed
+            result.push_back(BASE64_CHARS[(triple >> 6) & 0x3F]);
+            result.push_back(BASE64_CHARS[triple & 0x3F]);
         }
     }
 
@@ -64,62 +69,40 @@ std::string base64encode(const std::string& input)
 std::string base64decode(const std::string& input)
 {
     std::unordered_map<char, uint8_t> char_to_value;
-    for (size_t i = 0; i < base64_chars.size(); ++i)
+    for (size_t i = 0; i < BASE64_CHARS.size(); ++i)
     {
-        char_to_value[base64_chars[i]] = static_cast<uint8_t>(i);
+        char_to_value[BASE64_CHARS[i]] = static_cast<uint8_t>(i);
     }
 
-    std::string result;
+    std::string decoded;
     size_t len = input.size();
 
     if (len % 4 != 0)
     {
-        return result;
+        return decoded;
     }
 
     for (size_t i = 0; i < len; i += 4)
     {
-        bool is_last_group = (i + 4 == len);
-        size_t padding = 0;
-        if (is_last_group)
-        {
-            if (input[i + 3] == '=') padding++;
-            if (input[i + 2] == '=') padding++;
-        }
-
         uint8_t v1 = char_to_value[input[i]];
-        uint8_t v2 = char_to_value[input[i + 1]];
-        uint8_t v3 = (input[i + 2] != '=') ? char_to_value[input[i + 2]] : 0;
-        uint8_t v4 = (input[i + 3] != '=') ? char_to_value[input[i + 3]] : 0;
+        uint8_t v2 = char_to_value[input[i+1]];
+        uint8_t v3 = (input[i+2] != '=') ? char_to_value[input[i+2]] : 0;
+        uint8_t v4 = (input[i+3] != '=') ? char_to_value[input[i+3]] : 0;
 
-        uint32_t quad = (static_cast<uint32_t>(v1) << 18) |
-                        (static_cast<uint32_t>(v2) << 12) |
-                        (static_cast<uint32_t>(v3) << 6) |
-                        static_cast<uint32_t>(v4);
+        uint32_t quad = (v1 << 18) | (v2 << 12) | (v3 << 6) | v4;
 
-        result.push_back(static_cast<char>((quad >> 16)&  0xFF));
-        if (padding < 2)
+        decoded.push_back(static_cast<char>((quad >> 16) & 0xFF));
+        if (input[i+2] != '=')
         {
-            result.push_back(static_cast<char>((quad >> 8)&  0xFF));
+            decoded.push_back(static_cast<char>((quad >> 8) & 0xFF));
         }
-        if (padding < 1)
+        if (input[i+3] != '=')
         {
-            result.push_back(static_cast<char>(quad&  0xFF));
+            decoded.push_back(static_cast<char>(quad & 0xFF));
         }
     }
 
-    size_t padding_count = 0;
-    if (len >= 2)
-    {
-        if (input[len - 1] == '=') padding_count++;
-        if (input[len - 2] == '=') padding_count++;
-    }
-    if (padding_count > 0)
-    {
-        result.resize(result.size() - padding_count);
-    }
-
-    return result;
+    return decoded;
 }
 
 #if BECC_USING_OPENSSL
@@ -316,8 +299,8 @@ std::string random_alphanumeric(size_t length)
 
     for (size_t i = 0; i < length; i++)
     {
-        result += alphanumeric[
-            random_number(0, (int)alphanumeric.length() - 1)
+        result += ALPHANUMERIC[
+            random_number(0, (int)ALPHANUMERIC.length() - 1)
         ];
     }
 
@@ -334,8 +317,8 @@ std::string random_alphanumeric_with_special_character(size_t length)
 
     for (size_t i = 0; i < length; i++)
     {
-        result += alphanumeric_with_special_character[
-            random_number(0, (int)alphanumeric_with_special_character.length() - 1)
+        result += ALPHANUMERIC_WITH_SPECIAL_CHARACTER[
+            random_number(0, (int)ALPHANUMERIC_WITH_SPECIAL_CHARACTER.length() - 1)
         ];
     }
 

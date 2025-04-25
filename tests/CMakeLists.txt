@@ -7,6 +7,10 @@ include(CMakeDependentOption)
 include(GenerateExportHeader)
 include(FindPackageHandleStandardArgs)
 
+# test_aes_openssl
+add_executable(test_aes_openssl test_aes_openssl.cc)
+target_link_libraries(test_aes_openssl PRIVATE becc)
+
 # test_argon2
 add_executable(test_argon2 test_argon2.cc)
 target_link_libraries(test_argon2 PRIVATE becc)

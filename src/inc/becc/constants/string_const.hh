@@ -10,32 +10,32 @@ ABCDEFGHIJKLMNOPQRSTUVWXYZ
 abcdefghijklmnopqrstuvwxyz
 0123456789+/
 */
-INLNSTTCCNST std::string base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+INLNSTTCCNST std::string BASE64_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 // 0123456789
-INLNSTTCCNST std::string numeric = "0123456789";
+INLNSTTCCNST std::string NUMERIC = "0123456789";
 /*
 ABCDEFGHIJKLMNOPQRSTUVWXYZ
 abcdefghijklmnopqrstuvwxyz
 */
-INLNSTTCCNST std::string alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+INLNSTTCCNST std::string ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 /*
 ABCDEFGHIJKLMNOPQRSTUVWXYZ
 abcdefghijklmnopqrstuvwxyz
 0123456789
 */
-INLNSTTCCNST std::string alphanumeric = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+INLNSTTCCNST std::string ALPHANUMERIC = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 /*
 ~!@#$%^&*()_+{}|:\"<>?`-=[]';,./\\
 */
-INLNSTTCCNST std::string special_character = "~!@#$%^&*()_+{}|:\"<>?`-=[]';,./\\";
+INLNSTTCCNST std::string SPECIAL_CHARACTER = "~!@#$%^&*()_+{}|:\"<>?`-=[]';,./\\";
 /*
 abcdefghijklmnopqrstuvwxyz
 ABCDEFGHIJKLMNOPQRSTUVWXYZ
 0123456789
 ~!@#$%^&*-_=+
 */
-INLNSTTCCNST std::string alphanumeric_with_special_character = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789~!@#$%^&*-_=+";
+INLNSTTCCNST std::string ALPHANUMERIC_WITH_SPECIAL_CHARACTER = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789~!@#$%^&*-_=+";
 
 /*
 ABCDEFGHIJKLMNOPQRSTUVWXYZ
