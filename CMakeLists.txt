@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 
 # package
 set(BECC_VERSION_MAJOR 0)
-set(BECC_VERSION_MINOR 3)
+set(BECC_VERSION_MINOR 5)
 set(BECC_VERSION_PATCH 0)
 set(BECC_VERSION_RELEASE_DATE 20250427)
 
@@ -85,6 +85,7 @@ include(FindPackageHandleStandardArgs)
 include(CMakeFindDependencyMacro)
 
 # check deps
+## openssl
 find_dependency(OpenSSL)
 
 # files
@@ -102,6 +103,7 @@ list(APPEND BEC_HEADERS_FILES ${BEC_HEADERS_FILES_CONSTANTS})
 set(BEC_HEADERS_FILES_FUNCTIONS
     src/inc/becc/functions/cryptography.hh
     src/inc/becc/functions/date_and_time.hh
+    src/inc/becc/functions/system.hh
     src/inc/becc/functions/utility.hh
 )
 list(APPEND BEC_HEADERS_FILES ${BEC_HEADERS_FILES_FUNCTIONS})
@@ -121,6 +123,7 @@ list(APPEND
         # functions
         src/cryptography.cc
         src/date_and_time.cc
+        src/system.cc
         src/utility.cc
         # interfaces
         # modules

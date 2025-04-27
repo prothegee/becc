@@ -4,8 +4,11 @@
 #include "../constants/string_const.hh"
 
 #if BECC_USING_OPENSSL
-#include <openssl/bio.h>
+#include <openssl/aes.h>
+#include <openssl/rand.h>
 #include <openssl/evp.h>
+#include <openssl/err.h>
+#include <openssl/types.h>
 #include <openssl/buffer.h>
 #endif // BECC_USING_OPENSSL
 
@@ -320,6 +323,43 @@ namespace write
 int32_t file_from_buffer(const std::string& file_path, const buffer_t& buffer_data);
 
 } // namespace write
+
+namespace file
+{
+
+#if BECC_USING_OPENSSL // could be using or later on
+/**
+ * @brief ecnrypt file with mode based on input file & save to output file
+ * 
+ * @note careful with chunk_size
+ * 
+ * @param mode 1:aes cbc
+ * @param file_input 
+ * @param file_output 
+ * @param iv 
+ * @param ik 
+ * @param chunk_size default 1 Mb
+ * @return int32_t 0 mean ok
+ */
+int32_t encrypt(const int32_t& mode, const std::string& file_input, const std::string& file_output, const std::string& iv, const std::string& ik, const size_t& chunk_size = 1 * 1024 * 1024);
+
+/**
+ * @brief decrypt file with mode based on input file & save to output file
+ * 
+ * @note careful with chunk_size
+ * 
+ * @param mode 1:aes cbc
+ * @param file_input 
+ * @param file_output 
+ * @param iv 
+ * @param ik 
+ * @param chunk_size default 1 Mb
+ * @return int32_t 0 mean ok
+ */
+int32_t decrypt(const int32_t& mode, const std::string& file_input, const std::string& file_output, const std::string& iv, const std::string& ik, const size_t& chunk_size = 1 * 1024 * 1024);
+#endif // BECC_USING_OPENSSL
+
+} // namespace file
 
 } // namespace utility_functions
 } // namespace becc
