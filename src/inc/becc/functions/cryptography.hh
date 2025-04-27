@@ -57,6 +57,58 @@ std::string string_from_custom_base36_openssl(const std::string &input);
 namespace hash
 {
 
+#if BECC_USING_OPENSSL
+/**
+ * @brief generate sha1
+ * 
+ * @note return length is 40
+ * 
+ * @param input 
+ * @return std::string 
+ */
+std::string sha1_openssl(const std::string& input);
+
+/**
+ * @brief generate sha224
+ * 
+ * @note return length is 56
+ * 
+ * @param input 
+ * @return std::string 
+ */
+std::string sha224_openssl(const std::string& input);
+
+/**
+ * @brief generate sha1
+ * 
+ * @note return length is 64
+ * 
+ * @param input 
+ * @return std::string 
+ */
+std::string sha256_openssl(const std::string& input);
+
+/**
+ * @brief generate sha1
+ * 
+ * @note return length is 96
+ * 
+ * @param input 
+ * @return std::string 
+ */
+std::string sha384_openssl(const std::string& input);
+
+/**
+ * @brief generate sha1
+ * 
+ * @note return length is 128
+ * 
+ * @param input 
+ * @return std::string 
+ */
+std::string sha512_openssl(const std::string& input);
+#endif // BECC_USING_OPENSSL
+
 #if BECC_USING_ARGON2
 /**
  * @brief hash using argon2id
@@ -111,6 +163,26 @@ int32_t aes_cbc_encrypt_openssl(const std::string& input, std::string& output, c
  * @return int32_t 
  */
 int32_t aes_cbc_decrypt_openssl(const std::string& input, std::string& output, const std::string& iv, const std::string& ik);
+
+/**
+ * @brief aes cbc encrypt buffer
+ * 
+ * @param buffer 
+ * @param iv_buffer 
+ * @param ik_buffer 
+ * @return buffer_t 
+ */
+buffer_t aes_cbc_encrypt_to_buffer_openssl(const buffer_t& buffer, uchr_t* iv_buffer, uchr_t* ik_buffer);
+
+/**
+ * @brief aes cbc decrypt buffer
+ * 
+ * @param buffer 
+ * @param iv_buffer 
+ * @param ik_buffer 
+ * @return buffer_t 
+ */
+buffer_t aes_cbc_decrypt_to_buffer_openssl(const buffer_t& buffer, uchr_t* iv_buffer, uchr_t* ik_buffer);
 #endif // BECC_USING_OPENSSL
 
 } // namespace stream_cipher

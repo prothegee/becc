@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 3.15)
 
 # package
 set(BECC_VERSION_MAJOR 0)
-set(BECC_VERSION_MINOR 2)
+set(BECC_VERSION_MINOR 3)
 set(BECC_VERSION_PATCH 0)
-set(BECC_VERSION_RELEASE_DATE 20250425)
+set(BECC_VERSION_RELEASE_DATE 20250427)
 
 # package project
 project(becc
@@ -101,6 +101,7 @@ list(APPEND BEC_HEADERS_FILES ${BEC_HEADERS_FILES_CONSTANTS})
 ## functions
 set(BEC_HEADERS_FILES_FUNCTIONS
     src/inc/becc/functions/cryptography.hh
+    src/inc/becc/functions/date_and_time.hh
     src/inc/becc/functions/utility.hh
 )
 list(APPEND BEC_HEADERS_FILES ${BEC_HEADERS_FILES_FUNCTIONS})
@@ -119,6 +120,7 @@ list(APPEND
         # enums
         # functions
         src/cryptography.cc
+        src/date_and_time.cc
         src/utility.cc
         # interfaces
         # modules
@@ -294,11 +296,82 @@ if(BECC_USING_ARGON2)
     target_link_libraries(${PROJECT_NAME} PRIVATE argon2)
 endif()
 
+# compiler options
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(BECC_COMPILER_ID    1)
+    set(BECC_COMPILER_GNU   true)
+    set(BECC_COMPILER_MSVC  false)
+    set(BECC_COMPILER_CLANG false)
+
+    target_compile_options(${PROJECT_NAME} PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Wno-unused-value
+        -Wno-unused-variable
+        -Wno-reorder
+        -Wno-parentheses
+        -Wno-switch
+        -Wno-format
+        -Wno-invalid-offsetof
+        -Wno-multichar
+        -Wno-char-subscripts
+        -Wno-empty-body
+        -Wno-unused-function
+        -Wno-deprecated-declarations
+        -lm
+    )
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    set(BECC_COMPILER_ID    2)
+    set(BECC_COMPILER_GNU   false)
+    set(BECC_COMPILER_MSVC  true)
+    set(BECC_COMPILER_CLANG false)
+
+    target_compile_options(${PROJECT_NAME} PRIVATE
+        /W4
+        /wd4996
+    )
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "[Cc]lang")
+    set(BECC_COMPILER_ID    3)
+    set(BECC_COMPILER_GNU   false)
+    set(BECC_COMPILER_MSVC  false)
+    set(BECC_COMPILER_CLANG true)
+
+    target_compile_options(${PROJECT_NAME} PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Wno-unused-value
+        -Wno-unused-variable
+        -Wno-reorder
+        -Wno-parentheses
+        -Wno-switch
+        -Wno-format
+        -Wno-dynamic-class-memaccess
+        -Wno-unused-private-field
+        -Wno-invalid-offsetof
+        -Wno-multichar
+        -Wno-char-subscripts
+        -Wno-null-conversion
+        -Wno-empty-body
+        -Wno-unused-lambda-capture
+        -Wno-unused-function
+        -Wno-tautological-constant-out-of-range-compare
+        -Wno-deprecated-declarations
+    )
+else()
+    set(BECC_COMPILER_ID    0)
+    set(BECC_COMPILER_GNU   false)
+    set(BECC_COMPILER_MSVC  false)
+    set(BECC_COMPILER_CLANG false)
+
+    message(NOTICE "-- ${PROJECT_NAME}: -DCMAKE_CXX_COMPILER_ID is not supported as ${CMAKE_CXX_COMPILER_ID}")
+endif()
+
 ## warning
 if(CMAKE_CXX_FLAGS STREQUAL "")
     message(WARNING "-- ${PROJECT_NAME} cxx flags is empty")
 endif()
-
 
 # libprcpp config
 configure_file(

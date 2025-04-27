@@ -22,4 +22,7 @@ using float64_t = double;
 // alias for std::vector<unsigned char> as buffer type
 using buffer_t = std::vector<unsigned char>;
 
+// lias for unsigned char
+typedef unsigned char uchr_t;
+
 #endif // BECC_HH

@@ -28,6 +28,12 @@
 #define INLNSTTCCNST inline static const
 #endif // INLNSTTCCNST
 
+#define BECC_COMPILER_ID @BECC_COMPILER_ID@
+
+#define BECC_COMPILER_GNU @BECC_COMPILER_GNU@
+#define BECC_COMPILER_MSVC @BECC_COMPILER_MSVC@
+#define BECC_COMPILER_CLANG @BECC_COMPILER_CLANG@
+
 #if defined(__GNUC__) || defined(__clang__)
     #define DEPRECATED(msg) __attribute__((deprecated(msg)))
 #elif defined(_MSC_VER)
