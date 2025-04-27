@@ -103,6 +103,53 @@ std::string string_from_custom_base36_openssl(const std::string &input)
 namespace hash
 {
 
+#if BECC_USING_OPENSSL
+std::string sha1_openssl(const std::string& input)
+{
+    unsigned char hash[SHA_DIGEST_LENGTH];
+
+    SHA1(reinterpret_cast<const unsigned char*>(input.c_str()), input.size(), hash);
+
+    return bytes_to_hex_openssl(hash, SHA_DIGEST_LENGTH);
+}
+
+std::string sha224_openssl(const std::string& input)
+{
+    unsigned char hash[SHA224_DIGEST_LENGTH];
+
+    SHA1(reinterpret_cast<const unsigned char*>(input.c_str()), input.size(), hash);
+
+    return bytes_to_hex_openssl(hash, SHA224_DIGEST_LENGTH);
+}
+
+std::string sha256_openssl(const std::string& input)
+{
+    unsigned char hash[SHA256_DIGEST_LENGTH];
+
+    SHA1(reinterpret_cast<const unsigned char*>(input.c_str()), input.size(), hash);
+
+    return bytes_to_hex_openssl(hash, SHA256_DIGEST_LENGTH);
+}
+
+std::string sha384_openssl(const std::string& input)
+{
+    unsigned char hash[SHA384_DIGEST_LENGTH];
+
+    SHA1(reinterpret_cast<const unsigned char*>(input.c_str()), input.size(), hash);
+
+    return bytes_to_hex_openssl(hash, SHA384_DIGEST_LENGTH);
+}
+
+std::string sha512_openssl(const std::string& input)
+{
+    unsigned char hash[SHA512_DIGEST_LENGTH];
+
+    SHA1(reinterpret_cast<const unsigned char*>(input.c_str()), input.size(), hash);
+
+    return bytes_to_hex_openssl(hash, SHA512_DIGEST_LENGTH);
+}
+#endif // BECC_USING_OPENSSL
+
 #if BECC_USING_ARGON2
 int32_t argon2id(const std::string& input, const std::string& salt, std::string& result, const uint32_t& computation, const uint32_t& block, const uint32_t& parallelism, const uint32_t& derived_length)
 {
@@ -174,7 +221,7 @@ namespace stream_cipher
 #if BECC_USING_OPENSSL
 int32_t aes_cbc_encrypt_openssl(const std::string& input, std::string& output, const std::string& iv, const std::string& ik)
 {
-    EVP_CIPHER_CTX *pCtx = EVP_CIPHER_CTX_new();
+    EVP_CIPHER_CTX* pCtx = EVP_CIPHER_CTX_new();
 
     if (!pCtx)
     {
@@ -220,7 +267,7 @@ int32_t aes_cbc_decrypt_openssl(const std::string& input, std::string& output, c
 {
     std::string binary_input = string_from_custom_base36_openssl(input);
 
-    EVP_CIPHER_CTX *pCtx = EVP_CIPHER_CTX_new();
+    EVP_CIPHER_CTX* pCtx = EVP_CIPHER_CTX_new();
 
     if (!pCtx)
     {
@@ -258,6 +305,104 @@ int32_t aes_cbc_decrypt_openssl(const std::string& input, std::string& output, c
     EVP_CIPHER_CTX_free(pCtx);
 
     return 0;
+}
+
+buffer_t aes_cbc_encrypt_to_buffer_openssl(const buffer_t& buffer, uchr_t* iv_buffer, uchr_t* ik_buffer)
+{
+    OpenSSL_add_all_algorithms();
+    ERR_load_crypto_strings();
+
+    EVP_CIPHER_CTX* pCtx = EVP_CIPHER_CTX_new();
+
+    if (!pCtx)
+    {
+        ERR_print_errors_fp(stderr);
+        return {};
+    }
+
+    if (1 != EVP_EncryptInit_ex(pCtx, EVP_aes_256_cbc(), nullptr, ik_buffer, iv_buffer))
+    {
+        ERR_print_errors_fp(stderr);
+        return {};
+    }
+
+    int len;
+
+    buffer_t ciphertext(buffer.size() + AES_BLOCK_SIZE);
+
+    if (1 != EVP_EncryptUpdate(pCtx, ciphertext.data(), &len, buffer.data(), (int)buffer.size()))
+    {
+        ERR_print_errors_fp(stderr);
+        return {};
+    }
+
+    int ciphertext_len = len;
+
+    if (1 != EVP_EncryptFinal_ex(pCtx, ciphertext.data() + len, &len)) 
+    {
+        ERR_print_errors_fp(stderr);
+        return {};
+    }
+
+    ciphertext_len += len;
+
+    ciphertext.resize(ciphertext_len);
+
+    EVP_CIPHER_CTX_free(pCtx);
+
+    EVP_cleanup();
+    ERR_free_strings();
+
+    return ciphertext;
+}
+
+buffer_t aes_cbc_decrypt_to_buffer_openssl(const buffer_t& buffer, uchr_t* iv_buffer, uchr_t* ik_buffer)
+{
+    OpenSSL_add_all_algorithms();
+    ERR_load_crypto_strings();
+
+    EVP_CIPHER_CTX* pCtx = EVP_CIPHER_CTX_new();
+
+    if (!pCtx)
+    {
+        ERR_print_errors_fp(stderr);
+        return {};
+    }
+
+    if (1 != EVP_DecryptInit_ex(pCtx, EVP_aes_256_cbc(), nullptr, ik_buffer, iv_buffer))
+    {
+        ERR_print_errors_fp(stderr);
+        return {};
+    }
+
+    int len;
+
+    buffer_t plaintext(buffer.size());
+
+    if (1 != EVP_DecryptUpdate(pCtx, plaintext.data(), &len, buffer.data(), (int)buffer.size()))
+    {
+        ERR_print_errors_fp(stderr);
+        return {};
+    }
+
+    int plaintext_len = len;
+
+    if (1 != EVP_DecryptFinal_ex(pCtx, plaintext.data() + len, &len))
+    {
+        ERR_print_errors_fp(stderr);
+        return {};
+    }
+
+    plaintext_len += len;
+
+    plaintext.resize(plaintext_len);
+
+    EVP_CIPHER_CTX_free(pCtx);
+
+    EVP_cleanup();
+    ERR_free_strings();
+
+    return plaintext;
 }
 #endif // BECC_USING_OPENSSL
 
