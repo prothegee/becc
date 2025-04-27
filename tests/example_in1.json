@@ -1,0 +1,5 @@
+{
+    "string": "some string value",
+    "number": 123456789,
+    "boolean": false
+}

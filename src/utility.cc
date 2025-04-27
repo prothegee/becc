@@ -1,4 +1,5 @@
 #include <becc/functions/utility.hh>
+#include <becc/functions/cryptography.hh>
 
 #include <algorithm>
 #include <unordered_map>
@@ -758,6 +759,133 @@ int32_t file_from_buffer(const std::string& file_path, const buffer_t& buffer_da
 }
 
 } // namespace write
+
+namespace file
+{
+
+#if BECC_USING_OPENSSL
+int32_t encrypt(const int32_t& mode, const std::string& file_input, const std::string& file_output, const std::string& iv, const std::string& ik, const size_t& chunk_size)
+{
+    bool isOk = true;
+
+    buffer_t buffer(chunk_size);
+    std::ifstream file_in(file_input, std::ios::binary);
+
+    if (!file_in)
+    {
+        std::cerr << "file::ecnrypt: can't open file_input";
+        return -1;
+    }
+
+    switch (mode)
+    {
+        case 1:
+        {
+            std::ofstream file_out(file_output, std::ios::binary);
+
+            OpenSSL_add_all_algorithms();
+            ERR_load_crypto_strings();
+
+            buffer_t iv_buffer = string::to_buffer(iv, 16);
+            buffer_t ik_buffer = string::to_buffer(ik, 16);
+
+            while (file_in)
+            {
+                file_in.read(reinterpret_cast<char*>(buffer.data()), chunk_size);
+                size_t bytes_read = file_in.gcount();
+
+                if (bytes_read > 0)
+                {
+                    buffer_t chunk = cryptography_functions::stream_cipher::aes_cbc_encrypt_to_buffer_openssl(buffer_t(buffer.begin(), buffer.begin() + bytes_read), iv_buffer.data(), ik_buffer.data());
+
+                    if (!file_out.write(reinterpret_cast<const char*>(chunk.data()), chunk.size()))
+                    {
+                        std::cerr << "file::encrypt: error encrypt at " << bytes_read << " of bytes_read\n";
+                        isOk = false;
+                    }
+                }
+            }
+
+            EVP_cleanup();
+            ERR_free_strings();
+        }
+        break;
+
+        default:
+        {
+            std::cerr << "file::encrypt: mode is not support";
+            isOk = false;
+        }
+        break;
+    }
+
+    if (!isOk) { return -69; } // mode error
+
+    return 0;
+}
+
+int32_t decrypt(const int32_t& mode, const std::string& file_input, const std::string& file_output, const std::string& iv, const std::string& ik, const size_t& chunk_size)
+{
+    bool isOk = true;
+
+    buffer_t buffer(chunk_size);
+    std::ifstream file_in(file_input, std::ios::binary);
+
+    if (!file_in)
+    {
+        std::cerr << "file::decrypt: can't open file_input";
+        return -1;
+    }
+
+    switch (mode)
+    {
+        case 1:
+        {
+            std::ofstream file_out(file_output, std::ios::binary);
+
+            OpenSSL_add_all_algorithms();
+            ERR_load_crypto_strings();
+
+            buffer_t iv_buffer = string::to_buffer(iv, 16);
+            buffer_t ik_buffer = string::to_buffer(ik, 16);
+
+            while (file_in)
+            {
+                file_in.read(reinterpret_cast<char*>(buffer.data()), chunk_size);
+                size_t bytes_read = file_in.gcount();
+
+                if (bytes_read > 0)
+                {
+                    buffer_t chunk = cryptography_functions::stream_cipher::aes_cbc_decrypt_to_buffer_openssl(buffer_t(buffer.begin(), buffer.begin() + bytes_read), iv_buffer.data(), ik_buffer.data());
+
+                    if (!file_out.write(reinterpret_cast<const char*>(chunk.data()), chunk.size()))
+                    {
+                        std::cerr << "file::decrypt: error decrypt at " << bytes_read << " of bytes_read\n";
+                        isOk = false;
+                    }
+                }
+            }
+
+            EVP_cleanup();
+            ERR_free_strings();
+        }
+        break;
+
+        default:
+        {
+            std::cerr << "file::decrypt: mode is not support";
+            isOk = false;
+        }
+        break;
+    }
+
+    if (!isOk) { return -69; } // mode error
+
+    return 0;
+}
+#endif // BECC_USING_OPENSSL
+
+} // namespace file
 
 } // namespace utility_functions
 } // namespace becc
