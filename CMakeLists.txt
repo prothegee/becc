@@ -30,10 +30,16 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${BUILD_CUSTOM_O
 
 message(NOTICE "-- ${PROJECT_NAME} using build custom output as "${CMAKE_CURRENT_SOURCE_DIR}/${BUILD_CUSTOM_OUTPUT}"")
 endif()
-# ## build using vendor sdl
-# option(BUILD_USING_VENDOR_SDL         "build using vendor SDL" OFF)
-# ## build using compute vision
-# option(BUILD_USING_COMPUTE_VISION     "build using compute vision" OFF)
+## build vendor sdl
+option(BUILD_VENDOR_SDL         "build vendor sdl" OFF)
+## build vendor stb
+option(BUILD_VENDOR_STB         "build vendor stb" OFF)
+## build vendor haru
+option(BUILD_VENDOR_HARU        "build vendor haru" OFF)
+## build vendor nanosvg
+option(BUILD_VENDOR_NANOSVG     "build vendor nanosvg" OFF)
+## build vendor zxing-cpp
+option(BUILD_VENDOR_ZXING_CPP   "build vendor zxing-cpp" OFF)
 
 ## build tests as bool
 if(BUILD_TESTS)
@@ -83,13 +89,15 @@ endif()
 include(CheckIncludeFileCXX)
 include(GenerateExportHeader)
 include(CMakeDependentOption)
+include(CMakeFindDependencyMacro)
 include(CMakePackageConfigHelpers)
 include(FindPackageHandleStandardArgs)
-include(CMakeFindDependencyMacro)
 
 # check deps
 ## openssl
+find_dependency(Drogon)
 find_dependency(OpenSSL)
+find_dependency(PostgreSQL)
 
 # files
 ## headers files
@@ -106,6 +114,7 @@ list(APPEND BEC_HEADERS_FILES ${BEC_HEADERS_FILES_CONSTANTS})
 set(BEC_HEADERS_FILES_FUNCTIONS
     src/inc/becc/functions/cryptography.hh
     src/inc/becc/functions/date_and_time.hh
+    src/inc/becc/functions/generate.hh
     src/inc/becc/functions/system.hh
     src/inc/becc/functions/utility.hh
 )
@@ -126,6 +135,7 @@ list(APPEND
         # functions
         src/cryptography.cc
         src/date_and_time.cc
+        src/generate.cc
         src/system.cc
         src/utility.cc
         # interfaces
@@ -280,6 +290,142 @@ if(BECC_ARGON2_INCLUDE_DIRS)
     set(BECC_USING_ARGON2 true)
     message(NOTICE "-- ${PROJECT_NAME}: argon2 header found")
 endif()
+## drogon
+set(Drogon_FOUND)
+set(BECC_USING_DROGON false)
+
+find_package(Drogon CONFIG)
+if(Drogon_FOUND)
+    set(BECC_USING_DROGON true)
+    message(NOTICE "-- ${PROJECT_NAME}: drogon package found")
+endif()
+## postgresql
+set(PostgreSQL_FOUND)
+set(BECC_USING_POSTGRESQL false)
+
+find_package(PostgreSQL)
+if(PostgreSQL_FOUND)
+    set(BECC_USING_POSTGRESQL true)
+    message(NOTICE "-- ${PROJECT_NAME}: postgresql package found")
+endif()
+## scylladb / linux only
+set(BECC_USING_SCYLLADB false)
+
+if(LINUX)
+    find_file(BECC_SCYLLA_EXECUTEABLE "scylla")
+    find_file(BECC_CASSANDRA_HEADER "cassandra.h")
+
+    if(BECC_SCYLLA_EXECUTEABLE AND BECC_CASSANDRA_HEADER)
+        set(BECC_USING_SCYLLADB true)
+        message(NOTICE "-- ${PROJECT_NAME}: scylladb dependencies seems found")
+    endif()
+endif()
+## sdl
+set(BECC_USING_SDL false)
+if(BUILD_VENDOR_SDL)
+    set(BECC_VENDOR_SDL_DIR "${PROJECT_SOURCE_DIR}/vendors/sdl")
+
+    include_directories(${BECC_VENDOR_SDL_DIR}/include)
+
+    link_directories(AFTER "${CMAKE_BINARY_DIR}/BECC_SDL")
+
+    set(SDL_STATIC true)
+    set(SDL_TEST_LIBRARY false)
+
+    add_subdirectory(${BECC_VENDOR_SDL_DIR} BECC_SDL)
+
+    set(BECC_USING_SDL true)
+    message(NOTICE "-- ${PROJECT_NAME}: sdl build using vendor")
+endif()
+## stb
+set(BECC_USING_STB false)
+if(BUILD_VENDOR_STB)
+    if(NOT DEFINED ${Stb_INCLUDE_DIR})
+        set(Stb_INCLUDE_DIR "")
+    endif()
+
+    set(BECC_VENDOR_STB_DIR "${PROJECT_SOURCE_DIR}/vendors/stb")
+
+    if(NOT ${BECC_VENDOR_STB_DIR} STREQUAL "")
+        set(BECC_USING_STB true)
+        set(Stb_INCLUDE_DIR ${BECC_VENDOR_STB_DIR})
+        include_directories(${Stb_INCLUDE_DIR})
+    endif()
+
+    set(BECC_USING_STB true)
+    message(NOTICE "-- ${PROJECT_NAME}: stb build using vendor")
+endif()
+## haru
+set(BECC_USING_HARU false)
+if(BUILD_VENDOR_HARU)
+    set(BECC_VENDOR_LIBHARU_DIR "${PROJECT_SOURCE_DIR}/vendors/libharu")
+
+    set(BECC_VENDOR_LIBHARU_DIR_SOURCE_OUT ${CMAKE_BINARY_DIR}/BECC_LIBHARU/src)
+    set(BECC_VENDOR_LIBHARU_DIR_INCLUDE_OUT ${CMAKE_BINARY_DIR}/BECC_LIBHARU/include)
+
+    set(LIBHPDF_SHARED false)
+    set(LIBHPDF_STATIC true)
+    set(LIBHPDF_EXAMPLES false)
+
+    include_directories(${BECC_VENDOR_LIBHARU_DIR}/include)
+
+    include_directories(${BECC_VENDOR_LIBHARU_DIR_SOURCE_OUT})
+    include_directories(${BECC_VENDOR_LIBHARU_DIR_INCLUDE_OUT})
+
+    link_directories(AFTER "${BECC_VENDOR_LIBHARU_DIR_SOURCE_OUT}")
+
+    add_subdirectory(${BECC_VENDOR_LIBHARU_DIR} BECC_LIBHARU)
+
+    set(BECC_USING_HARU true)
+    message(NOTICE "-- ${PROJECT_NAME}: haru build using vendor")
+endif()
+## nanosvg
+set(BECC_USING_NANOSVG false)
+if(NOT BUILD_SKIPPED_VENDOR_NANOSVG)
+    set(BECC_VENDOR_NANOSVG_DIR "${PROJECT_SOURCE_DIR}/vendors/nanosvg")
+
+    if(NOT EXISTS "${CMAKE_BINARY_DIR}/BECC_NANOSVG/nanosvg")
+        file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/BECC_NANOSVG/nanosvg")
+    endif()
+
+    set(BECC_VENDOR_NANOSVG_DIR_NANOSVG)
+
+    file(COPY "${BECC_VENDOR_NANOSVG_DIR}/src/" DESTINATION "${CMAKE_BINARY_DIR}/BECC_NANOSVG/nanosvg")
+
+    set(BECC_VENDOR_NANOSVG_DIR_NANOSVG "${CMAKE_BINARY_DIR}/BECC_NANOSVG")
+
+    include_directories(${BECC_VENDOR_NANOSVG_DIR_NANOSVG})
+
+    add_subdirectory(${BECC_VENDOR_NANOSVG_DIR} BECC_NANOSVG)
+    set(BECC_USING_NANOSVG true)
+    message(NOTICE "-- ${PROJECT_NAME}: nanosvg build using vendor")
+endif()
+## zxing-cpp
+set(BECC_USING_ZXING_CPP false)
+if(BUILD_VENDOR_ZXING_CPP)
+    set(BECC_VENDOR_ZXING_CPP_DIR "${PROJECT_SOURCE_DIR}/vendors/zxing-cpp")
+
+    set(ZXING_EXPERIMENTAL_API true)
+    set(ZXING_EXAMPLES false)
+    set(ZXING_BLACKBOX_TESTS false)
+    set(ZXING_UNIT_TESTS false)
+
+    if(NOT EXISTS "${CMAKE_BINARY_DIR}/BECC_ZXING_CPP/ZXing")
+        file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/BECC_ZXING_CPP/ZXing")
+    endif()
+
+    set(BECC_VENDOR_ZXING_CPP_DIR_ZXING)
+
+    file(COPY "${BECC_VENDOR_ZXING_CPP_DIR}/core/src/" DESTINATION "${CMAKE_BINARY_DIR}/BECC_ZXING_CPP/ZXing")
+
+    set(BECC_VENDOR_ZXING_CPP_DIR_ZXING_DIR "${CMAKE_BINARY_DIR}/BECC_ZXING_CPP")
+
+    include_directories(${BECC_VENDOR_ZXING_CPP_DIR_ZXING_DIR})
+
+    add_subdirectory(${BECC_VENDOR_ZXING_CPP_DIR} BECC_ZXING_CPP)
+    set(BECC_USING_ZXING_CPP true)
+    message(NOTICE "-- ${PROJECT_NAME}: zxing-cpp build using vendor")
+endif()
 
 # project lib
 add_library(${PROJECT_NAME} ${BEC_SOURCES_FILES})
@@ -300,6 +446,39 @@ endif()
 ## argon2
 if(BECC_USING_ARGON2)
     target_link_libraries(${PROJECT_NAME} PRIVATE argon2)
+endif()
+# postgresql
+if(BECC_USING_POSTGRESQL)
+    if(PostgreSQL_FOUND)
+        target_link_libraries(${PROJECT_NAME} PRIVATE PostgreSQL::PostgreSQL)
+    endif()
+endif()
+## scylladb
+if(BECC_USING_SCYLLADB)
+    target_link_libraries(${PROJECT_NAME} PRIVATE scylla-cpp-driver)
+endif()
+## sdl
+if(BECC_USING_SDL)
+    target_link_libraries(${PROJECT_NAME} PRIVATE SDL3-static SDL_uclibc SDL3_Headers)
+endif()
+## stb
+if(BECC_USING_STB)
+    target_include_directories(${PROJECT_NAME} PRIVATE ${Stb_INCLUDE_DIR})
+endif()
+## haru
+if(BECC_USING_HARU)
+    target_link_libraries(${PROJECT_NAME} PRIVATE hpdf)
+
+    target_include_directories(${PROJECT_NAME} PRIVATE ${BECC_VENDOR_LIBHARU_DIR_INCLUDE})
+    target_include_directories(${PROJECT_NAME} PRIVATE ${BECC_VENDOR_LIBHARU_DIR_INCLUDE_OUT})
+endif()
+## zxing-cpp
+if(BECC_USING_ZXING_CPP)
+    target_link_libraries(${PROJECT_NAME} PRIVATE ZXing::Core ZXing::ZXing)
+endif()
+## nanosvg
+if(BECC_USING_NANOSVG)
+    target_link_libraries(${PROJECT_NAME} PRIVATE nanosvg nanosvgrast)
 endif()
 
 # compiler options
