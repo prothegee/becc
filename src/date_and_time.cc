@@ -20,7 +20,7 @@ int32_t local_timezone()
     localtime_r(&now, &local_time);
     #else
     gmtime_s(&utc_time, &now);
-    localtime_s(&llocal_time, &now);
+    localtime_s(&local_time, &now);
     #endif
 
     std::time_t utc_time_t = std::mktime(&utc_time);
@@ -28,8 +28,6 @@ int32_t local_timezone()
 
     int32_t offset = static_cast<int32_t>(local_time_t - utc_time_t);
     return offset / 3600;
-
-    return 0;
 }
 
 namespace utc
@@ -46,7 +44,7 @@ std::string to_string(const int32_t& time_offset, const bool& ISO8601)
 
     int32_t timezone_offset = time_offset;
 
-    if (timezone_offset <= -11) { timezone_offset = -11; }
+    if (timezone_offset <= -12) { timezone_offset = -12; }
     if (timezone_offset >= 14) { timezone_offset = 14; }
 
     if (timezone_offset <= -1) { negative_or_positive = ""; }
@@ -73,13 +71,20 @@ std::string to_string(const int32_t& time_offset, const bool& ISO8601)
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::time_t now_time_utc = now_time + adjustTimeOffset;
 
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&now_time_utc, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &now_time_utc);
+    #endif
+
     if (ISO8601)
     {
-        ss << std::put_time(std::gmtime(&now_time_utc), "%Y-%m-%dT%H:%M:%S");
+        ss << std::put_time(&tm_buf, "%Y-%m-%dT%H:%M:%S");
     }
     else
     {
-        ss << std::put_time(std::gmtime(&now_time_utc), "%Y-%m-%d %H:%M:%S");
+        ss << std::put_time(&tm_buf, "%Y-%m-%d %H:%M:%S");
     }
 
     result = ss.str();
@@ -110,7 +115,7 @@ int32_t to_int(const int32_t& time_offset)
     std::stringstream ss;
     int32_t timezone_offset = time_offset;
 
-    if (timezone_offset <= -11) { timezone_offset = -11; }
+    if (timezone_offset <= -12) { timezone_offset = -12; }
     if (timezone_offset >= 14) { timezone_offset = 14; }
 
     auto adjust_time_offset = timezone_offset * 3600;
@@ -119,7 +124,14 @@ int32_t to_int(const int32_t& time_offset)
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::time_t now_time_utc = now_time + adjust_time_offset;
 
-    ss << std::put_time(std::gmtime(&now_time_utc), "%Y");
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&now_time_utc, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &now_time_utc);
+    #endif
+
+    ss << std::put_time(&tm_buf, "%Y");
 
     result = ss.str();
 
@@ -132,7 +144,7 @@ std::string to_string(const int32_t& time_offset)
     std::stringstream ss;
     int32_t timezone_offset = time_offset;
 
-    if (timezone_offset <= -11) { timezone_offset = -11; }
+    if (timezone_offset <= -12) { timezone_offset = -12; }
     if (timezone_offset >= 14) { timezone_offset = 14; }
 
     auto adjust_time_offset = timezone_offset * 3600;
@@ -141,7 +153,14 @@ std::string to_string(const int32_t& time_offset)
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::time_t now_time_utc = now_time + adjust_time_offset;
 
-    ss << std::put_time(std::gmtime(&now_time_utc), "%Y");
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&now_time_utc, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &now_time_utc);
+    #endif
+
+    ss << std::put_time(&tm_buf, "%Y");
 
     result = ss.str();
 
@@ -159,7 +178,7 @@ int32_t to_int(const int32_t& time_offset)
     std::stringstream ss;
     int32_t timezone_offset = time_offset;
 
-    if (timezone_offset <= -11) { timezone_offset = -11; }
+    if (timezone_offset <= -12) { timezone_offset = -12; }
     if (timezone_offset >= 14) { timezone_offset = 14; }
 
     auto adjust_time_offset = timezone_offset * 3600;
@@ -168,7 +187,14 @@ int32_t to_int(const int32_t& time_offset)
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::time_t now_time_utc = now_time + adjust_time_offset;
 
-    ss << std::put_time(std::gmtime(&now_time_utc), "%m");
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&now_time_utc, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &now_time_utc);
+    #endif
+
+    ss << std::put_time(&tm_buf, "%m");
 
     result = ss.str();
 
@@ -186,7 +212,7 @@ std::string to_string(const int32_t& time_offset)
     std::stringstream ss;
     int32_t timezone_offset = time_offset;
 
-    if (timezone_offset <= -11) { timezone_offset = -11; }
+    if (timezone_offset <= -12) { timezone_offset = -12; }
     if (timezone_offset >= 14) { timezone_offset = 14; }
 
     auto adjust_time_offset = timezone_offset * 3600;
@@ -195,7 +221,14 @@ std::string to_string(const int32_t& time_offset)
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::time_t now_time_utc = now_time + adjust_time_offset;
 
-    ss << std::put_time(std::gmtime(&now_time_utc), "%m");
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&now_time_utc, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &now_time_utc);
+    #endif
+
+    ss << std::put_time(&tm_buf, "%m");
 
     result = ss.str();
 
@@ -214,7 +247,7 @@ std::string to_string_human(const int32_t& language, const int32_t& time_offset)
     std::stringstream ss;
     int32_t timezone_offset = time_offset;
 
-    if (timezone_offset <= -11) { timezone_offset = -11; }
+    if (timezone_offset <= -12) { timezone_offset = -12; }
     if (timezone_offset >= 14) { timezone_offset = 14; }
 
     auto adjust_time_offset = timezone_offset * 3600;
@@ -223,7 +256,14 @@ std::string to_string_human(const int32_t& language, const int32_t& time_offset)
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::time_t now_time_utc = now_time + adjust_time_offset;
 
-    ss << std::put_time(std::gmtime(&now_time_utc), "%m");
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&now_time_utc, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &now_time_utc);
+    #endif
+
+    ss << std::put_time(&tm_buf, "%m");
 
     tmp_str1 = ss.str();
 
@@ -236,7 +276,6 @@ std::string to_string_human(const int32_t& language, const int32_t& time_offset)
     
     result = "";
 
-    // important: check multiple languages
     switch (language)
     {
         case 1:
@@ -305,7 +344,7 @@ int32_t to_int(const int32_t& time_offset)
     std::stringstream ss;
     int32_t timezone_offset = time_offset;
 
-    if (timezone_offset <= -11) { timezone_offset = -11; }
+    if (timezone_offset <= -12) { timezone_offset = -12; }
     if (timezone_offset >= 14) { timezone_offset = 14; }
 
     auto adjust_time_offset = timezone_offset * 3600;
@@ -314,7 +353,14 @@ int32_t to_int(const int32_t& time_offset)
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::time_t now_time_utc = now_time + adjust_time_offset;
 
-    ss << std::put_time(std::gmtime(&now_time_utc), "%d");
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&now_time_utc, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &now_time_utc);
+    #endif
+
+    ss << std::put_time(&tm_buf, "%d");
 
     result = ss.str();
 
@@ -332,7 +378,7 @@ std::string to_string(const int32_t& time_offset)
     std::stringstream ss;
     int32_t timezone_offset = time_offset;
 
-    if (timezone_offset <= -11) { timezone_offset = -11; }
+    if (timezone_offset <= -12) { timezone_offset = -12; }
     if (timezone_offset >= 14) { timezone_offset = 14; }
 
     auto adjust_time_offset = timezone_offset * 3600;
@@ -341,7 +387,14 @@ std::string to_string(const int32_t& time_offset)
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::time_t now_time_utc = now_time + adjust_time_offset;
 
-    ss << std::put_time(std::gmtime(&now_time_utc), "%d");
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&now_time_utc, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &now_time_utc);
+    #endif
+
+    ss << std::put_time(&tm_buf, "%d");
 
     result = ss.str();
 
@@ -364,7 +417,7 @@ int32_t to_int(const int32_t& time_offset)
     std::stringstream ss;
     int32_t timezone_offset = time_offset;
 
-    if (timezone_offset <= -11) { timezone_offset = -11; }
+    if (timezone_offset <= -12) { timezone_offset = -12; }
     if (timezone_offset >= 14) { timezone_offset = 14; }
 
     auto adjust_time_offset = timezone_offset * 3600;
@@ -373,7 +426,14 @@ int32_t to_int(const int32_t& time_offset)
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::time_t now_time_utc = now_time + adjust_time_offset;
 
-    ss << std::put_time(std::gmtime(&now_time_utc), "%H");
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&now_time_utc, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &now_time_utc);
+    #endif
+
+    ss << std::put_time(&tm_buf, "%H");
 
     result = ss.str();
 
@@ -391,7 +451,7 @@ std::string to_string(const int32_t& time_offset)
     std::stringstream ss;
     int32_t timezone_offset = time_offset;
 
-    if (timezone_offset <= -11) { timezone_offset = -11; }
+    if (timezone_offset <= -12) { timezone_offset = -12; }
     if (timezone_offset >= 14) { timezone_offset = 14; }
 
     auto adjust_time_offset = timezone_offset * 3600;
@@ -400,7 +460,14 @@ std::string to_string(const int32_t& time_offset)
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::time_t now_time_utc = now_time + adjust_time_offset;
 
-    ss << std::put_time(std::gmtime(&now_time_utc), "%H");
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&now_time_utc, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &now_time_utc);
+    #endif
+
+    ss << std::put_time(&tm_buf, "%H");
 
     result = ss.str();
 
@@ -423,7 +490,7 @@ int32_t to_int(const int32_t& time_offset)
     std::stringstream ss;
     int32_t timezone_offset = time_offset;
 
-    if (timezone_offset <= -11) { timezone_offset = -11; }
+    if (timezone_offset <= -12) { timezone_offset = -12; }
     if (timezone_offset >= 14) { timezone_offset = 14; }
 
     auto adjust_time_offset = timezone_offset * 3600;
@@ -432,7 +499,14 @@ int32_t to_int(const int32_t& time_offset)
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::time_t now_time_utc = now_time + adjust_time_offset;
 
-    ss << std::put_time(std::gmtime(&now_time_utc), "%M");
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&now_time_utc, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &now_time_utc);
+    #endif
+
+    ss << std::put_time(&tm_buf, "%M");
 
     result = ss.str();
 
@@ -450,7 +524,7 @@ std::string to_string(const int32_t& time_offset)
     std::stringstream ss;
     int32_t timezone_offset = time_offset;
 
-    if (timezone_offset <= -11) { timezone_offset = -11; }
+    if (timezone_offset <= -12) { timezone_offset = -12; }
     if (timezone_offset >= 14) { timezone_offset = 14; }
 
     auto adjust_time_offset = timezone_offset * 3600;
@@ -459,7 +533,14 @@ std::string to_string(const int32_t& time_offset)
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::time_t now_time_utc = now_time + adjust_time_offset;
 
-    ss << std::put_time(std::gmtime(&now_time_utc), "%M");
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&now_time_utc, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &now_time_utc);
+    #endif
+
+    ss << std::put_time(&tm_buf, "%M");
 
     result = ss.str();
 
@@ -482,7 +563,7 @@ int32_t to_int(const int32_t& time_offset)
     std::stringstream ss;
     int32_t timezone_offset = time_offset;
 
-    if (timezone_offset <= -11) { timezone_offset = -11; }
+    if (timezone_offset <= -12) { timezone_offset = -12; }
     if (timezone_offset >= 14) { timezone_offset = 14; }
 
     auto adjust_time_offset = timezone_offset * 3600;
@@ -491,7 +572,14 @@ int32_t to_int(const int32_t& time_offset)
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::time_t now_time_utc = now_time + adjust_time_offset;
 
-    ss << std::put_time(std::gmtime(&now_time_utc), "%S");
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&now_time_utc, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &now_time_utc);
+    #endif
+
+    ss << std::put_time(&tm_buf, "%S");
 
     result = ss.str();
 
@@ -509,7 +597,7 @@ std::string to_string(const int32_t& time_offset)
     std::stringstream ss;
     int32_t timezone_offset = time_offset;
 
-    if (timezone_offset <= -11) { timezone_offset = -11; }
+    if (timezone_offset <= -12) { timezone_offset = -12; }
     if (timezone_offset >= 14) { timezone_offset = 14; }
 
     auto adjust_time_offset = timezone_offset * 3600;
@@ -518,7 +606,14 @@ std::string to_string(const int32_t& time_offset)
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::time_t now_time_utc = now_time + adjust_time_offset;
 
-    ss << std::put_time(std::gmtime(&now_time_utc), "%S");
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&now_time_utc, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &now_time_utc);
+    #endif
+
+    ss << std::put_time(&tm_buf, "%S");
 
     result = ss.str();
 
@@ -541,7 +636,7 @@ int32_t to_int(const int32_t& time_offset)
     std::stringstream ss;
     int32_t timezone_offset = time_offset;
 
-    if (timezone_offset <= -11) { timezone_offset = -11; }
+    if (timezone_offset <= -12) { timezone_offset = -12; }
     if (timezone_offset >= 14) { timezone_offset = 14; }
 
     auto adjust_time_offset = timezone_offset * 3600;
@@ -550,7 +645,14 @@ int32_t to_int(const int32_t& time_offset)
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::time_t now_time_utc = now_time + adjust_time_offset;
 
-    ss << std::put_time(std::gmtime(&now_time_utc), "%Y%m%d");
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&now_time_utc, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &now_time_utc);
+    #endif
+
+    ss << std::put_time(&tm_buf, "%Y%m%d");
 
     result = ss.str();
 
@@ -563,7 +665,7 @@ std::string to_string(const int32_t& time_offset)
     std::stringstream ss;
     int32_t timezone_offset = time_offset;
 
-    if (timezone_offset <= -11) { timezone_offset = -11; }
+    if (timezone_offset <= -12) { timezone_offset = -12; }
     if (timezone_offset >= 14) { timezone_offset = 14; }
 
     auto adjust_time_offset = timezone_offset * 3600;
@@ -572,7 +674,14 @@ std::string to_string(const int32_t& time_offset)
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::time_t now_time_utc = now_time + adjust_time_offset;
 
-    ss << std::put_time(std::gmtime(&now_time_utc), "%Y%m%d");
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&now_time_utc, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &now_time_utc);
+    #endif
+
+    ss << std::put_time(&tm_buf, "%Y%m%d");
 
     result = ss.str();
 
@@ -585,7 +694,7 @@ std::string to_string_iso8601(const int32_t& time_offset)
     std::stringstream ss;
     int32_t timezone_offset = time_offset;
 
-    if (timezone_offset <= -11) { timezone_offset = -11; }
+    if (timezone_offset <= -12) { timezone_offset = -12; }
     if (timezone_offset >= 14) { timezone_offset = 14; }
 
     auto adjust_time_offset = timezone_offset * 3600;
@@ -594,7 +703,14 @@ std::string to_string_iso8601(const int32_t& time_offset)
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::time_t now_time_utc = now_time + adjust_time_offset;
 
-    ss << std::put_time(std::gmtime(&now_time_utc), "%Y-%m-%d");
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&now_time_utc, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &now_time_utc);
+    #endif
+
+    ss << std::put_time(&tm_buf, "%Y-%m-%d");
 
     result = ss.str();
 
@@ -612,7 +728,7 @@ int32_t to_int(const int32_t& time_offset)
     std::stringstream ss;
     int32_t timezone_offset = time_offset;
 
-    if (timezone_offset <= -11) { timezone_offset = -11; }
+    if (timezone_offset <= -12) { timezone_offset = -12; }
     if (timezone_offset >= 14) { timezone_offset = 14; }
 
     auto adjust_time_offset = timezone_offset * 3600;
@@ -621,7 +737,14 @@ int32_t to_int(const int32_t& time_offset)
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::time_t now_time_utc = now_time + adjust_time_offset;
 
-    ss << std::put_time(std::gmtime(&now_time_utc), "%H%M%S");
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&now_time_utc, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &now_time_utc);
+    #endif
+
+    ss << std::put_time(&tm_buf, "%H%M%S");
 
     result = ss.str();
 
@@ -634,7 +757,7 @@ std::string to_string(const int32_t& time_offset)
     std::stringstream ss;
     int32_t timezone_offset = time_offset;
 
-    if (timezone_offset <= -11) { timezone_offset = -11; }
+    if (timezone_offset <= -12) { timezone_offset = -12; }
     if (timezone_offset >= 14) { timezone_offset = 14; }
 
     auto adjust_time_offset = timezone_offset * 3600;
@@ -643,7 +766,14 @@ std::string to_string(const int32_t& time_offset)
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::time_t now_time_utc = now_time + adjust_time_offset;
 
-    ss << std::put_time(std::gmtime(&now_time_utc), "%H%M%S");
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&now_time_utc, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &now_time_utc);
+    #endif
+
+    ss << std::put_time(&tm_buf, "%H%M%S");
 
     result = ss.str();
 
@@ -656,7 +786,7 @@ std::string to_string_human(const int32_t& time_offset)
     std::stringstream ss;
     int32_t timezone_offset = time_offset;
 
-    if (timezone_offset <= -11) { timezone_offset = -11; }
+    if (timezone_offset <= -12) { timezone_offset = -12; }
     if (timezone_offset >= 14) { timezone_offset = 14; }
 
     auto adjust_time_offset = timezone_offset * 3600;
@@ -665,7 +795,14 @@ std::string to_string_human(const int32_t& time_offset)
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::time_t now_time_utc = now_time + adjust_time_offset;
 
-    ss << std::put_time(std::gmtime(&now_time_utc), "%H:%M:%S");
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&now_time_utc, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &now_time_utc);
+    #endif
+
+    ss << std::put_time(&tm_buf, "%H:%M:%S");
 
     result = ss.str();
 
@@ -683,7 +820,7 @@ int64_t to_int64(const int32_t& time_offset)
     std::stringstream ss;
     int32_t timezone_offset = time_offset;
 
-    if (timezone_offset <= -11) { timezone_offset = -11; }
+    if (timezone_offset <= -12) { timezone_offset = -12; }
     if (timezone_offset >= 14) { timezone_offset = 14; }
 
     auto adjust_time_offset = timezone_offset * 3600;
@@ -692,7 +829,14 @@ int64_t to_int64(const int32_t& time_offset)
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::time_t now_time_utc = now_time + adjust_time_offset;
 
-    ss << std::put_time(std::gmtime(&now_time_utc), "%Y%m%d%H%M%S");
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&now_time_utc, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &now_time_utc);
+    #endif
+
+    ss << std::put_time(&tm_buf, "%Y%m%d%H%M%S");
 
     result = ss.str();
 
@@ -735,7 +879,7 @@ int64_t to_millis_now(const int32_t& time_offset)
     std::stringstream ss;
     int32_t timezone_offset = time_offset;
 
-    if (timezone_offset <= -11) { timezone_offset = -11; }
+    if (timezone_offset <= -12) { timezone_offset = -12; }
     if (timezone_offset >= 14) { timezone_offset = 14; }
 
     auto adjust_time_offset = timezone_offset * 3600;
@@ -744,7 +888,14 @@ int64_t to_millis_now(const int32_t& time_offset)
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::time_t now_time_utc = now_time + adjust_time_offset;
 
-    ss << std::put_time(std::gmtime(&now_time_utc), "%Y-%m-%dT%H:%M:%S");
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&now_time_utc, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &now_time_utc);
+    #endif
+
+    ss << std::put_time(&tm_buf, "%Y-%m-%dT%H:%M:%S");
 
     tmpStr = ss.str();
 
@@ -766,7 +917,7 @@ std::string to_string(const int32_t& time_offset)
     std::stringstream ss;
     int32_t timezone_offset = time_offset;
 
-    if (timezone_offset <= -11) { timezone_offset = -11; }
+    if (timezone_offset <= -12) { timezone_offset = -12; }
     if (timezone_offset >= 14) { timezone_offset = 14; }
 
     auto adjust_time_offset = timezone_offset * 3600;
@@ -775,7 +926,14 @@ std::string to_string(const int32_t& time_offset)
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::time_t now_time_utc = now_time + adjust_time_offset;
 
-    ss << std::put_time(std::gmtime(&now_time_utc), "%Y%m%d%H%M%S");
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&now_time_utc, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &now_time_utc);
+    #endif
+
+    ss << std::put_time(&tm_buf, "%Y%m%d%H%M%S");
 
     result = ss.str();
 
@@ -788,7 +946,7 @@ std::string to_string_human(const int32_t& time_offset, const bool& use_time_sig
     std::stringstream ss;
     int32_t timezone_offset = time_offset;
 
-    if (timezone_offset <= -11) { timezone_offset = -11; }
+    if (timezone_offset <= -12) { timezone_offset = -12; }
     if (timezone_offset >= 14) { timezone_offset = 14; }
 
     auto adjust_time_offset = timezone_offset * 3600;
@@ -797,13 +955,20 @@ std::string to_string_human(const int32_t& time_offset, const bool& use_time_sig
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::time_t now_time_utc = now_time + adjust_time_offset;
 
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&now_time_utc, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &now_time_utc);
+    #endif
+
     if (use_time_sign)
     {
-        ss << std::put_time(std::gmtime(&now_time_utc), "%Y-%m-%dT%H:%M:%S");
+        ss << std::put_time(&tm_buf, "%Y-%m-%dT%H:%M:%S");
     }
     else
     {
-        ss << std::put_time(std::gmtime(&now_time_utc), "%Y-%m-%d %H:%M:%S");
+        ss << std::put_time(&tm_buf, "%Y-%m-%d %H:%M:%S");
     }
 
     result = ss.str();
@@ -824,9 +989,14 @@ std::string to_string_seconds_offset(const int32_t& seconds_offset)
 
     std::time_t future_time_t = std::chrono::system_clock::to_time_t(future_time);
 
-    std::tm future_tm = *std::gmtime(&future_time_t);
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&future_time_t, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &future_time_t);
+    #endif
 
-    ss << std::put_time(&future_tm, "%Y%m%d%H%M%S");
+    ss << std::put_time(&tm_buf, "%Y%m%d%H%M%S");
 
     result = ss.str();
 
@@ -843,7 +1013,7 @@ int64_t to_int64(const int32_t& time_offset)
     std::stringstream ss;
     int32_t timezone_offset = time_offset;
 
-    if (timezone_offset <= -11) { timezone_offset = -11; }
+    if (timezone_offset <= -12) { timezone_offset = -12; }
     if (timezone_offset >= 14) { timezone_offset = 14; }
 
     auto adjust_time_offset = timezone_offset * 3600;
@@ -852,10 +1022,17 @@ int64_t to_int64(const int32_t& time_offset)
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::time_t now_time_utc = now_time + adjust_time_offset;
 
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&now_time_utc, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &now_time_utc);
+    #endif
+
     auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
     auto milliseconds = now_ms.time_since_epoch() % std::chrono::seconds(1);
 
-    ss << std::put_time(std::gmtime(&now_time_utc), "%Y%m%d%H%M%S") << std::setw(3) << std::setfill('0') << milliseconds.count();
+    ss << std::put_time(&tm_buf, "%Y%m%d%H%M%S") << std::setw(3) << std::setfill('0') << milliseconds.count();
 
     return std::stoll(ss.str());
 }
@@ -896,7 +1073,7 @@ int64_t to_millis_now(const int32_t& time_offset)
     std::stringstream ss;
     int32_t timezone_offset = time_offset;
 
-    if (timezone_offset <= -11) { timezone_offset = -11; }
+    if (timezone_offset <= -12) { timezone_offset = -12; }
     if (timezone_offset >= 14) { timezone_offset = 14; }
 
     auto adjust_time_offset = timezone_offset * 3600;
@@ -905,10 +1082,17 @@ int64_t to_millis_now(const int32_t& time_offset)
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::time_t now_time_utc = now_time + adjust_time_offset;
 
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&now_time_utc, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &now_time_utc);
+    #endif
+
     auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
     auto milliseconds = now_ms.time_since_epoch() % std::chrono::seconds(1);
 
-    ss << std::put_time(std::gmtime(&now_time_utc), "%Y%m%dT%H%M%S") << '.' << std::setw(3) << std::setfill('0') << milliseconds.count();
+    ss << std::put_time(&tm_buf, "%Y%m%dT%H%M%S") << '.' << std::setw(3) << std::setfill('0') << milliseconds.count();
 
     tmpStr = ss.str();
 
@@ -938,7 +1122,7 @@ std::string to_string(const int32_t& time_offset)
     std::stringstream ss;
     int32_t timezone_offset = time_offset;
 
-    if (timezone_offset <= -11) { timezone_offset = -11; }
+    if (timezone_offset <= -12) { timezone_offset = -12; }
     if (timezone_offset >= 14) { timezone_offset = 14; }
 
     auto adjust_time_offset = timezone_offset * 3600;
@@ -947,10 +1131,17 @@ std::string to_string(const int32_t& time_offset)
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::time_t now_time_utc = now_time + adjust_time_offset;
 
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&now_time_utc, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &now_time_utc);
+    #endif
+
     auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
     auto milliseconds = now_ms.time_since_epoch() % std::chrono::seconds(1);
 
-    ss << std::put_time(std::gmtime(&now_time_utc), "%Y%m%d%H%M%S") << std::setw(3) << std::setfill('0') << milliseconds.count();
+    ss << std::put_time(&tm_buf, "%Y%m%d%H%M%S") << std::setw(3) << std::setfill('0') << milliseconds.count();
 
     result = ss.str();
 
@@ -963,7 +1154,7 @@ std::string to_string_human(const int32_t& time_offset, const bool& use_time_sig
     std::stringstream ss;
     int32_t timezone_offset = time_offset;
 
-    if (timezone_offset <= -11) { timezone_offset = -11; }
+    if (timezone_offset <= -12) { timezone_offset = -12; }
     if (timezone_offset >= 14) { timezone_offset = 14; }
 
     auto adjust_time_offset = timezone_offset * 3600;
@@ -972,16 +1163,23 @@ std::string to_string_human(const int32_t& time_offset, const bool& use_time_sig
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::time_t now_time_utc = now_time + adjust_time_offset;
 
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&now_time_utc, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &now_time_utc);
+    #endif
+
     auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
     auto milliseconds = now_ms.time_since_epoch() % std::chrono::seconds(1);
 
     if (use_time_sign)
     {
-        ss << std::put_time(std::gmtime(&now_time_utc), "%Y-%m-%dT%H:%M:%S") << '.' << std::setw(3) << std::setfill('0') << milliseconds.count();
+        ss << std::put_time(&tm_buf, "%Y-%m-%dT%H:%M:%S") << '.' << std::setw(3) << std::setfill('0') << milliseconds.count();
     }
     else
     {
-        ss << std::put_time(std::gmtime(&now_time_utc), "%Y-%m-%d %H%:M:%S") << '.' << std::setw(3) << std::setfill('0') << milliseconds.count();
+        ss << std::put_time(&tm_buf, "%Y-%m-%d %H:%M:%S") << '.' << std::setw(3) << std::setfill('0') << milliseconds.count();
     }
 
     result = ss.str();
@@ -1002,12 +1200,17 @@ std::string to_string_second_offset(const int32_t& seconds_offset)
 
     std::time_t future_time_t = std::chrono::system_clock::to_time_t(future_time);
 
-    std::tm future_tm = *std::gmtime(&future_time_t);
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&future_time_t, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &future_time_t);
+    #endif
 
     auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
     auto milliseconds = now_ms.time_since_epoch() % std::chrono::seconds(1);
 
-    ss << std::put_time(&future_tm, "%Y%m%d%H%M%S") << std::setw(3) << std::setfill('0') << milliseconds.count();
+    ss << std::put_time(&tm_buf, "%Y%m%d%H%M%S") << std::setw(3) << std::setfill('0') << milliseconds.count();
 
     result = ss.str();
 
@@ -1024,7 +1227,7 @@ int64_t to_int64(const int32_t& time_offset)
     std::stringstream ss;
     int32_t timezone_offset = time_offset;
 
-    if (timezone_offset <= -11) { timezone_offset = -11; }
+    if (timezone_offset <= -12) { timezone_offset = -12; }
     if (timezone_offset >= 14) { timezone_offset = 14; }
 
     auto adjust_time_offset = timezone_offset * 3600;
@@ -1033,10 +1236,17 @@ int64_t to_int64(const int32_t& time_offset)
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::time_t now_time_utc = now_time + adjust_time_offset;
 
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&now_time_utc, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &now_time_utc);
+    #endif
+
     auto now_mcs = std::chrono::time_point_cast<std::chrono::microseconds>(now);
     auto microseconds = now_mcs.time_since_epoch() % std::chrono::seconds(1);
 
-    ss << std::put_time(std::gmtime(&now_time_utc), "%Y%m%d%H%M%S") << std::setw(5) << std::setfill('0') << microseconds.count();
+    ss << std::put_time(&tm_buf, "%Y%m%d%H%M%S") << std::setw(6) << std::setfill('0') << microseconds.count();
 
     return std::stoll(ss.str());
 }
@@ -1077,7 +1287,7 @@ int64_t to_millis_now(const int32_t& time_offset)
     std::stringstream ss;
     int32_t timezone_offset = time_offset;
 
-    if (timezone_offset <= -11) { timezone_offset = -11; }
+    if (timezone_offset <= -12) { timezone_offset = -12; }
     if (timezone_offset >= 14) { timezone_offset = 14; }
 
     auto adjust_time_offset = timezone_offset * 3600;
@@ -1086,10 +1296,17 @@ int64_t to_millis_now(const int32_t& time_offset)
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::time_t now_time_utc = now_time + adjust_time_offset;
 
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&now_time_utc, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &now_time_utc);
+    #endif
+
     auto now_mcs = std::chrono::time_point_cast<std::chrono::microseconds>(now);
     auto microseconds = now_mcs.time_since_epoch() % std::chrono::seconds(1);
 
-    ss << std::put_time(std::gmtime(&now_time_utc), "%Y%m%dT%H%M%S") << '.' << std::setw(5) << std::setfill('0') << microseconds.count();
+    ss << std::put_time(&tm_buf, "%Y%m%dT%H%M%S") << '.' << std::setw(6) << std::setfill('0') << microseconds.count();
 
     tmp_str = ss.str();
 
@@ -1098,17 +1315,17 @@ int64_t to_millis_now(const int32_t& time_offset)
 
     sss >> std::get_time(&time, "%Y-%m-%dT%H:%M:%S");
 
-    int32_t millis = 0;
+    int32_t micros = 0;
     if (sss.peek() == '.')
     {
         sss.ignore();
-        sss >> millis;
+        sss >> micros;
     }
 
     time_t time_since_epoch = mktime(&time);
 
     result = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::from_time_t(time_since_epoch).time_since_epoch()).count();
-    result += millis;
+    result += micros;
 
     return result;
 }
@@ -1119,7 +1336,7 @@ std::string to_string(const int32_t& time_offset)
     std::stringstream ss;
     int32_t timezone_offset = time_offset;
 
-    if (timezone_offset <= -11) { timezone_offset = -11; }
+    if (timezone_offset <= -12) { timezone_offset = -12; }
     if (timezone_offset >= 14) { timezone_offset = 14; }
 
     auto adjust_time_offset = timezone_offset * 3600;
@@ -1128,10 +1345,17 @@ std::string to_string(const int32_t& time_offset)
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::time_t now_time_utc = now_time + adjust_time_offset;
 
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&now_time_utc, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &now_time_utc);
+    #endif
+
     auto now_mcs = std::chrono::time_point_cast<std::chrono::microseconds>(now);
     auto microseconds = now_mcs.time_since_epoch() % std::chrono::seconds(1);
 
-    ss << std::put_time(std::gmtime(&now_time_utc), "%Y%m%d%H%M%S") << std::setw(5) << std::setfill('0') << microseconds.count();
+    ss << std::put_time(&tm_buf, "%Y%m%d%H%M%S") << std::setw(6) << std::setfill('0') << microseconds.count();
 
     result = ss.str();
 
@@ -1144,7 +1368,7 @@ std::string to_string_human(const int32_t& time_offset, const bool& use_time_sig
     std::stringstream ss;
     int32_t timezone_offset = time_offset;
 
-    if (timezone_offset <= -11) { timezone_offset = -11; }
+    if (timezone_offset <= -12) { timezone_offset = -12; }
     if (timezone_offset >= 14) { timezone_offset = 14; }
 
     auto adjust_time_offset = timezone_offset * 3600;
@@ -1153,16 +1377,23 @@ std::string to_string_human(const int32_t& time_offset, const bool& use_time_sig
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::time_t now_time_utc = now_time + adjust_time_offset;
 
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&now_time_utc, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &now_time_utc);
+    #endif
+
     auto now_mcs = std::chrono::time_point_cast<std::chrono::microseconds>(now);
     auto microseconds = now_mcs.time_since_epoch() % std::chrono::seconds(1);
 
     if (use_time_sign)
     {
-        ss << std::put_time(std::gmtime(&now_time_utc), "%Y-%m-%dT%H:%M:%S") << '.' << std::setw(5) << std::setfill('0') << microseconds.count();
+        ss << std::put_time(&tm_buf, "%Y-%m-%dT%H:%M:%S") << '.' << std::setw(6) << std::setfill('0') << microseconds.count();
     }
     else
     {
-        ss << std::put_time(std::gmtime(&now_time_utc), "%Y-%m-%d %H%:M:%S") << '.' << std::setw(5) << std::setfill('0') << microseconds.count();
+        ss << std::put_time(&tm_buf, "%Y-%m-%d %H:%M:%S") << '.' << std::setw(6) << std::setfill('0') << microseconds.count();
     }
 
     result = ss.str();
@@ -1173,26 +1404,31 @@ std::string to_string_human(const int32_t& time_offset, const bool& use_time_sig
 std::string to_string_second_offset(const int32_t& seconds_offset)
 {
     std::string result;
-        std::stringstream ss;
+    std::stringstream ss;
 
-        auto now = std::chrono::system_clock::now();
+    auto now = std::chrono::system_clock::now();
 
-        auto seconds = std::chrono::seconds(seconds_offset);
+    auto seconds = std::chrono::seconds(seconds_offset);
 
-        auto future_time = now + seconds;
+    auto future_time = now + seconds;
 
-        std::time_t future_time_t = std::chrono::system_clock::to_time_t(future_time);
+    std::time_t future_time_t = std::chrono::system_clock::to_time_t(future_time);
 
-        std::tm future_tm = *std::gmtime(&future_time_t);
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&future_time_t, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &future_time_t);
+    #endif
 
-        auto now_mcs = std::chrono::time_point_cast<std::chrono::microseconds>(now);
-        auto microseconds = now_mcs.time_since_epoch() % std::chrono::seconds(1);
+    auto now_mcs = std::chrono::time_point_cast<std::chrono::microseconds>(now);
+    auto microseconds = now_mcs.time_since_epoch() % std::chrono::seconds(1);
 
-        ss << std::put_time(&future_tm, "%Y%m%d%H%M%S") << std::setw(5) << std::setfill('0') << microseconds.count();
+    ss << std::put_time(&tm_buf, "%Y%m%d%H%M%S") << std::setw(6) << std::setfill('0') << microseconds.count();
 
-        result = ss.str();
+    result = ss.str();
 
-        return result;
+    return result;
 }
 
 } // namespace YYYYMMDDhhmmssµs
@@ -1205,7 +1441,7 @@ int64_t to_int64(const int32_t& time_offset)
     std::stringstream ss;
     int32_t timezone_offset = time_offset;
 
-    if (timezone_offset <= -11) { timezone_offset = -11; }
+    if (timezone_offset <= -12) { timezone_offset = -12; }
     if (timezone_offset >= 14) { timezone_offset = 14; }
 
     auto adjust_time_offset = timezone_offset * 3600;
@@ -1214,10 +1450,17 @@ int64_t to_int64(const int32_t& time_offset)
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::time_t now_time_utc = now_time + adjust_time_offset;
 
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&now_time_utc, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &now_time_utc);
+    #endif
+
     auto now_ns = std::chrono::time_point_cast<std::chrono::nanoseconds>(now);
     auto nanoseconds = now_ns.time_since_epoch() % std::chrono::seconds(1);
 
-    ss << std::put_time(std::gmtime(&now_time_utc), "%Y%m%d%H%M%S") << std::setw(9) << std::setfill('0') << nanoseconds.count();
+    ss << std::put_time(&tm_buf, "%Y%m%d%H%M%S") << std::setw(9) << std::setfill('0') << nanoseconds.count();
 
     return std::stoll(ss.str());
 }
@@ -1258,7 +1501,7 @@ int64_t to_millis_now(const int32_t& time_offset)
     std::stringstream ss;
     int32_t timezone_offset = time_offset;
 
-    if (timezone_offset <= -11) { timezone_offset = -11; }
+    if (timezone_offset <= -12) { timezone_offset = -12; }
     if (timezone_offset >= 14) { timezone_offset = 14; }
 
     auto adjust_time_offset = timezone_offset * 3600;
@@ -1267,10 +1510,17 @@ int64_t to_millis_now(const int32_t& time_offset)
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::time_t now_time_utc = now_time + adjust_time_offset;
 
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&now_time_utc, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &now_time_utc);
+    #endif
+
     auto now_ns = std::chrono::time_point_cast<std::chrono::nanoseconds>(now);
     auto nanoseconds = now_ns.time_since_epoch() % std::chrono::seconds(1);
 
-    ss << std::put_time(std::gmtime(&now_time_utc), "%Y%m%dT%H%M%S") << '.' << std::setw(9) << std::setfill('0') << nanoseconds.count();
+    ss << std::put_time(&tm_buf, "%Y%m%dT%H%M%S") << '.' << std::setw(9) << std::setfill('0') << nanoseconds.count();
 
     tmp_str = ss.str();
 
@@ -1279,17 +1529,17 @@ int64_t to_millis_now(const int32_t& time_offset)
 
     sss >> std::get_time(&time, "%Y-%m-%dT%H:%M:%S");
 
-    int32_t millis = 0;
+    int64_t nanos = 0;
     if (sss.peek() == '.')
     {
         sss.ignore();
-        sss >> millis;
+        sss >> nanos;
     }
 
     time_t time_since_epoch = mktime(&time);
 
     result = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::from_time_t(time_since_epoch).time_since_epoch()).count();
-    result += millis;
+    result += nanos;
 
     return result;
 }
@@ -1300,7 +1550,7 @@ std::string to_string(const int32_t& time_offset)
     std::stringstream ss;
     int32_t timezone_offset = time_offset;
 
-    if (timezone_offset <= -11) { timezone_offset = -11; }
+    if (timezone_offset <= -12) { timezone_offset = -12; }
     if (timezone_offset >= 14) { timezone_offset = 14; }
 
     auto adjust_time_offset = timezone_offset * 3600;
@@ -1309,10 +1559,17 @@ std::string to_string(const int32_t& time_offset)
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::time_t now_time_utc = now_time + adjust_time_offset;
 
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&now_time_utc, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &now_time_utc);
+    #endif
+
     auto now_ns = std::chrono::time_point_cast<std::chrono::nanoseconds>(now);
     auto nanoseconds = now_ns.time_since_epoch() % std::chrono::seconds(1);
 
-    ss << std::put_time(std::gmtime(&now_time_utc), "%Y%m%d%H%M%S") << std::setw(9) << std::setfill('0') << nanoseconds.count();
+    ss << std::put_time(&tm_buf, "%Y%m%d%H%M%S") << std::setw(9) << std::setfill('0') << nanoseconds.count();
 
     result = ss.str();
 
@@ -1325,7 +1582,7 @@ std::string to_string_human(const int32_t& time_offset, const bool& use_time_sig
     std::stringstream ss;
     int32_t timezone_offset = time_offset;
 
-    if (timezone_offset <= -11) { timezone_offset = -11; }
+    if (timezone_offset <= -12) { timezone_offset = -12; }
     if (timezone_offset >= 14) { timezone_offset = 14; }
 
     auto adjust_time_offset = timezone_offset * 3600;
@@ -1334,16 +1591,23 @@ std::string to_string_human(const int32_t& time_offset, const bool& use_time_sig
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     std::time_t now_time_utc = now_time + adjust_time_offset;
 
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&now_time_utc, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &now_time_utc);
+    #endif
+
     auto now_ns = std::chrono::time_point_cast<std::chrono::nanoseconds>(now);
     auto nanoseconds = now_ns.time_since_epoch() % std::chrono::seconds(1);
 
     if (use_time_sign)
     {
-        ss << std::put_time(std::gmtime(&now_time_utc), "%Y-%m-%dT%H:%M:%S") << '.' << std::setw(9) << std::setfill('0') << nanoseconds.count();
+        ss << std::put_time(&tm_buf, "%Y-%m-%dT%H:%M:%S") << '.' << std::setw(9) << std::setfill('0') << nanoseconds.count();
     }
     else
     {
-        ss << std::put_time(std::gmtime(&now_time_utc), "%Y-%m-%d %H%:M:%S") << '.' << std::setw(9) << std::setfill('0') << nanoseconds.count();
+        ss << std::put_time(&tm_buf, "%Y-%m-%d %H:%M:%S") << '.' << std::setw(9) << std::setfill('0') << nanoseconds.count();
     }
 
     result = ss.str();
@@ -1364,12 +1628,17 @@ std::string to_string_second_offset(const int32_t& seconds_offset)
 
     std::time_t future_time_t = std::chrono::system_clock::to_time_t(future_time);
 
-    std::tm future_tm = *std::gmtime(&future_time_t);
+    std::tm tm_buf {};
+    #if defined(__GNUC__) || defined(__clang__)
+    gmtime_r(&future_time_t, &tm_buf);
+    #else
+    gmtime_s(&tm_buf, &future_time_t);
+    #endif
 
     auto now_ns = std::chrono::time_point_cast<std::chrono::nanoseconds>(now);
     auto nanoseconds = now_ns.time_since_epoch() % std::chrono::seconds(1);
 
-    ss << std::put_time(&future_tm, "%Y%m%d%H%M%S") << std::setw(9) << std::setfill('0') << nanoseconds.count();
+    ss << std::put_time(&tm_buf, "%Y%m%d%H%M%S") << std::setw(9) << std::setfill('0') << nanoseconds.count();
 
     result = ss.str();
 

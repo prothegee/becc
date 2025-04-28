@@ -19,6 +19,10 @@ target_link_libraries(test_argon2 PRIVATE becc)
 add_executable(test_base64 test_base64.cc)
 target_link_libraries(test_base64 PRIVATE becc)
 
+# test_date_and_time
+add_executable(test_date_and_time test_date_and_time.cc)
+target_link_libraries(test_date_and_time PRIVATE becc)
+
 # test_file_enc_dec
 add_executable(test_file_enc_dec test_file_enc_dec.cc)
 target_link_libraries(test_file_enc_dec PRIVATE becc)
