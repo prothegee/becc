@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 
 # package
 set(BECC_VERSION_MAJOR 0)
-set(BECC_VERSION_MINOR 8)
+set(BECC_VERSION_MINOR 9)
 set(BECC_VERSION_PATCH 0)
 set(BECC_VERSION_RELEASE_DATE 20250429)
 
@@ -127,7 +127,18 @@ set(BEC_HEADERS_FILES_FUNCTIONS
 )
 list(APPEND BEC_HEADERS_FILES ${BEC_HEADERS_FILES_FUNCTIONS})
 ## interfaces
+set(BEC_HEADERS_FILES_INTERFACES
+    src/inc/becc/interfaces/ipostgresql_core_interface.hh
+    src/inc/becc/interfaces/iscylladb_core_interface.hh
+)
+list(APPEND BEC_HEADERS_FILES ${BEC_HEADERS_FILES_INTERFACES})
 ## modules
+## types
+set(BEC_HEADERS_FILES_TYPES
+    src/inc/becc/types/auth_type.hh
+    src/inc/becc/types/look_type.hh
+)
+list(APPEND BEC_HEADERS_FILES ${BEC_HEADERS_FILES_TYPES})
 
 ## sources files
 if(NOT DEFINED BEC_SOURCES_FILES)
@@ -147,6 +158,8 @@ list(APPEND
         src/system.cc
         src/utility.cc
         # interfaces
+        src/ipostgresql_core_interface.cc
+        src/iscylladb_core_interface.cc
         # modules
 )
 
@@ -366,6 +379,9 @@ endif()
 ## haru
 set(BECC_USING_HARU false)
 if(BUILD_VENDOR_HARU)
+    set(LIBHPDF_EXAMPLES OFF CACHE BOOL "Disable examples" FORCE) # disable example warning cmp policy for haru
+    cmake_policy(SET CMP0077 NEW)
+
     set(BECC_VENDOR_LIBHARU_DIR "${PROJECT_SOURCE_DIR}/vendors/libharu")
 
     set(BECC_VENDOR_LIBHARU_DIR_SOURCE_OUT ${CMAKE_BINARY_DIR}/BECC_LIBHARU/src)

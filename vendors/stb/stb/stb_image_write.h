@@ -196,6 +196,17 @@ STBIWDEF void stbi_flip_vertically_on_write(int flip_boolean);
 
 #endif//INCLUDE_STB_IMAGE_WRITE_H
 
+/**
+ * @brief ignoring warning -Wmissing-field-initializers for gnu & clang compiler
+ */
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#elif defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wmissing-field-initializers"
+#endif // defined(__GNUC__) || defined(__clang__)
+
 #ifdef STB_IMAGE_WRITE_IMPLEMENTATION
 
 #ifdef _WIN32
@@ -1626,6 +1637,12 @@ STBIWDEF int stbi_write_jpg(char const *filename, int x, int y, int comp, const 
 #endif
 
 #endif // STB_IMAGE_WRITE_IMPLEMENTATION
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#elif defined(__clang__)
+#pragma clang diagnostic pop
+#endif // defined(__GNUC__) || defined(__clang__)
 
 /* Revision history
       1.16  (2021-07-11)
