@@ -15,6 +15,18 @@ target_link_libraries(test_aes_openssl PRIVATE becc)
 add_executable(test_argon2 test_argon2.cc)
 target_link_libraries(test_argon2 PRIVATE becc)
 
+# test_barcode_qrcode
+add_executable(test_barcode_qrcode test_barcode_qrcode.cc)
+target_link_libraries(test_barcode_qrcode PRIVATE becc)
+# ## required
+# if(NOT MSVC)
+#     target_link_libraries(test_barcode_qrcode PRIVATE -lm)
+
+#     if(BECC_COMPILER_GNU) # error gnu gcc 12.2
+#         target_link_libraries(test_barcode_qrcode PRIVATE -lm) # somehow build not error
+#     endif()
+# endif()
+
 # test_base64
 add_executable(test_base64 test_base64.cc)
 target_link_libraries(test_base64 PRIVATE becc)
