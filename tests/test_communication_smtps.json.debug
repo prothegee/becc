@@ -1,0 +1,11 @@
+{
+    "smtp":
+    {
+        "server": "smtp.domain.tld",
+        "server_port": "465",
+        "sender_name": "no-reply",
+        "sender_address": "no-reply@domain.tld",
+        "sender_password": "SMTP_PASSWORD"
+    },
+    "recipient": "foo@bar.baz"
+}
