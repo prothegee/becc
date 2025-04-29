@@ -5,12 +5,11 @@
 namespace becc
 {
 
-struct TLookAndReplace
+struct look_and_replace_t
 {
     std::string to_look;
     std::string to_replace;
 };
-using look_and_replace_t = TLookAndReplace;
 
 } // namespace becc
 

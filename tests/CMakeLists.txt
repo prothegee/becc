@@ -31,6 +31,10 @@ target_link_libraries(test_barcode_qrcode PRIVATE becc)
 add_executable(test_base64 test_base64.cc)
 target_link_libraries(test_base64 PRIVATE becc)
 
+# test_communication_smtps
+add_executable(test_communication_smtps test_communication_smtps.cc)
+target_link_libraries(test_communication_smtps PRIVATE becc Drogon::Drogon)
+
 # test_date_and_time
 add_executable(test_date_and_time test_date_and_time.cc)
 target_link_libraries(test_date_and_time PRIVATE becc)

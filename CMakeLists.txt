@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 
 # package
 set(BECC_VERSION_MAJOR 0)
-set(BECC_VERSION_MINOR 7)
+set(BECC_VERSION_MINOR 8)
 set(BECC_VERSION_PATCH 0)
 set(BECC_VERSION_RELEASE_DATE 20250429)
 
@@ -83,6 +83,12 @@ else()
     endif()
 endif()
 
+## rest of the world is debug except Release
+set(BECC_IS_DEBUG true)
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+   set(BECC_IS_DEBUG false) 
+endif()
+
 ## reserved: system, processor, build, processor
 
 # include base
@@ -112,6 +118,7 @@ list(APPEND BEC_HEADERS_FILES ${BEC_HEADERS_FILES_CONSTANTS})
 ## enums
 ## functions
 set(BEC_HEADERS_FILES_FUNCTIONS
+    src/inc/becc/functions/communication.hh
     src/inc/becc/functions/cryptography.hh
     src/inc/becc/functions/date_and_time.hh
     src/inc/becc/functions/generate.hh
@@ -133,6 +140,7 @@ list(APPEND
         # constants
         # enums
         # functions
+        src/communication.cc
         src/cryptography.cc
         src/date_and_time.cc
         src/generate.cc
