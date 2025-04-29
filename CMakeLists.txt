@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.15)
 set(BECC_VERSION_MAJOR 0)
 set(BECC_VERSION_MINOR 9)
 set(BECC_VERSION_PATCH 0)
-set(BECC_VERSION_RELEASE_DATE 20250429)
+set(BECC_VERSION_RELEASE_DATE 20250430)
 
 # package project
 project(becc
@@ -19,17 +19,17 @@ option(BUILD_TESTS              "build project test/s" OFF)
 option(BUILD_TOOLS              "build project tool/s" OFF)
 ## build use vcpkg
 option(BUILD_USE_VCPKG          "build using vcpkg, will look environment variable of VCPKG_DIR/VCPKG_ROOT & VCPKG_DEFAULT_TRIPLET/DEFAULT_TRIPLET" OFF)
-## build using custom output dir
-option(BUILD_CUSTOM_OUTPUT      "build using custom output if not empty" "")
-if(NOT BUILD_CUSTOM_OUTPUT STREQUAL "")
-set(EXECUTABLE_OUTPUT_PATH         "${CMAKE_CURRENT_SOURCE_DIR}/${BUILD_CUSTOM_OUTPUT}")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${BUILD_CUSTOM_OUTPUT}")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${BUILD_CUSTOM_OUTPUT}")
-set(CMAKE_PDB_OUTPUT_DIRECTORY     "${CMAKE_CURRENT_SOURCE_DIR}/${BUILD_CUSTOM_OUTPUT}")
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${BUILD_CUSTOM_OUTPUT}")
+# ## build using custom output dir
+# option(BUILD_CUSTOM_OUTPUT      "build using custom output if not empty" "")
+# if(NOT BUILD_CUSTOM_OUTPUT STREQUAL "")
+#     set(EXECUTABLE_OUTPUT_PATH         "${CMAKE_CURRENT_SOURCE_DIR}/${BUILD_CUSTOM_OUTPUT}")
+#     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${BUILD_CUSTOM_OUTPUT}")
+#     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${BUILD_CUSTOM_OUTPUT}")
+#     set(CMAKE_PDB_OUTPUT_DIRECTORY     "${CMAKE_CURRENT_SOURCE_DIR}/${BUILD_CUSTOM_OUTPUT}")
+#     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${BUILD_CUSTOM_OUTPUT}")
 
-message(NOTICE "-- ${PROJECT_NAME} using build custom output as "${CMAKE_CURRENT_SOURCE_DIR}/${BUILD_CUSTOM_OUTPUT}"")
-endif()
+#     message(NOTICE "-- ${PROJECT_NAME} using build custom output as "${CMAKE_CURRENT_SOURCE_DIR}/${BUILD_CUSTOM_OUTPUT}"")
+# endif()
 ## build vendor sdl
 option(BUILD_VENDOR_SDL         "build vendor sdl" OFF)
 ## build vendor stb
@@ -64,20 +64,66 @@ endif()
 if(NOT DEFINED CMAKE_CXX_STANDARD_REQUIRED)
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
 endif()
+## cxx extensions
+if(NOT DEFINED CMAKE_CXX_EXTENSIONS)
+    set(CMAKE_CXX_EXTENSIONS OFF)
+endif()
+
 
 ## cxx standard
 ### by default build is set for gnu linux environment
 if(NOT DEFINED CMAKE_CXX_STANDARD)
-    set(CMAKE_CXX_STANDARD 17)
+    # Automatic standard detection from compiler flags
+    set(_detected_standard 17)
+    
+    # Check for Unix-style flags (-std=c++XX or -std=gnu++XX)
+    string(REGEX MATCH "-std=([c|gnu]\\+\\+)([0-9]+)" _ "${CMAKE_CXX_FLAGS}")
+    if(CMAKE_MATCH_2)
+        set(_detected_standard ${CMAKE_MATCH_2})
+    endif()
+    
+    # Check for MSVC flags (/std:c++XX or /std:c++latest)
+    if(NOT _detected_standard AND MSVC)
+        string(REGEX MATCH "/std:c\\+\\+latest" _ "${CMAKE_CXX_FLAGS}")
+        if(CMAKE_MATCH_0)
+            set(_detected_standard 20) # Map /std:c++latest to C++20
+        else()
+            string(REGEX MATCH "/std:c\\+\\+([0-9]+)" _ "${CMAKE_CXX_FLAGS}")
+            if(CMAKE_MATCH_1)
+                set(_detected_standard ${CMAKE_MATCH_1})
+            endif()
+        endif()
+    endif()
+    
+    set(CMAKE_CXX_STANDARD ${_detected_standard} CACHE STRING "C++ standard to use (17, 20, etc.)")
+else()
+    set(CMAKE_CXX_STANDARD "${CMAKE_CXX_STANDARD}" CACHE STRING "C++ standard to use (17, 20, etc.)" FORCE)
+endif()
 
+## cxx flags
+### by default build is set for gnu linux environment
+if(NOT DEFINED CMAKE_CXX_FLAGS)
     if(MSVC)
-        list(APPEND CMAKE_CXX_FLAGS "/std:c++${CMAKE_CXX_STANDARD}")
+        if(CMAKE_CXX_STANDARD GREATER_EQUAL 20)
+            list(APPEND CMAKE_CXX_FLAGS "/std:c++latest")
+        else()
+            list(APPEND CMAKE_CXX_FLAGS "/std:c++${CMAKE_CXX_STANDARD}")
+        endif()
     else()
         list(APPEND CMAKE_CXX_FLAGS "-std=c++${CMAKE_CXX_STANDARD}")
     endif()
 else()
+    # Clean existing standard flags
+    string(REGEX REPLACE "-std=[^ ]+" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    string(REGEX REPLACE "/std:c\\+\\+[^ ]+" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    
+    # Add correct standard flag
     if(MSVC)
-        list(APPEND CMAKE_CXX_FLAGS "/std:c++${CMAKE_CXX_STANDARD}")
+        if(CMAKE_CXX_STANDARD GREATER_EQUAL 20)
+            list(APPEND CMAKE_CXX_FLAGS "/std:c++latest")
+        else()
+            list(APPEND CMAKE_CXX_FLAGS "/std:c++${CMAKE_CXX_STANDARD}")
+        endif()
     else()
         list(APPEND CMAKE_CXX_FLAGS "-std=c++${CMAKE_CXX_STANDARD}")
     endif()
@@ -101,7 +147,7 @@ include(FindPackageHandleStandardArgs)
 
 # check deps
 ## openssl
-find_dependency(Drogon)
+# find_dependency(Drogon)
 find_dependency(OpenSSL)
 find_dependency(PostgreSQL)
 
