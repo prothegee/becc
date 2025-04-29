@@ -10,6 +10,17 @@
 #include "ODDataBarCommon.h"
 #include "Barcode.h"
 
+/**
+ * @brief ignoring warning -Wunused-variable for gnu & clang compiler
+ */
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#elif defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-variable"
+#endif // defined(__GNUC__) || defined(__clang__)
+
 //#define PRINT_DEBUG
 #ifndef PRINT_DEBUG
 #define printf(...){}
@@ -57,7 +68,7 @@ static Character ReadDataCharacter(const PatternView& view)
 		return {};
 
 	int oddWidest = ODD_WIDEST[group];
-	int evnWidest = 9 - oddWidest;
+	int evnWidest = 9 - oddWidest; // has ignored warning for gcc & clang
 #ifndef __cpp_lib_span
 #pragma message("DataBarLimited not supported without std::span<> (c++20 feature)")
 	int vOdd = 0;
@@ -164,3 +175,9 @@ Barcode DataBarLimitedReader::decodePattern(int rowNumber, PatternView& next, st
 }
 
 } // namespace ZXing::OneD
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#elif defined(__clang__)
+#pragma clang diagnostic pop
+#endif // defined(__GNUC__) || defined(__clang__)
