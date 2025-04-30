@@ -46,3 +46,10 @@ if(BECC_USING_OPENSSL)
     target_link_libraries(test_file_enc_dec PRIVATE becc)
     message(NOTICE "-- becc: adding test_file_enc_dec")
 endif()
+
+# test_sdl3_check_screen_resolutions
+if(BECC_USING_SDL3)
+    add_executable(test_sdl3_check_screen_resolutions test_sdl3_check_screen_resolutions.cc)
+    target_link_libraries(test_sdl3_check_screen_resolutions PRIVATE becc)
+    message(NOTICE "-- becc: adding test_sdl3_check_screen_resolutions")
+endif()

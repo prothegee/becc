@@ -64,16 +64,16 @@ endif()
 ## cxx standard
 ### by default build is set for gnu linux environment
 if(NOT DEFINED CMAKE_CXX_STANDARD)
-    # Automatic standard detection from compiler flags
+    # automatic standard detection from compiler flags
     set(_detected_standard 17)
     
-    # Check for Unix-style flags (-std=c++XX or -std=gnu++XX)
+    # check for Unix-style flags (-std=c++XX or -std=gnu++XX)
     string(REGEX MATCH "-std=([c|gnu]\\+\\+)([0-9]+)" _ "${CMAKE_CXX_FLAGS}")
     if(CMAKE_MATCH_2)
         set(_detected_standard ${CMAKE_MATCH_2})
     endif()
     
-    # Check for MSVC flags (/std:c++XX or /std:c++latest)
+    # check for MSVC flags (/std:c++XX or /std:c++latest)
     if(NOT _detected_standard AND MSVC)
         string(REGEX MATCH "/std:c\\+\\+latest" _ "${CMAKE_CXX_FLAGS}")
         if(CMAKE_MATCH_0)
@@ -438,24 +438,11 @@ add_library(${PROJECT_NAME} ${BEC_SOURCES_FILES})
 ##
 ## jsoncpp
 if(BECC_USING_JSONCPP)
-    # target_include_directories(${PROJECT_NAME} PRIVATE ${BECC_VENDOR_JSONCPP_DIR_INCLUDE})
-
     target_link_libraries(${PROJECT_NAME} PRIVATE jsoncpp)
 endif()
 ##
 ## openssl
 if(BECC_USING_OPENSSL)
-    # target_include_directories(${PROJECT_NAME} PRIVATE ${BECC_VENDOR_OPENSSL_DIR_INCLUDE_BUILD})
-    # target_include_directories(${PROJECT_NAME} PRIVATE ${BECC_VENDOR_OPENSSL_DIR_INCLUDE_SRC})
-
-    # if(MSVC) # windows, why?
-    #     target_link_libraries(${PROJECT_NAME} PRIVATE 
-    #         "${CMAKE_BINARY_DIR}/_deps/openssl-source-build/libcrypto.lib"
-    #         "${CMAKE_BINARY_DIR}/_deps/openssl-source-build/libssl.lib"
-    #     )
-    # else()
-    #     target_link_libraries(${PROJECT_NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
-    # endif()
     target_link_libraries(${PROJECT_NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 endif()
 ##
