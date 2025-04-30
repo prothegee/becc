@@ -15,9 +15,11 @@
         "BUILD_TESTS": true,
         "BUILD_SHARED_LIBS": false,
 
-        "BUILD_VENDOR_SDL": true,
+        "BUILD_VENDOR_SDL3": true,
         "BUILD_VENDOR_STB": true,
         "BUILD_VENDOR_HARU": true,
+        "BUILD_VENDOR_JSONCPP": true,
+        "BUILD_VENDOR_OPENSSL": true,
         "BUILD_VENDOR_NANOSVG": true,
         "BUILD_VENDOR_ZXING_CPP": true,
 
@@ -77,5 +79,5 @@
         "titleBar.inactiveBackground": "#49066799",
         "titleBar.inactiveForeground": "#e7e7e799"
     },
-    "peacock.remoteColor": "#490667"
+    "peacock.remoteColor": "#490667",
 }

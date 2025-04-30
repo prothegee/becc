@@ -2,13 +2,15 @@ cmake_minimum_required(VERSION 3.15)
 
 # package
 set(BECC_VERSION_MAJOR 0)
-set(BECC_VERSION_MINOR 9)
+set(BECC_VERSION_MINOR 10)
 set(BECC_VERSION_PATCH 0)
 set(BECC_VERSION_RELEASE_DATE 20250430)
 
 # package project
 project(becc
     VERSION "${BECC_VERSION_MAJOR}.${BECC_VERSION_MINOR}.${BECC_VERSION_PATCH}"
+    DESCRIPTION "module library treatment for cpp backend project"
+    HOMEPAGE_URL "https://github.com/prothegee/becc"
     LANGUAGES CXX C
 )
 
@@ -17,29 +19,22 @@ project(becc
 option(BUILD_TESTS              "build project test/s" OFF)
 ## build tools, default false/OFF
 option(BUILD_TOOLS              "build project tool/s" OFF)
-## build use vcpkg
-option(BUILD_USE_VCPKG          "build using vcpkg, will look environment variable of VCPKG_DIR/VCPKG_ROOT & VCPKG_DEFAULT_TRIPLET/DEFAULT_TRIPLET" OFF)
-# ## build using custom output dir
-# option(BUILD_CUSTOM_OUTPUT      "build using custom output if not empty" "")
-# if(NOT BUILD_CUSTOM_OUTPUT STREQUAL "")
-#     set(EXECUTABLE_OUTPUT_PATH         "${CMAKE_CURRENT_SOURCE_DIR}/${BUILD_CUSTOM_OUTPUT}")
-#     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${BUILD_CUSTOM_OUTPUT}")
-#     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${BUILD_CUSTOM_OUTPUT}")
-#     set(CMAKE_PDB_OUTPUT_DIRECTORY     "${CMAKE_CURRENT_SOURCE_DIR}/${BUILD_CUSTOM_OUTPUT}")
-#     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${BUILD_CUSTOM_OUTPUT}")
-
-#     message(NOTICE "-- ${PROJECT_NAME} using build custom output as "${CMAKE_CURRENT_SOURCE_DIR}/${BUILD_CUSTOM_OUTPUT}"")
-# endif()
 ## build vendor sdl
-option(BUILD_VENDOR_SDL         "build vendor sdl" OFF)
+option(BUILD_VENDOR_SDL3        "build vendor sdl3" OFF)
 ## build vendor stb
 option(BUILD_VENDOR_STB         "build vendor stb" OFF)
 ## build vendor haru
 option(BUILD_VENDOR_HARU        "build vendor haru" OFF)
+## build vendor jsoncpp
+option(BUILD_VENDOR_JSONCPP     "build vendor jsoncpp" OFF)
+## build vendor openssl
+option(BUILD_VENDOR_OPENSSL     "build vendor openssl" OFF)
 ## build vendor nanosvg
 option(BUILD_VENDOR_NANOSVG     "build vendor nanosvg" OFF)
 ## build vendor zxing-cpp
 option(BUILD_VENDOR_ZXING_CPP   "build vendor zxing-cpp" OFF)
+
+## rules of options
 
 ## build tests as bool
 if(BUILD_TESTS)
@@ -132,10 +127,31 @@ endif()
 ## rest of the world is debug except Release
 set(BECC_IS_DEBUG true)
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
-   set(BECC_IS_DEBUG false) 
+    set(BECC_IS_DEBUG false) 
+elseif(CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
+    set(BECC_IS_DEBUG false) 
 endif()
 
-## reserved: system, processor, build, processor
+## system name
+if(NOT DEFINED BECC_SYSTEM_NAME)
+    set(BECC_SYSTEM_NAME "")
+endif()
+string(TOLOWER "${CMAKE_SYSTEM_NAME}" BECC_SYSTEM_NAME)
+### rules of os
+if(${BECC_SYSTEM_NAME} STREQUAL "macos")
+    set(BECC_SYSTEM_NAME "osx")
+elseif(${BECC_SYSTEM_NAME} STREQUAL "darwin")
+    set(BECC_SYSTEM_NAME "osx")
+else()
+    # force otherwise
+    string(TOLOWER "${CMAKE_SYSTEM_NAME}" BECC_SYSTEM_NAME)
+endif()
+
+## system process
+if(NOT DEFINED BECC_SYSTEM_PROCESSOR)
+    set(BECC_SYSTEM_PROCESSOR "")
+endif()
+string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" BECC_SYSTEM_PROCESSOR)
 
 # include base
 include(CheckIncludeFileCXX)
@@ -144,16 +160,6 @@ include(CMakeDependentOption)
 include(CMakeFindDependencyMacro)
 include(CMakePackageConfigHelpers)
 include(FindPackageHandleStandardArgs)
-
-# check deps (unix only)
-if(NOT WIN32)
-    ## drogon
-    # find_dependency(Drogon)
-    ## openssl
-    find_dependency(OpenSSL)
-    ## postgresql
-    find_dependency(PostgreSQL)
-endif()
 
 # files
 ## headers files
@@ -219,128 +225,27 @@ list(APPEND
 if(NOT "${CMAKE_TOOLCHAIN_FILE}" STREQUAL "")
     message(NOTICE "-- ${PROJECT_NAME}: using CMAKE_TOOLCHAIN_FILE as `${CMAKE_TOOLCHAIN_FILE}`")
 endif()
-## base vcpkg
-set(BECC_USING_VCPKG false)
-if(BUILD_USE_VCPKG)
-    set(BECC_VCPKG_DIR "")
-    set(BECC_VCPKG_TRIPLET "")
-    set(BECC_VCPKG_INSTALLED_DIR "")
-
-    # check VCPKG_DIR env. var.
-    if(NOT "$ENV{VCPKG_DIR}" STREQUAL "")
-        set(BECC_VCPKG_DIR "$ENV{VCPKG_DIR}")
-    endif()
-
-    # check VCPKG_ROOT env. var.
-    if(NOT "$ENV{VCPKG_ROOT}" STREQUAL "")
-        set(BECC_VCPKG_DIR "$ENV{VCPKG_ROOT}")
-    endif()
-
-    if(BUILD_USE_VCPKG AND BECC_VCPKG_DIR STREQUAL "")
-        message(FATAL_ERROR "-- ${PROJECT_NAME}: you are attempting to use vcpkg, but environment variables of `VCPKG_DIR/VCPKG_ROOT` is empty")
-    endif()
-
-    # include toolchain
-    include("${BECC_VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake")
-
-    # check vcpkg triplet env. var.
-    if(NOT "$ENV{VCPKG_TRIPLET}" STREQUAL "")
-        set(BECC_VCPKG_TRIPLET "$ENV{VCPKG_TRIPLET}")
-    endif()
-    if(NOT "$ENV{VCPKG_DEFAULT_TRIPLET}" STREQUAL "")
-        set(BECC_VCPKG_TRIPLET "$ENV{VCPKG_DEFAULT_TRIPLET}")
-    endif()
-
-    # check vcpkg triplet defined var.
-    if(NOT "${VCPKG_TRIPLET}" STREQUAL "")
-        set(BECC_VCPKG_TRIPLET "${VCPKG_TRIPLET}")
-    endif()
-    if(NOT "${VCPKG_DEFAULT_TRIPLET}" STREQUAL "")
-        set(BECC_VCPKG_TRIPLET "${VCPKG_DEFAULT_TRIPLET}")
-    endif()
-
-    if(BECC_VCPKG_TRIPLET STREQUAL "")
-       message(FATAL_ERROR "-- ${PROJECT_NAME}: attempt to use vcpkg but triplet is not defined/set, use `-DVCPKG_TRIPLET=processor_type-system_os_name` or `-DVCPKG_DEFAULT_TRIPLET=processor_type-system_os_name` or set those on your environment variable") 
-    endif()
-
-    # check and set
-    set(BECC_VCPKG_INSTALLED_DIR "${BECC_VCPKG_DIR}/installed/${BECC_VCPKG_TRIPLET}")
-    if(EXISTS "${BECC_VCPKG_INSTALLED_DIR}")
-        # include dirs
-        include_directories("${BECC_VCPKG_INSTALLED_DIR}/include")
-        include_directories("${BECC_VCPKG_INSTALLED_DIR}/debug/include")
-
-        # link bin dirs
-        link_directories("${BECC_VCPKG_INSTALLED_DIR}/bin")
-        link_directories("${BECC_VCPKG_INSTALLED_DIR}/debug/bin")
-
-        # link lib dirs
-        link_directories("${BECC_VCPKG_INSTALLED_DIR}/lib")
-        link_directories("${BECC_VCPKG_INSTALLED_DIR}/debug/lib")
-
-        set(BECC_USING_VCPKG true)
-    else()
-        message(FATAL_ERROR "-- ${PROJECT_NAME}: vpckg error")
-    endif()
-endif()
-## curl
-set(CURL_FOUND)
-set(BECC_USING_CURL false)
+##
+## reserved: package manager?
+##
+## curl executeable
 set(BECC_USING_CURL_EXECUTEABLE false)
-
-find_package(CURL)
-
-if(CURL_FOUND)
-    set(BECC_USING_CURL true)
-    message(NOTICE "-- ${PROJECT_NAME}: lib curl found")
+set(BECC_USING_CURL_EXECUTEABLE_PATH)
+if(MSVC)
+    find_file(BECC_USING_CURL_EXECUTEABLE_PATH "curl.exe")
 else()
-    message(NOTICE "-- ${PROJECT_NAME}: lib curl not found")
+    # assume unix stlye
+    find_file(BECC_USING_CURL_EXECUTEABLE_PATH "curl")
 endif()
-
-if(WIN32)
-    find_file(BECC_CURL_EXECUTEABLE "curl.exe")
-else()
-    find_file(BECC_CURL_EXECUTEABLE "curl")
-endif()
-
-if(BECC_CURL_EXECUTEABLE)
+if(BECC_USING_CURL_EXECUTEABLE_PATH)
     set(BECC_USING_CURL_EXECUTEABLE true)
-    message(NOTICE "-- ${PROJECT_NAME}: curl executeable found ${BECC_CURL_EXECUTEABLE}")
-else()
-    message(NOTICE "-- ${PROJECT_NAME}: curl executeable not found")
+    message(NOTICE "-- ${PROJECT_NAME}: curl found in \"${BECC_USING_CURL_EXECUTEABLE_PATH}\"")
 endif()
-## openssl
-set(OpenSSL_FOUND)
-set(BECC_USING_OPENSSL false)
-
-find_package(OpenSSL CONFIG)
-if(OpenSSL_FOUND)
-    set(BECC_USING_OPENSSL true)
-    message(NOTICE "-- ${PROJECT_NAME}: lib openssl found")
-else()
-    message(NOTICE "-- ${PROJECT_NAME}: lib openssl not found, attempt to find headers")
-    find_file(BEC_OPENSSL_DIR "openssl/evp.h")
-    if(BEC_OPENSSL_DIR)
-        get_filename_component(OpenSSL_DIR "${BEC_OPENSSL_DIR}" DIRECTORY)
-
-        set(BECC_USING_OPENSSL true)
-        # include_directories(${OpenSSL_DIR})
-
-        message(NOTICE "-- ${PROJECT_NAME}: openssl header found in ${BEC_OPENSSL_DIR}")
-    else()
-        message(NOTICE "-- ${PROJECT_NAME}: openssl header not found")
-    endif()
-endif()
+##
 ## jsoncpp
-set(jsoncpp_FOUND)
 set(BECC_USING_JSONCPP false)
 
-find_package(jsoncpp CONFIG)
-
-if(jsoncpp_FOUND)
-    set(BECC_USING_JSONCPP true)
-    message(NOTICE "-- ${PROJECT_NAME}: jsoncpp package found")
-else()
+if(BUILD_VENDOR_JSONCPP)
     set(BECC_VENDOR_JSONCPP_DIR ${PROJECT_SOURCE_DIR}/vendors/jsoncpp)
 
     set(JSONCPP_WITH_TESTS false)
@@ -349,37 +254,67 @@ else()
 
     add_subdirectory(${BECC_VENDOR_JSONCPP_DIR} BECC_JSONCPP)
 
+    ## som dir & shared object?
+
     set(BECC_USING_JSONCPP true)
 
-    message(NOTICE "-- ${PROJECT_NAME}: jsoncpp using internal vendor dir")
+    message(NOTICE "-- ${PROJECT_NAME}: adding jsoncpp")
 endif()
-## argon2
-set(BECC_USING_ARGON2 false)
+##
+## openssl
+set(BECC_USING_OPENSSL false)
 
-find_file(BECC_ARGON2_INCLUDE_DIRS "argon2.h")
-if(BECC_ARGON2_INCLUDE_DIRS)
-    set(BECC_USING_ARGON2 true)
-    message(NOTICE "-- ${PROJECT_NAME}: argon2 header found")
+if(BUILD_VENDOR_OPENSSL)
+    set(BECC_VENDOR_OPENSSL_DIR ${PROJECT_SOURCE_DIR}/vendors/openssl-cmake)
+
+    add_subdirectory(${BECC_VENDOR_OPENSSL_DIR} BECC_OPENSSL)
+
+    set(BECC_USING_OPENSSL true)
+
+    message(NOTICE "-- ${PROJECT_NAME}: adding openssl")
 endif()
+##
 ## drogon
-set(Drogon_FOUND)
 set(BECC_USING_DROGON false)
 
 find_package(Drogon CONFIG)
 if(Drogon_FOUND)
     set(BECC_USING_DROGON true)
-    message(NOTICE "-- ${PROJECT_NAME}: drogon package found")
+
+    message(NOTICE "-- ${PROJECT_NAME}: adding drogon since package found")
 endif()
+##
+## argon2
+set(BECC_USING_ARGON2 false)
+set(BECC_ARGON2_HEADER)
+set(BECC_ARGON2_LIBRARY)
+
+find_file(BECC_ARGON2_HEADER "argon2.h")
+# if(NOT MSVC)
+#     find_file(BECC_ARGON2_LIBRARY "libargon2.so")
+# else()
+#     # assume unix
+#     find_file(BECC_ARGON2_LIBRARY "argon2.lib")
+# endif()
+
+if(BECC_ARGON2_HEADER)
+# if(BECC_ARGON2_HEADER AND BECC_ARGON2_LIBRARY)
+    set(BECC_USING_ARGON2 true)
+
+    message(NOTICE "-- ${PROJECT_NAME}: adding argon2 since header & lib found")
+endif()
+##
 ## postgresql
-set(PostgreSQL_FOUND)
 set(BECC_USING_POSTGRESQL false)
 
 find_package(PostgreSQL)
 if(PostgreSQL_FOUND)
     set(BECC_USING_POSTGRESQL true)
-    message(NOTICE "-- ${PROJECT_NAME}: postgresql package found")
+
+    message(NOTICE "-- ${PROJECT_NAME}: adding postgresql since package found")
 endif()
-## scylladb / linux only
+##
+## scylladb
 set(BECC_USING_SCYLLADB false)
 
 if(LINUX)
@@ -388,28 +323,15 @@ if(LINUX)
 
     if(BECC_SCYLLA_EXECUTEABLE AND BECC_CASSANDRA_HEADER)
         set(BECC_USING_SCYLLADB true)
-        message(NOTICE "-- ${PROJECT_NAME}: scylladb dependencies seems found")
+        message(NOTICE "-- ${PROJECT_NAME}: adding scylladb since deps found")
     endif()
+else()
+    message(NOTICE "-- ${PROJECT_NAME}: skipping scylladb deps, system not supported")
 endif()
-## sdl
-set(BECC_USING_SDL false)
-if(BUILD_VENDOR_SDL)
-    set(BECC_VENDOR_SDL_DIR "${PROJECT_SOURCE_DIR}/vendors/sdl")
-
-    include_directories(${BECC_VENDOR_SDL_DIR}/include)
-
-    link_directories(AFTER "${CMAKE_BINARY_DIR}/BECC_SDL")
-
-    set(SDL_STATIC true)
-    set(SDL_TEST_LIBRARY false)
-
-    add_subdirectory(${BECC_VENDOR_SDL_DIR} BECC_SDL)
-
-    set(BECC_USING_SDL true)
-    message(NOTICE "-- ${PROJECT_NAME}: sdl build using vendor")
-endif()
+##
 ## stb
 set(BECC_USING_STB false)
+
 if(BUILD_VENDOR_STB)
     if(NOT DEFINED ${Stb_INCLUDE_DIR})
         set(Stb_INCLUDE_DIR "")
@@ -424,13 +346,34 @@ if(BUILD_VENDOR_STB)
     endif()
 
     set(BECC_USING_STB true)
-    message(NOTICE "-- ${PROJECT_NAME}: stb build using vendor")
+    message(NOTICE "-- ${PROJECT_NAME}: adding stb")
 endif()
+##
+## sdl3
+set(BECC_USING_SDL3 false)
+
+if(BUILD_VENDOR_SDL3)
+    set(BECC_VENDOR_SDL3_DIR "${PROJECT_SOURCE_DIR}/vendors/sdl3")
+
+    include_directories(${BECC_VENDOR_SDL3_DIR}/include)
+
+    link_directories(AFTER "${CMAKE_BINARY_DIR}/BECC_SDL3")
+
+    set(SDL_STATIC true)
+    set(SDL_TEST_LIBRARY false)
+
+    add_subdirectory(${BECC_VENDOR_SDL3_DIR} BECC_SDL3)
+
+    set(BECC_USING_SDL3 true)
+    message(NOTICE "-- ${PROJECT_NAME}: adding sdl3")
+endif()
+##
 ## haru
 set(BECC_USING_HARU false)
+
 if(BUILD_VENDOR_HARU)
-    set(LIBHPDF_EXAMPLES OFF CACHE BOOL "Disable examples" FORCE) # disable example warning cmp policy for haru
-    cmake_policy(SET CMP0077 NEW)
+    # set(LIBHPDF_EXAMPLES OFF CACHE BOOL "Disable examples" FORCE) # disable example warning cmp policy for haru
+    # cmake_policy(SET CMP0077 NEW)
 
     set(BECC_VENDOR_LIBHARU_DIR "${PROJECT_SOURCE_DIR}/vendors/libharu")
 
@@ -451,11 +394,13 @@ if(BUILD_VENDOR_HARU)
     add_subdirectory(${BECC_VENDOR_LIBHARU_DIR} BECC_LIBHARU)
 
     set(BECC_USING_HARU true)
-    message(NOTICE "-- ${PROJECT_NAME}: haru build using vendor")
+    message(NOTICE "-- ${PROJECT_NAME}: adding haru hpdf")
 endif()
+##
 ## nanosvg
 set(BECC_USING_NANOSVG false)
-if(NOT BUILD_SKIPPED_VENDOR_NANOSVG)
+
+if(BUILD_VENDOR_NANOSVG)
     set(BECC_VENDOR_NANOSVG_DIR "${PROJECT_SOURCE_DIR}/vendors/nanosvg")
 
     if(NOT EXISTS "${CMAKE_BINARY_DIR}/BECC_NANOSVG/nanosvg")
@@ -472,10 +417,12 @@ if(NOT BUILD_SKIPPED_VENDOR_NANOSVG)
 
     add_subdirectory(${BECC_VENDOR_NANOSVG_DIR} BECC_NANOSVG)
     set(BECC_USING_NANOSVG true)
-    message(NOTICE "-- ${PROJECT_NAME}: nanosvg build using vendor")
+    message(NOTICE "-- ${PROJECT_NAME}: adding nanosvg")
 endif()
+##
 ## zxing-cpp
 set(BECC_USING_ZXING_CPP false)
+
 if(BUILD_VENDOR_ZXING_CPP)
     set(BECC_VENDOR_ZXING_CPP_DIR "${PROJECT_SOURCE_DIR}/vendors/zxing-cpp")
 
@@ -498,62 +445,74 @@ if(BUILD_VENDOR_ZXING_CPP)
 
     add_subdirectory(${BECC_VENDOR_ZXING_CPP_DIR} BECC_ZXING_CPP)
     set(BECC_USING_ZXING_CPP true)
-    message(NOTICE "-- ${PROJECT_NAME}: zxing-cpp build using vendor")
+    message(NOTICE "-- ${PROJECT_NAME}: adding zxing-cpp")
 endif()
 
 # project lib
 add_library(${PROJECT_NAME} ${BEC_SOURCES_FILES})
 
-# target libs
+# target libs, package, & executeable
+##
+## jsoncpp
+if(BECC_USING_JSONCPP)
+    target_link_libraries(${PROJECT_NAME} PRIVATE jsoncpp)
+endif()
+##
 ## openssl
 if(BECC_USING_OPENSSL)
     target_link_libraries(${PROJECT_NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 endif()
-## jsoncpp
-if(BECC_USING_JSONCPP)
-    if(jsoncpp_FOUND)
-        target_link_libraries(${PROJECT_NAME} PRIVATE JsonCpp::JsonCpp)
-    else()
-        target_link_libraries(${PROJECT_NAME} PRIVATE jsoncpp)
-    endif()
+##
+## drogon
+if(BECC_USING_DROGON)
+    target_link_libraries(${PROJECT_NAME} PRIVATE Drogon::Drogon)
 endif()
+##
 ## argon2
 if(BECC_USING_ARGON2)
     target_link_libraries(${PROJECT_NAME} PRIVATE argon2)
 endif()
-# postgresql
+##
+## postgresql
 if(BECC_USING_POSTGRESQL)
-    if(PostgreSQL_FOUND)
-        target_link_libraries(${PROJECT_NAME} PRIVATE PostgreSQL::PostgreSQL)
-    endif()
+    target_link_libraries(${PROJECT_NAME} PRIVATE PostgreSQL::PostgreSQL)
 endif()
+##
 ## scylladb
 if(BECC_USING_SCYLLADB)
     target_link_libraries(${PROJECT_NAME} PRIVATE scylla-cpp-driver)
 endif()
-## sdl
-if(BECC_USING_SDL)
-    target_link_libraries(${PROJECT_NAME} PRIVATE SDL3-static SDL_uclibc SDL3_Headers)
-endif()
+##
 ## stb
 if(BECC_USING_STB)
     target_include_directories(${PROJECT_NAME} PRIVATE ${Stb_INCLUDE_DIR})
 endif()
+##
+## sdl
+if(BECC_USING_SDL3)
+    target_link_libraries(${PROJECT_NAME} PRIVATE SDL3-static SDL_uclibc SDL3_Headers)
+endif()
+##
 ## haru
 if(BECC_USING_HARU)
     target_link_libraries(${PROJECT_NAME} PRIVATE hpdf)
 
-    target_include_directories(${PROJECT_NAME} PRIVATE ${BECC_VENDOR_LIBHARU_DIR_INCLUDE})
+    target_include_directories(${PROJECT_NAME} PRIVATE ${BECC_VENDOR_LIBHARU_DIR_SOURCE_OUT})
     target_include_directories(${PROJECT_NAME} PRIVATE ${BECC_VENDOR_LIBHARU_DIR_INCLUDE_OUT})
 endif()
-## zxing-cpp
-if(BECC_USING_ZXING_CPP)
-    target_link_libraries(${PROJECT_NAME} PRIVATE ZXing::Core ZXing::ZXing)
-endif()
+##
 ## nanosvg
 if(BECC_USING_NANOSVG)
     target_link_libraries(${PROJECT_NAME} PRIVATE nanosvg nanosvgrast)
 endif()
+##
+## zxing-cpp
+if(BECC_USING_ZXING_CPP)
+    target_link_libraries(${PROJECT_NAME} PRIVATE ZXing::Core ZXing::ZXing)
+endif()
+
+## installed options
+### reserved
 
 # compiler options
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
