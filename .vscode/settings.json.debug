@@ -8,18 +8,36 @@
 
         unix:
         "-std=c++17" "-fPIC"
+        or
+        "-std=c++20" "-fcoroutines" "-fPIC"
         */
-        // "CMAKE_CXX_FLAGS": "-fPIC",
+        // "CMAKE_CXX_FLAGS": "-std=c++20 -fcoroutines",
 
-        "BUILD_TOOLS": false,
+        "BECC_TESTS": true,
+        "BECC_TOOLS": true,
+
         "BUILD_TESTS": true,
         "BUILD_SHARED_LIBS": false,
 
-        "BUILD_VENDOR_SDL": true,
         "BUILD_VENDOR_STB": true,
+        "BUILD_VENDOR_SDL3": true,
         "BUILD_VENDOR_HARU": true,
         "BUILD_VENDOR_NANOSVG": true,
         "BUILD_VENDOR_ZXING_CPP": true,
+
+        "BECC_STB": true,
+        "BECC_SDL3": true,
+        "BECC_ARGON2": true,
+        "BECC_DROGON": true,
+        "BECC_LIBHARU": true,
+        "BECC_JSONCPP": true,
+        "BECC_OPENSSL": true,
+        "BECC_NANOSVG": true,
+        "BECC_SCYLLADB": true,
+        "BECC_POSTGRESQL": true,
+        "BECC_ZXING_CPP": true,
+
+        "BECC_BUILD_TARGET": 1, // 0:undefined 1:linux 2:windows 3:osx 4:android 5:ios (supported: 1, 2)
 
         /*
         default false/OFF

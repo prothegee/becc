@@ -1,6 +1,6 @@
 # becc
 
-backend library cc
+module library treatment for cpp backend project
 
 <br>
 
