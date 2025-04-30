@@ -248,6 +248,11 @@ set(BECC_USING_JSONCPP false)
 if(BUILD_VENDOR_JSONCPP)
     set(BECC_VENDOR_JSONCPP_DIR ${PROJECT_SOURCE_DIR}/vendors/jsoncpp)
 
+    # set(BECC_VENDOR_JSONCPP_DIR_INCLUDE ${PROJECT_SOURCE_DIR}/vendors/jsoncpp/include)
+
+    # include_directories(${BECC_VENDOR_JSONCPP_DIR_INCLUDE})
+    # link_directories(AFTER "${BECC_VENDOR_JSONCPP_DIR_INCLUDE}")
+
     set(JSONCPP_WITH_TESTS false)
     set(JSONCPP_WITH_EXAMPLE false)
     set(JSONCPP_WITH_CMAKE_PACKAGE true)
@@ -266,6 +271,14 @@ set(BECC_USING_OPENSSL false)
 
 if(BUILD_VENDOR_OPENSSL)
     set(BECC_VENDOR_OPENSSL_DIR ${PROJECT_SOURCE_DIR}/vendors/openssl-cmake)
+
+    # set(BECC_VENDOR_OPENSSL_DIR_INCLUDE_BUILD "${CMAKE_BINARY_DIR}/_deps/openssl-source-build/include")
+    # include_directories(${BECC_VENDOR_OPENSSL_DIR_INCLUDE_BUILD})
+    # link_directories(AFTER "${BECC_VENDOR_OPENSSL_DIR_INCLUDE_BUILD}")
+
+    # set(BECC_VENDOR_OPENSSL_DIR_INCLUDE_SRC "${CMAKE_BINARY_DIR}/_deps/openssl-source-src/include")
+    # include_directories(${BECC_VENDOR_OPENSSL_DIR_INCLUDE_SRC})
+    # link_directories(AFTER "${BECC_VENDOR_OPENSSL_DIR_INCLUDE_SRC}")
 
     add_subdirectory(${BECC_VENDOR_OPENSSL_DIR} BECC_OPENSSL)
 
@@ -290,15 +303,13 @@ set(BECC_ARGON2_HEADER)
 set(BECC_ARGON2_LIBRARY)
 
 find_file(BECC_ARGON2_HEADER "argon2.h")
-# if(NOT MSVC)
-#     find_file(BECC_ARGON2_LIBRARY "libargon2.so")
-# else()
-#     # assume unix
-#     find_file(BECC_ARGON2_LIBRARY "argon2.lib")
-# endif()
+if(WIN32)
+    find_file(BECC_ARGON2_LIBRARY "argon2.lib")
+else()
+    find_file(BECC_ARGON2_LIBRARY "libargon2.a")
+endif()
 
-if(BECC_ARGON2_HEADER)
-# if(BECC_ARGON2_HEADER AND BECC_ARGON2_LIBRARY)
+if(BECC_ARGON2_HEADER AND BECC_ARGON2_LIBRARY)
     set(BECC_USING_ARGON2 true)
 
     message(NOTICE "-- ${PROJECT_NAME}: adding argon2 since header & lib found")
@@ -455,11 +466,24 @@ add_library(${PROJECT_NAME} ${BEC_SOURCES_FILES})
 ##
 ## jsoncpp
 if(BECC_USING_JSONCPP)
+    # target_include_directories(${PROJECT_NAME} PRIVATE ${BECC_VENDOR_JSONCPP_DIR_INCLUDE})
+
     target_link_libraries(${PROJECT_NAME} PRIVATE jsoncpp)
 endif()
 ##
 ## openssl
 if(BECC_USING_OPENSSL)
+    # target_include_directories(${PROJECT_NAME} PRIVATE ${BECC_VENDOR_OPENSSL_DIR_INCLUDE_BUILD})
+    # target_include_directories(${PROJECT_NAME} PRIVATE ${BECC_VENDOR_OPENSSL_DIR_INCLUDE_SRC})
+
+    # if(MSVC) # windows, why?
+    #     target_link_libraries(${PROJECT_NAME} PRIVATE 
+    #         "${CMAKE_BINARY_DIR}/_deps/openssl-source-build/libcrypto.lib"
+    #         "${CMAKE_BINARY_DIR}/_deps/openssl-source-build/libssl.lib"
+    #     )
+    # else()
+    #     target_link_libraries(${PROJECT_NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+    # endif()
     target_link_libraries(${PROJECT_NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 endif()
 ##
