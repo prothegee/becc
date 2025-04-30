@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.15)
 set(BECC_VERSION_MAJOR 0)
 set(BECC_VERSION_MINOR 10)
 set(BECC_VERSION_PATCH 0)
-set(BECC_VERSION_RELEASE_DATE 20250430)
+set(BECC_VERSION_RELEASE_DATE 20250501)
 
 # package project
 project(becc
@@ -19,16 +19,12 @@ project(becc
 option(BUILD_TESTS              "build project test/s" OFF)
 ## build tools, default false/OFF
 option(BUILD_TOOLS              "build project tool/s" OFF)
-## build vendor sdl
-option(BUILD_VENDOR_SDL3        "build vendor sdl3" OFF)
 ## build vendor stb
 option(BUILD_VENDOR_STB         "build vendor stb" OFF)
+## build vendor sdl
+option(BUILD_VENDOR_SDL3        "build vendor sdl3" OFF)
 ## build vendor haru
 option(BUILD_VENDOR_HARU        "build vendor haru" OFF)
-## build vendor jsoncpp
-option(BUILD_VENDOR_JSONCPP     "build vendor jsoncpp" OFF)
-## build vendor openssl
-option(BUILD_VENDOR_OPENSSL     "build vendor openssl" OFF)
 ## build vendor nanosvg
 option(BUILD_VENDOR_NANOSVG     "build vendor nanosvg" OFF)
 ## build vendor zxing-cpp
@@ -245,46 +241,20 @@ endif()
 ## jsoncpp
 set(BECC_USING_JSONCPP false)
 
-if(BUILD_VENDOR_JSONCPP)
-    set(BECC_VENDOR_JSONCPP_DIR ${PROJECT_SOURCE_DIR}/vendors/jsoncpp)
-
-    # set(BECC_VENDOR_JSONCPP_DIR_INCLUDE ${PROJECT_SOURCE_DIR}/vendors/jsoncpp/include)
-
-    # include_directories(${BECC_VENDOR_JSONCPP_DIR_INCLUDE})
-    # link_directories(AFTER "${BECC_VENDOR_JSONCPP_DIR_INCLUDE}")
-
-    set(JSONCPP_WITH_TESTS false)
-    set(JSONCPP_WITH_EXAMPLE false)
-    set(JSONCPP_WITH_CMAKE_PACKAGE true)
-
-    add_subdirectory(${BECC_VENDOR_JSONCPP_DIR} BECC_JSONCPP)
-
-    ## som dir & shared object?
-
+find_package(jsoncpp CONFIG)
+if(jsoncpp_FOUND)
     set(BECC_USING_JSONCPP true)
-
-    message(NOTICE "-- ${PROJECT_NAME}: adding jsoncpp")
+    set(BECC_USING_OPENSSL true)
+    message(NOTICE "-- ${PROJECT_NAME}: adding jsoncpp since package found")
 endif()
 ##
 ## openssl
 set(BECC_USING_OPENSSL false)
 
-if(BUILD_VENDOR_OPENSSL)
-    set(BECC_VENDOR_OPENSSL_DIR ${PROJECT_SOURCE_DIR}/vendors/openssl-cmake)
-
-    # set(BECC_VENDOR_OPENSSL_DIR_INCLUDE_BUILD "${CMAKE_BINARY_DIR}/_deps/openssl-source-build/include")
-    # include_directories(${BECC_VENDOR_OPENSSL_DIR_INCLUDE_BUILD})
-    # link_directories(AFTER "${BECC_VENDOR_OPENSSL_DIR_INCLUDE_BUILD}")
-
-    # set(BECC_VENDOR_OPENSSL_DIR_INCLUDE_SRC "${CMAKE_BINARY_DIR}/_deps/openssl-source-src/include")
-    # include_directories(${BECC_VENDOR_OPENSSL_DIR_INCLUDE_SRC})
-    # link_directories(AFTER "${BECC_VENDOR_OPENSSL_DIR_INCLUDE_SRC}")
-
-    add_subdirectory(${BECC_VENDOR_OPENSSL_DIR} BECC_OPENSSL)
-
+find_package(OpenSSL CONFIG)
+if(OpenSSL_FOUND)
     set(BECC_USING_OPENSSL true)
-
-    message(NOTICE "-- ${PROJECT_NAME}: adding openssl")
+    message(NOTICE "-- ${PROJECT_NAME}: adding openssl since package found")
 endif()
 ##
 ## drogon
@@ -293,26 +263,27 @@ set(BECC_USING_DROGON false)
 find_package(Drogon CONFIG)
 if(Drogon_FOUND)
     set(BECC_USING_DROGON true)
-
     message(NOTICE "-- ${PROJECT_NAME}: adding drogon since package found")
 endif()
 ##
 ## argon2
 set(BECC_USING_ARGON2 false)
 set(BECC_ARGON2_HEADER)
+set(BECC_ARGON2_SHARED)
 set(BECC_ARGON2_LIBRARY)
 
 find_file(BECC_ARGON2_HEADER "argon2.h")
 if(WIN32)
+    find_file(BECC_ARGON2_SHARED "argon2.dll")
     find_file(BECC_ARGON2_LIBRARY "argon2.lib")
 else()
+    find_file(BECC_ARGON2_LIBRARY "libargon2.so")
     find_file(BECC_ARGON2_LIBRARY "libargon2.a")
 endif()
 
-if(BECC_ARGON2_HEADER AND BECC_ARGON2_LIBRARY)
+if(BECC_ARGON2_HEADER AND BECC_ARGON2_SHARED AND BECC_ARGON2_LIBRARY)
     set(BECC_USING_ARGON2 true)
-
-    message(NOTICE "-- ${PROJECT_NAME}: adding argon2 since header & lib found")
+    message(NOTICE "-- ${PROJECT_NAME}: adding argon2 since header, shared & lib found")
 endif()
 ##
 ## postgresql
@@ -321,18 +292,19 @@ set(BECC_USING_POSTGRESQL false)
 find_package(PostgreSQL)
 if(PostgreSQL_FOUND)
     set(BECC_USING_POSTGRESQL true)
-
     message(NOTICE "-- ${PROJECT_NAME}: adding postgresql since package found")
 endif()
 ##
 ## scylladb
 set(BECC_USING_SCYLLADB false)
+set(BECC_CASSANDRA_HEADER)
+set(BECC_SCYLLA_EXECUTEABLE)
 
 if(LINUX)
-    find_file(BECC_SCYLLA_EXECUTEABLE "scylla")
     find_file(BECC_CASSANDRA_HEADER "cassandra.h")
+    find_file(BECC_SCYLLA_EXECUTEABLE "scylla")
 
-    if(BECC_SCYLLA_EXECUTEABLE AND BECC_CASSANDRA_HEADER)
+    if(BECC_CASSANDRA_HEADER AND BECC_SCYLLA_EXECUTEABLE)
         set(BECC_USING_SCYLLADB true)
         message(NOTICE "-- ${PROJECT_NAME}: adding scylladb since deps found")
     endif()

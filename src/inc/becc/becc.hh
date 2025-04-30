@@ -4,6 +4,7 @@
 #include "export.hh"
 
 #include <cstdint>
+#include <array>
 #include <vector>
 #include <string>
 
