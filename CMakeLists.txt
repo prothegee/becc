@@ -145,11 +145,15 @@ include(CMakeFindDependencyMacro)
 include(CMakePackageConfigHelpers)
 include(FindPackageHandleStandardArgs)
 
-# check deps
-## openssl
-# find_dependency(Drogon)
-find_dependency(OpenSSL)
-find_dependency(PostgreSQL)
+# check deps (unix only)
+if(NOT WIN32)
+    ## drogon
+    # find_dependency(Drogon)
+    ## openssl
+    find_dependency(OpenSSL)
+    ## postgresql
+    find_dependency(PostgreSQL)
+endif()
 
 # files
 ## headers files
