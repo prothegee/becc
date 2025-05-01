@@ -14,17 +14,17 @@
         "-std=c++20 -fcoroutines -fPIC"
         */
         // "CMAKE_CXX_FLAGS": "-std=c++20 -fcoroutines",
-        "BUILD_TESTS": false,
-        "BUILD_TOOLS": false,
-        "BUILD_SHARED_LIBS": false,
+        "BECC_BUILD_TESTS": false,
+        "BECC_BUILD_TOOLS": false,
+        "BECC_BUILD_SHARED_LIBS": false,
 
-        "BUILD_VENDOR_STB": false,
-        "BUILD_VENDOR_SDL3": false,
-        "BUILD_VENDOR_HARU": false,
-        "BUILD_VENDOR_NANOSVG": false,
-        "BUILD_VENDOR_ZXING_CPP": false,
+        "BECC_BUILD_VENDOR_STB": false,
+        "BECC_BUILD_VENDOR_SDL3": false,
+        "BECC_BUILD_VENDOR_HARU": false,
+        "BECC_BUILD_VENDOR_NANOSVG": false,
+        "BECC_BUILD_VENDOR_ZXING_CPP": false,
 
-        "BECC_BUILD_TARGET": 1, // 0:undefined 1:linux 2:windows 3:osx 4:android 5:ios (supported: 1, 2)
+        "BECC_BECC_BUILD_TARGET": 1, // 0:undefined 1:linux 2:windows 3:osx 4:android 5:ios (supported: 1, 2)
 
         /*
         default false/OFF
@@ -53,8 +53,8 @@
         - arm-ios
         - arm64-ios
         */
-        "BUILD_VCPKG": false,
-        "BUILD_VCPKG_TRIPLET": "",
+        "BECC_BUILD_VCPKG": false,
+        "BECC_BUILD_VCPKG_TRIPLET": "",
 
         "_": "don't use me"
     },

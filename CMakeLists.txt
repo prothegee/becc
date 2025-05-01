@@ -16,50 +16,50 @@ project(becc
 
 # option/s
 ## build tests, default false/OFF
-option(BUILD_TESTS              "build project test/s" OFF)
+option(BECC_BUILD_TESTS              "build project test/s" OFF)
 ## build tools, default false/OFF
-option(BUILD_TOOLS              "build project tool/s" OFF)
+option(BECC_BUILD_TOOLS              "build project tool/s" OFF)
 ## build vendor stb, default false/OFF
-option(BUILD_VENDOR_STB         "build vendor stb" OFF)
+option(BECC_BUILD_VENDOR_STB         "build vendor stb" OFF)
 ## build vendor sdl, default false/OFF
-option(BUILD_VENDOR_SDL3        "build vendor sdl3" OFF)
+option(BECC_BUILD_VENDOR_SDL3        "build vendor sdl3" OFF)
 ## build vendor haru, default false/OFF
-option(BUILD_VENDOR_HARU        "build vendor haru" OFF)
+option(BECC_BUILD_VENDOR_HARU        "build vendor haru" OFF)
 ## build vendor nanosvg, default false/OFF
-option(BUILD_VENDOR_NANOSVG     "build vendor nanosvg" OFF)
+option(BECC_BUILD_VENDOR_NANOSVG     "build vendor nanosvg" OFF)
 ## build vendor zxing-cpp, default false/OFF
-option(BUILD_VENDOR_ZXING_CPP   "build vendor zxing-cpp" OFF)
+option(BECC_BUILD_VENDOR_ZXING_CPP   "build vendor zxing-cpp" OFF)
 ### build use vcpkg, default false/OFF
-option(BUILD_VCPKG              "build use vcpkg" OFF)
+option(BECC_BUILD_VCPKG              "build use vcpkg" OFF)
 ### build vcpkg_triplet, default false/OFF, should be string value
-option(BUILD_VCPKG_TRIPLET      "build triplet for vcpkg" OFF)
+option(BECC_BUILD_VCPKG_TRIPLET      "build triplet for vcpkg" OFF)
 
 ## rules of options
 
 ## build tests as bool
-if(BUILD_TESTS)
-    set(BUILD_TESTS true)
+if(BECC_BUILD_TESTS)
+    set(BECC_BUILD_TESTS true)
 else()
-    set(BUILD_TESTS false)
+    set(BECC_BUILD_TESTS false)
 endif()
 
 ## build tools as bool
-if(BUILD_TOOLS)
-    set(BUILD_TOOLS true)
+if(BECC_BUILD_TOOLS)
+    set(BECC_BUILD_TOOLS true)
 else()
-    set(BUILD_TOOLS false)
+    set(BECC_BUILD_TOOLS false)
 endif()
 
 ## build vcpkg as bool
-if(BUILD_VCPKG)
-    set(BUILD_VCPKG true)
+if(BECC_BUILD_VCPKG)
+    set(BECC_BUILD_VCPKG true)
 else()
-    set(BUILD_VCPKG false)
+    set(BECC_BUILD_VCPKG false)
 endif()
 
 ## build type
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "Debug")
+if(NOT CMAKE_BECC_BUILD_TYPE)
+    set(CMAKE_BECC_BUILD_TYPE "Debug")
 endif()
 
 ## cxx standard required
@@ -133,9 +133,9 @@ endif()
 
 ## rest of the world is debug except Release
 set(BECC_IS_DEBUG true)
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
+if(CMAKE_BECC_BUILD_TYPE STREQUAL "Release")
     set(BECC_IS_DEBUG false) 
-elseif(CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
+elseif(CMAKE_BECC_BUILD_TYPE STREQUAL "MinSizeRel")
     set(BECC_IS_DEBUG false) 
 endif()
 
@@ -235,7 +235,7 @@ endif()
 ##
 ## package manager: vcpkg
 set(BECC_USING_VCPKG false)
-if(BUILD_VCPKG)
+if(BECC_BUILD_VCPKG)
     # message(WARNING "-- ${PROJECT_NAME}: this configuration has conflict with SDL3 & hpdf/libharu")
     # either disable it, or remove it
 
@@ -253,7 +253,7 @@ if(BUILD_VCPKG)
         set(BECC_VCPKG_DIR "$ENV{VCPKG_ROOT}")
     endif()
 
-    if(BUILD_VCPKG AND BECC_VCPKG_DIR STREQUAL "")
+    if(BECC_BUILD_VCPKG AND BECC_VCPKG_DIR STREQUAL "")
         message(FATAL_ERROR "-- ${PROJECT_NAME}: you are attempting to use vcpkg, but environment variables of `VCPKG_DIR/VCPKG_ROOT` is empty")
     endif()
 
@@ -275,12 +275,12 @@ if(BUILD_VCPKG)
     if(NOT "${VCPKG_DEFAULT_TRIPLET}" STREQUAL "")
         set(BECC_VCPKG_TRIPLET "${VCPKG_DEFAULT_TRIPLET}")
     endif()
-    if(NOT "${BUILD_VCPKG_TRIPLET}" STREQUAL "")
-        set(BECC_VCPKG_TRIPLET "${BUILD_VCPKG_TRIPLET}")
+    if(NOT "${BECC_BUILD_VCPKG_TRIPLET}" STREQUAL "")
+        set(BECC_VCPKG_TRIPLET "${BECC_BUILD_VCPKG_TRIPLET}")
     endif()
 
     if(BECC_VCPKG_TRIPLET STREQUAL "")
-        message(FATAL_ERROR "-- ${PROJECT_NAME}: attempt to use vcpkg but triplet is not defined/set, use `-DVCPKG_TRIPLET=processor_type:system_os_name` or `-DVCPKG_DEFAULT_TRIPLET=processor_type:system_os_name` or set those on your environment variable from -DBUILD_VCPKG_TRIPLET=processor_type:system_os_name") 
+        message(FATAL_ERROR "-- ${PROJECT_NAME}: attempt to use vcpkg but triplet is not defined/set, use `-DVCPKG_TRIPLET=processor_type:system_os_name` or `-DVCPKG_DEFAULT_TRIPLET=processor_type:system_os_name` or set those on your environment variable from -DBECC_BUILD_VCPKG_TRIPLET=processor_type:system_os_name") 
     endif()
 
     # check and set
@@ -426,7 +426,7 @@ endif()
 ## stb
 set(BECC_USING_STB false)
 
-if(BUILD_VENDOR_STB)
+if(BECC_BUILD_VENDOR_STB)
     if(NOT DEFINED ${Stb_INCLUDE_DIR})
         set(Stb_INCLUDE_DIR "")
     endif()
@@ -446,7 +446,7 @@ endif()
 ## sdl3
 set(BECC_USING_SDL3 false)
 
-if(BUILD_VENDOR_SDL3)
+if(BECC_BUILD_VENDOR_SDL3)
     if(BECC_USING_VCPKG)
         find_package(SDL3 CONFIG REQUIRED)
     else()
@@ -469,7 +469,7 @@ endif()
 ## haru
 set(BECC_USING_HARU false)
 
-if(BUILD_VENDOR_HARU)
+if(BECC_BUILD_VENDOR_HARU)
     if(BECC_USING_VCPKG)
         set(LIBHPDF_SHARED false)
         set(LIBHPDF_STATIC true)
@@ -503,7 +503,7 @@ endif()
 ## nanosvg
 set(BECC_USING_NANOSVG false)
 
-if(BUILD_VENDOR_NANOSVG)
+if(BECC_BUILD_VENDOR_NANOSVG)
     if(BECC_USING_VCPKG)
         find_package(NanoSVG CONFIG REQUIRED)
     else()
@@ -531,7 +531,7 @@ endif()
 ## zxing-cpp
 set(BECC_USING_ZXING_CPP false)
 
-if(BUILD_VENDOR_ZXING_CPP)
+if(BECC_BUILD_VENDOR_ZXING_CPP)
     set(ZXING_EXPERIMENTAL_API true)
     set(ZXING_EXAMPLES false)
     set(ZXING_BLACKBOX_TESTS false)
@@ -563,13 +563,13 @@ endif()
 
 # project lib
 add_library(${PROJECT_NAME} ${BEC_SOURCES_FILES})
-# set(BECC_BUILD_SHARED_LIBS false)
-# if(BUILD_SHARED_LIBS)
+# set(BECC_BECC_BUILD_SHARED_LIBS false)
+# if(BECC_BUILD_SHARED_LIBS)
 #     set_target_properties(${PROJECT_NAME} PROPERTIES
 #         VERSION "${BECC_VERSION_MAJOR}.${BECC_VERSION_MINOR}.${BECC_VERSION_PATCH}"
 #         SOVERSION "${BECC_VERSION_MAJOR}.${BECC_VERSION_MINOR}.${BECC_VERSION_PATCH}"
 #     )
-#     set(BECC_BUILD_SHARED_LIBS true)
+#     set(BECC_BECC_BUILD_SHARED_LIBS true)
 # endif() # skip for now
 
 # target libs, package, & executeable
@@ -580,7 +580,7 @@ even if using vcpkg will keep build the vendor dir for just because
 ##
 ## jsoncpp
 if(BECC_USING_JSONCPP)
-    if(NOT BUILD_VCPKG)
+    if(NOT BECC_BUILD_VCPKG)
         target_link_libraries(${PROJECT_NAME} PRIVATE jsoncpp)
     else()
         find_package(jsoncpp CONFIG REQUIRED)
@@ -600,7 +600,7 @@ endif()
 ##
 ## argon2
 if(BECC_USING_ARGON2)
-    if(BUILD_VCPKG)
+    if(BECC_BUILD_VCPKG)
         target_link_libraries(${PROJECT_NAME} PRIVATE unofficial::argon2::libargon2)
     else()
         target_link_libraries(${PROJECT_NAME} PRIVATE argon2)
@@ -624,7 +624,7 @@ endif()
 ##
 ## sdl
 if(BECC_USING_SDL3)
-    if(BUILD_VCPKG)
+    if(BECC_BUILD_VCPKG)
         target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
     else()
         target_link_libraries(${PROJECT_NAME} PRIVATE SDL3-static SDL_uclibc SDL3_Headers)
@@ -633,7 +633,7 @@ endif()
 ##
 ## haru
 if(BECC_USING_HARU)
-    if(BUILD_VCPKG)
+    if(BECC_BUILD_VCPKG)
         target_link_libraries(${PROJECT_NAME} PRIVATE unofficial::libharu::hpdf)
     else()
         target_link_libraries(${PROJECT_NAME} PRIVATE hpdf)
@@ -645,7 +645,7 @@ endif()
 ##
 ## nanosvg
 if(BECC_USING_NANOSVG)
-    if(BUILD_VCPKG)
+    if(BECC_BUILD_VCPKG)
         target_link_libraries(${PROJECT_NAME} PRIVATE NanoSVG::nanosvg NanoSVG::nanosvgrast)
     else()
         target_link_libraries(${PROJECT_NAME} PRIVATE nanosvg nanosvgrast)
@@ -764,11 +764,11 @@ target_sources(${PROJECT_NAME}
 )
 
 # build tests
-if(BUILD_TESTS)
+if(BECC_BUILD_TESTS)
     add_subdirectory(tests BECC_TESTS)
-endif(BUILD_TESTS)
+endif(BECC_BUILD_TESTS)
 
 # build tools
-if(BUILD_TOOLS)
+if(BECC_BUILD_TOOLS)
     
-endif(BUILD_TOOLS)
+endif(BECC_BUILD_TOOLS)
