@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.15)
 # package
 set(BECC_VERSION_MAJOR 0)
 set(BECC_VERSION_MINOR 11)
-set(BECC_VERSION_PATCH 0)
+set(BECC_VERSION_PATCH 1)
 set(BECC_VERSION_RELEASE_DATE 20250501)
 
 # package project
@@ -334,14 +334,13 @@ set(BECC_USING_JSONCPP false)
 find_package(jsoncpp CONFIG)
 if(jsoncpp_FOUND)
     set(BECC_USING_JSONCPP true)
-    set(BECC_USING_OPENSSL true)
     message(NOTICE "-- ${PROJECT_NAME}: adding jsoncpp since package found")
 endif()
 ##
 ## openssl
 set(BECC_USING_OPENSSL false)
 
-find_package(OpenSSL CONFIG)
+find_package(OpenSSL)
 if(OpenSSL_FOUND)
     set(BECC_USING_OPENSSL true)
     message(NOTICE "-- ${PROJECT_NAME}: adding openssl since package found")
@@ -364,16 +363,28 @@ set(BECC_ARGON2_LIBRARY)
 
 find_file(BECC_ARGON2_HEADER "argon2.h")
 if(WIN32)
-    find_file(BECC_ARGON2_SHARED "argon2.dll")
-    find_file(BECC_ARGON2_LIBRARY "argon2.lib")
+    find_library(BECC_ARGON2_SHARED "argon2.dll")
+    find_library(BECC_ARGON2_LIBRARY "argon2.lib")
 else()
-    find_file(BECC_ARGON2_LIBRARY "libargon2.so")
-    find_file(BECC_ARGON2_LIBRARY "libargon2.a")
+    find_library(BECC_ARGON2_SHARED "libargon2.so")
+    find_library(BECC_ARGON2_LIBRARY "libargon2.a")
 endif()
 
 if(BECC_ARGON2_HEADER AND BECC_ARGON2_SHARED AND BECC_ARGON2_LIBRARY)
     set(BECC_USING_ARGON2 true)
     message(NOTICE "-- ${PROJECT_NAME}: adding argon2 since header, shared & lib found")
+else()
+    if(NOT BECC_ARGON2_HEADER)
+        message(NOTICE "-- ${PROJECT_NAME}: still couldn't found argon2 header")
+    endif(NOT BECC_ARGON2_HEADER)
+
+    if(NOT BECC_ARGON2_SHARED)
+        message(NOTICE "-- ${PROJECT_NAME}: still couldn't found argon2 shared object/runtime")
+    endif(NOT BECC_ARGON2_SHARED)
+
+    if(NOT BECC_ARGON2_LIBRARY)
+        message(NOTICE "-- ${PROJECT_NAME}: still couldn't found argon2 library")
+    endif(NOT BECC_ARGON2_LIBRARY)
 endif()
 ##
 ## postgresql
@@ -426,7 +437,6 @@ endif()
 set(BECC_USING_SDL3 false)
 
 if(BUILD_VENDOR_SDL3)
-    # MARK: HAS CONFLICT IF VCPKG PRESENT
     set(BECC_VENDOR_SDL3_DIR "${PROJECT_SOURCE_DIR}/vendors/sdl3")
 
     include_directories(${BECC_VENDOR_SDL3_DIR}/include)
@@ -534,10 +544,19 @@ add_library(${PROJECT_NAME} ${BEC_SOURCES_FILES})
 # endif() # skip for now
 
 # target libs, package, & executeable
+# MARK: note target_link_libraries & target_include_directories
+#[=[
+even if using vcpkg will keep build the vendor dir for just because
+#]=]
 ##
 ## jsoncpp
 if(BECC_USING_JSONCPP)
-    target_link_libraries(${PROJECT_NAME} PRIVATE jsoncpp)
+    if(NOT BUILD_VCPKG)
+        target_link_libraries(${PROJECT_NAME} PRIVATE jsoncpp)
+    else()
+        find_package(jsoncpp CONFIG REQUIRED)
+        target_link_libraries(${PROJECT_NAME} PRIVATE JsonCpp::JsonCpp)
+    endif()
 endif()
 ##
 ## openssl
@@ -552,7 +571,12 @@ endif()
 ##
 ## argon2
 if(BECC_USING_ARGON2)
-    target_link_libraries(${PROJECT_NAME} PRIVATE argon2)
+    if(NOT BUILD_VCPKG)
+        target_link_libraries(${PROJECT_NAME} PRIVATE argon2)
+    else()
+        find_package(unofficial-argon2 CONFIG REQUIRED)
+        target_link_libraries(${PROJECT_NAME} PRIVATE unofficial::argon2::libargon2)
+    endif()
 endif()
 ##
 ## postgresql
@@ -572,25 +596,45 @@ endif()
 ##
 ## sdl
 if(BECC_USING_SDL3)
-    target_link_libraries(${PROJECT_NAME} PRIVATE SDL3-static SDL_uclibc SDL3_Headers)
+    if(NOT BUILD_VCPKG)
+        target_link_libraries(${PROJECT_NAME} PRIVATE SDL3-static SDL_uclibc SDL3_Headers)
+    else()
+        find_package(SDL3 CONFIG REQUIRED)
+        target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
+    endif()
 endif()
 ##
 ## haru
 if(BECC_USING_HARU)
-    target_link_libraries(${PROJECT_NAME} PRIVATE hpdf)
+    if(NOT BUILD_VCPKG)
+        target_link_libraries(${PROJECT_NAME} PRIVATE hpdf)
 
-    target_include_directories(${PROJECT_NAME} PRIVATE ${BECC_VENDOR_LIBHARU_DIR_SOURCE_OUT})
-    target_include_directories(${PROJECT_NAME} PRIVATE ${BECC_VENDOR_LIBHARU_DIR_INCLUDE_OUT})
+        target_include_directories(${PROJECT_NAME} PRIVATE ${BECC_VENDOR_LIBHARU_DIR_SOURCE_OUT})
+        target_include_directories(${PROJECT_NAME} PRIVATE ${BECC_VENDOR_LIBHARU_DIR_INCLUDE_OUT})
+    else()
+        find_package(unofficial-libharu CONFIG REQUIRED)
+        target_link_libraries(${PROJECT_NAME} PRIVATE unofficial::libharu::hpdf)
+    endif()
 endif()
 ##
 ## nanosvg
 if(BECC_USING_NANOSVG)
-    target_link_libraries(${PROJECT_NAME} PRIVATE nanosvg nanosvgrast)
+    if(NOT BUILD_VCPKG)
+        target_link_libraries(${PROJECT_NAME} PRIVATE nanosvg nanosvgrast)
+    else()
+        find_package(NanoSVG CONFIG REQUIRED)
+        target_link_libraries(${PROJECT_NAME} PRIVATE NanoSVG::nanosvg NanoSVG::nanosvgrast)
+    endif()
 endif()
 ##
 ## zxing-cpp
 if(BECC_USING_ZXING_CPP)
-    target_link_libraries(${PROJECT_NAME} PRIVATE ZXing::Core ZXing::ZXing)
+    if(NOT BUILD_VCPKG)
+        target_link_libraries(${PROJECT_NAME} PRIVATE ZXing::Core ZXing::ZXing)
+    else()
+        find_package(ZXing CONFIG REQUIRED)
+        target_link_libraries(${PROJECT_NAME} PRIVATE ZXing::Core ZXing::ZXing)
+    endif()
 endif()
 
 ## installed options
