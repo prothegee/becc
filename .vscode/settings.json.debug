@@ -24,7 +24,7 @@
         "BECC_BUILD_VENDOR_NANOSVG": false,
         "BECC_BUILD_VENDOR_ZXING_CPP": false,
 
-        "BECC_BECC_BUILD_TARGET": 1, // 0:undefined 1:linux 2:windows 3:osx 4:android 5:ios (supported: 1, 2)
+        "BECC_BUILD_TARGET": 1, // 0:undefined 1:linux 2:windows 3:osx 4:android 5:ios (supported: 1, 2)
 
         /*
         default false/OFF

@@ -29,6 +29,8 @@ option(BECC_BUILD_VENDOR_HARU        "build vendor haru" OFF)
 option(BECC_BUILD_VENDOR_NANOSVG     "build vendor nanosvg" OFF)
 ## build vendor zxing-cpp, default false/OFF
 option(BECC_BUILD_VENDOR_ZXING_CPP   "build vendor zxing-cpp" OFF)
+### build shared libs
+option(BECC_BUILD_SHARED_LIBS        "build force param to standard -DBUILD_SHARED_LIBS" OFF)
 ### build use vcpkg, default false/OFF
 option(BECC_BUILD_VCPKG              "build use vcpkg" OFF)
 ### build vcpkg_triplet, default false/OFF, should be string value
@@ -563,14 +565,22 @@ endif()
 
 # project lib
 add_library(${PROJECT_NAME} ${BEC_SOURCES_FILES})
-# set(BECC_BECC_BUILD_SHARED_LIBS false)
+## shared libs
 # if(BECC_BUILD_SHARED_LIBS)
 #     set_target_properties(${PROJECT_NAME} PROPERTIES
 #         VERSION "${BECC_VERSION_MAJOR}.${BECC_VERSION_MINOR}.${BECC_VERSION_PATCH}"
 #         SOVERSION "${BECC_VERSION_MAJOR}.${BECC_VERSION_MINOR}.${BECC_VERSION_PATCH}"
 #     )
-#     set(BECC_BECC_BUILD_SHARED_LIBS true)
+#     set(BECC_BUILD_SHARED_LIBS true)
 # endif() # skip for now
+## force shared libs
+if(BUILD_SHARED_LIBS)
+    set(BECC_BUILD_SHARED_LIBS true)
+
+    message(WARNING "-- ${PROJECT_NAME}: -DBUILD_SHARED_LIBS is ON/true, might cause error when adding this project as subdir when linking")
+else()
+    set(BECC_BUILD_SHARED_LIBS false)
+endif(BUILD_SHARED_LIBS)
 
 # target libs, package, & executeable
 # MARK: note target_link_libraries & target_include_directories
