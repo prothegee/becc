@@ -170,7 +170,7 @@ int32_t argon2id(const std::string& input, const std::string& salt, std::string&
         computation,
         block,
         parallelism,
-        salt.size(),
+        (uint32_t)salt.size(),
         derived_length,
         Argon2_id
     );

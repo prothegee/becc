@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 
 # package
 set(BECC_VERSION_MAJOR 0)
-set(BECC_VERSION_MINOR 10)
+set(BECC_VERSION_MINOR 11)
 set(BECC_VERSION_PATCH 0)
 set(BECC_VERSION_RELEASE_DATE 20250501)
 
@@ -19,16 +19,20 @@ project(becc
 option(BUILD_TESTS              "build project test/s" OFF)
 ## build tools, default false/OFF
 option(BUILD_TOOLS              "build project tool/s" OFF)
-## build vendor stb
+## build vendor stb, default false/OFF
 option(BUILD_VENDOR_STB         "build vendor stb" OFF)
-## build vendor sdl
+## build vendor sdl, default false/OFF
 option(BUILD_VENDOR_SDL3        "build vendor sdl3" OFF)
-## build vendor haru
+## build vendor haru, default false/OFF
 option(BUILD_VENDOR_HARU        "build vendor haru" OFF)
-## build vendor nanosvg
+## build vendor nanosvg, default false/OFF
 option(BUILD_VENDOR_NANOSVG     "build vendor nanosvg" OFF)
-## build vendor zxing-cpp
+## build vendor zxing-cpp, default false/OFF
 option(BUILD_VENDOR_ZXING_CPP   "build vendor zxing-cpp" OFF)
+### build use vcpkg, default false/OFF
+option(BUILD_VCPKG              "build use vcpkg" OFF)
+### build vcpkg_triplet, default false/OFF, should be string value
+option(BUILD_VCPKG_TRIPLET      "build triplet for vcpkg" OFF)
 
 ## rules of options
 
@@ -44,6 +48,13 @@ if(BUILD_TOOLS)
     set(BUILD_TOOLS true)
 else()
     set(BUILD_TOOLS false)
+endif()
+
+## build vcpkg as bool
+if(BUILD_VCPKG)
+    set(BUILD_VCPKG true)
+else()
+    set(BUILD_VCPKG false)
 endif()
 
 ## build type
@@ -222,7 +233,86 @@ if(NOT "${CMAKE_TOOLCHAIN_FILE}" STREQUAL "")
     message(NOTICE "-- ${PROJECT_NAME}: using CMAKE_TOOLCHAIN_FILE as `${CMAKE_TOOLCHAIN_FILE}`")
 endif()
 ##
-## reserved: package manager?
+## package manager: vcpkg
+set(BECC_USING_VCPKG false)
+if(BUILD_VCPKG)
+    message(WARNING "-- ${PROJECT_NAME}: this configuration has conflict with SDL3 & hpdf/libharu")
+    # either disable it, or remove it
+
+    set(BECC_VCPKG_DIR)
+    set(BECC_VCPKG_TRIPLET)
+    set(BECC_VCPKG_INSTALLED_DIR)
+
+    # check VCPKG_DIR env. var.
+    if(NOT "$ENV{VCPKG_DIR}" STREQUAL "")
+        set(BECC_VCPKG_DIR "$ENV{VCPKG_DIR}")
+    endif()
+
+    # check VCPKG_ROOT env. var.
+    if(NOT "$ENV{VCPKG_ROOT}" STREQUAL "")
+        set(BECC_VCPKG_DIR "$ENV{VCPKG_ROOT}")
+    endif()
+
+    if(BUILD_VCPKG AND BECC_VCPKG_DIR STREQUAL "")
+        message(FATAL_ERROR "-- ${PROJECT_NAME}: you are attempting to use vcpkg, but environment variables of `VCPKG_DIR/VCPKG_ROOT` is empty")
+    endif()
+
+    # include toolchain
+    include("${BECC_VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake")
+
+    # check vcpkg triplet env. var.
+    if(NOT "$ENV{VCPKG_TRIPLET}" STREQUAL "")
+        set(BECC_VCPKG_TRIPLET "$ENV{VCPKG_TRIPLET}")
+    endif()
+    if(NOT "$ENV{VCPKG_DEFAULT_TRIPLET}" STREQUAL "")
+        set(BECC_VCPKG_TRIPLET "$ENV{VCPKG_DEFAULT_TRIPLET}")
+    endif()
+
+    # check vcpkg triplet defined var.
+    if(NOT "${VCPKG_TRIPLET}" STREQUAL "")
+        set(BECC_VCPKG_TRIPLET "${VCPKG_TRIPLET}")
+    endif()
+    if(NOT "${VCPKG_DEFAULT_TRIPLET}" STREQUAL "")
+        set(BECC_VCPKG_TRIPLET "${VCPKG_DEFAULT_TRIPLET}")
+    endif()
+    if(NOT "${BUILD_VCPKG_TRIPLET}" STREQUAL "")
+        set(BECC_VCPKG_TRIPLET "${BUILD_VCPKG_TRIPLET}")
+    endif()
+
+    if(BECC_VCPKG_TRIPLET STREQUAL "")
+        message(FATAL_ERROR "-- ${PROJECT_NAME}: attempt to use vcpkg but triplet is not defined/set, use `-DVCPKG_TRIPLET=processor_type:system_os_name` or `-DVCPKG_DEFAULT_TRIPLET=processor_type:system_os_name` or set those on your environment variable from -DBUILD_VCPKG_TRIPLET=processor_type:system_os_name") 
+    endif()
+
+    # check and set
+    set(BECC_VCPKG_INSTALLED_DIR "${BECC_VCPKG_DIR}/installed/${BECC_VCPKG_TRIPLET}")
+    if(EXISTS "${BECC_VCPKG_INSTALLED_DIR}")
+        # link bin dirs
+        include_directories(    "${BECC_VCPKG_INSTALLED_DIR}/bin")
+        link_directories(BEFORE "${BECC_VCPKG_INSTALLED_DIR}/bin")
+        include_directories(    "${BECC_VCPKG_INSTALLED_DIR}/debug/bin")
+        link_directories(BEFORE "${BECC_VCPKG_INSTALLED_DIR}/debug/bin")
+
+        # include dirs
+        include_directories(    "${BECC_VCPKG_INSTALLED_DIR}/include")
+        link_directories(BEFORE "${BECC_VCPKG_INSTALLED_DIR}/include")
+        include_directories(    "${BECC_VCPKG_INSTALLED_DIR}/debug/include")
+        link_directories(BEFORE "${BECC_VCPKG_INSTALLED_DIR}/debug/include")
+
+        # link lib dirs
+        include_directories(    "${BECC_VCPKG_INSTALLED_DIR}/lib")
+        link_directories(BEFORE "${BECC_VCPKG_INSTALLED_DIR}/lib")
+        include_directories(    "${BECC_VCPKG_INSTALLED_DIR}/debug/lib")
+        link_directories(BEFORE "${BECC_VCPKG_INSTALLED_DIR}/debug/lib")
+
+        # link share dirs
+        include_directories(    "${BECC_VCPKG_INSTALLED_DIR}/share")
+        link_directories(BEFORE "${BECC_VCPKG_INSTALLED_DIR}/share")
+    else()
+        message(FATAL_ERROR "-- ${PROJECT_NAME}: vpckg error")
+    endif()
+
+    set(BECC_USING_VCPKG true)
+endif()
 ##
 ## curl executeable
 set(BECC_USING_CURL_EXECUTEABLE false)
@@ -336,6 +426,7 @@ endif()
 set(BECC_USING_SDL3 false)
 
 if(BUILD_VENDOR_SDL3)
+    # MARK: HAS CONFLICT IF VCPKG PRESENT
     set(BECC_VENDOR_SDL3_DIR "${PROJECT_SOURCE_DIR}/vendors/sdl3")
 
     include_directories(${BECC_VENDOR_SDL3_DIR}/include)
@@ -433,6 +524,14 @@ endif()
 
 # project lib
 add_library(${PROJECT_NAME} ${BEC_SOURCES_FILES})
+# set(BECC_BUILD_SHARED_LIBS false)
+# if(BUILD_SHARED_LIBS)
+#     set_target_properties(${PROJECT_NAME} PROPERTIES
+#         VERSION "${BECC_VERSION_MAJOR}.${BECC_VERSION_MINOR}.${BECC_VERSION_PATCH}"
+#         SOVERSION "${BECC_VERSION_MAJOR}.${BECC_VERSION_MINOR}.${BECC_VERSION_PATCH}"
+#     )
+#     set(BECC_BUILD_SHARED_LIBS true)
+# endif() # skip for now
 
 # target libs, package, & executeable
 ##
