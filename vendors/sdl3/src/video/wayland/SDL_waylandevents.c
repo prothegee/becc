@@ -1023,8 +1023,8 @@ static void relative_pointer_handle_relative_motion(void *data,
             dx = wl_fixed_to_double(dx_unaccel_w);
             dy = wl_fixed_to_double(dy_unaccel_w);
         } else {
-            dx = wl_fixed_to_double(dx_w);
-            dy = wl_fixed_to_double(dy_w);
+            dx = wl_fixed_to_double(dx_w) * window->pointer_scale.x;
+            dy = wl_fixed_to_double(dy_w) * window->pointer_scale.y;
         }
 
         SDL_SendMouseMotion(timestamp, window->sdlwindow, input->pointer_id, true, (float)dx, (float)dy);
@@ -1884,7 +1884,7 @@ static void keyboard_handle_key(void *data, struct wl_keyboard *keyboard,
     SDL_SendKeyboardKeyIgnoreModifiers(timestamp, input->keyboard_id, key, scancode, state == WL_KEYBOARD_KEY_STATE_PRESSED);
 
     if (state == WL_KEYBOARD_KEY_STATE_PRESSED) {
-        if (has_text && !(SDL_GetModState() & SDL_KMOD_CTRL)) {
+        if (has_text && !(SDL_GetModState() & (SDL_KMOD_CTRL | SDL_KMOD_ALT))) {
             if (!handled_by_ime) {
                 SDL_SendKeyboardText(text);
             }
@@ -2563,8 +2563,6 @@ static void primary_selection_device_handle_selection(void *data, struct zwp_pri
     SDL_LogTrace(SDL_LOG_CATEGORY_INPUT,
                  ". In zwp_primary_selection_device_v1_listener . primary_selection_device_handle_selection on primary_selection_offer 0x%08x",
                  (id ? WAYLAND_wl_proxy_get_id((struct wl_proxy *)id) : -1));
-
-    notifyFromMimes(offer ? &offer->mimes : NULL);
 }
 
 static const struct zwp_primary_selection_device_v1_listener primary_selection_device_listener = {
@@ -3306,6 +3304,11 @@ bool Wayland_input_confine_pointer(struct SDL_WaylandInput *input, SDL_Window *w
         return SDL_SetError("No pointer to confine");
     }
 
+    // The confinement region will be created when the window is mapped.
+    if (w->shell_surface_status != WAYLAND_SHELL_SURFACE_STATUS_SHOWN) {
+        return true;
+    }
+
     /* A confine may already be active, in which case we should destroy it and
      * create a new one.
      */
@@ -3354,6 +3357,9 @@ bool Wayland_input_confine_pointer(struct SDL_WaylandInput *input, SDL_Window *w
     if (confine_rect) {
         wl_region_destroy(confine_rect);
     }
+
+    // Commit the double-buffered confinement region.
+    wl_surface_commit(w->surface);
 
     w->confined_pointer = confined_pointer;
     return true;

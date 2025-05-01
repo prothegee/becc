@@ -427,6 +427,13 @@ static SDL_vidpid_list zero_centered_devices = {
         return result;                                          \
     }
 
+#define CHECK_JOYSTICK_VIRTUAL(joystick, result)                \
+    if (!joystick->is_virtual) {                                \
+        SDL_SetError("joystick isn't virtual");                 \
+        SDL_UnlockJoysticks();                                  \
+        return result;                                          \
+    }
+
 bool SDL_JoysticksInitialized(void)
 {
     return SDL_joysticks_initialized;
@@ -1043,6 +1050,27 @@ static void CleanupSensorFusion(SDL_Joystick *joystick)
     }
 }
 
+static bool ShouldSwapFaceButtons(const SDL_SteamVirtualGamepadInfo *info)
+{
+    // When "Use Nintendo Button Layout" is enabled under Steam (the default)
+    // it will send button 0 for the A (east) button and button 1 for the
+    // B (south) button. This is done so that games that interpret the
+    // buttons as Xbox input will get button 0 for "A" as they expect.
+    //
+    // However, SDL reports positional buttons, so we need to swap
+    // the buttons so they show up in the correct position. This provides
+    // consistent behavior regardless of whether we're running under Steam,
+    // under the default settings.
+    if (info &&
+        (info->type == SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_PRO ||
+         info->type == SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_LEFT ||
+         info->type == SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_RIGHT ||
+         info->type == SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_PAIR)) {
+        return true;
+    }
+    return false;
+}
+
 /*
  * Open a joystick for use - the index passed as an argument refers to
  * the N'th joystick on the system.  This index is the value which will
@@ -1094,6 +1122,7 @@ SDL_Joystick *SDL_OpenJoystick(SDL_JoystickID instance_id)
     joystick->attached = true;
     joystick->led_expiration = SDL_GetTicks();
     joystick->battery_percent = -1;
+    joystick->is_virtual = (driver == &SDL_VIRTUAL_JoystickDriver);
 
     if (!driver->Open(joystick, device_index)) {
         SDL_SetObjectValid(joystick, SDL_OBJECT_TYPE_JOYSTICK, false);
@@ -1148,6 +1177,7 @@ SDL_Joystick *SDL_OpenJoystick(SDL_JoystickID instance_id)
     info = SDL_GetJoystickVirtualGamepadInfoForID(instance_id);
     if (info) {
         joystick->steam_handle = info->handle;
+        joystick->swap_face_buttons = ShouldSwapFaceButtons(info);
     }
 
     // Use system gyro and accelerometer if the gamepad doesn't have built-in sensors
@@ -1225,6 +1255,7 @@ bool SDL_SetJoystickVirtualAxis(SDL_Joystick *joystick, int axis, Sint16 value)
     SDL_LockJoysticks();
     {
         CHECK_JOYSTICK_MAGIC(joystick, false);
+        CHECK_JOYSTICK_VIRTUAL(joystick, false);
 
 #ifdef SDL_JOYSTICK_VIRTUAL
         result = SDL_SetJoystickVirtualAxisInner(joystick, axis, value);
@@ -1244,6 +1275,7 @@ bool SDL_SetJoystickVirtualBall(SDL_Joystick *joystick, int ball, Sint16 xrel, S
     SDL_LockJoysticks();
     {
         CHECK_JOYSTICK_MAGIC(joystick, false);
+        CHECK_JOYSTICK_VIRTUAL(joystick, false);
 
 #ifdef SDL_JOYSTICK_VIRTUAL
         result = SDL_SetJoystickVirtualBallInner(joystick, ball, xrel, yrel);
@@ -1263,6 +1295,7 @@ bool SDL_SetJoystickVirtualButton(SDL_Joystick *joystick, int button, bool down)
     SDL_LockJoysticks();
     {
         CHECK_JOYSTICK_MAGIC(joystick, false);
+        CHECK_JOYSTICK_VIRTUAL(joystick, false);
 
 #ifdef SDL_JOYSTICK_VIRTUAL
         result = SDL_SetJoystickVirtualButtonInner(joystick, button, down);
@@ -1282,6 +1315,7 @@ bool SDL_SetJoystickVirtualHat(SDL_Joystick *joystick, int hat, Uint8 value)
     SDL_LockJoysticks();
     {
         CHECK_JOYSTICK_MAGIC(joystick, false);
+        CHECK_JOYSTICK_VIRTUAL(joystick, false);
 
 #ifdef SDL_JOYSTICK_VIRTUAL
         result = SDL_SetJoystickVirtualHatInner(joystick, hat, value);
@@ -1301,6 +1335,7 @@ bool SDL_SetJoystickVirtualTouchpad(SDL_Joystick *joystick, int touchpad, int fi
     SDL_LockJoysticks();
     {
         CHECK_JOYSTICK_MAGIC(joystick, false);
+        CHECK_JOYSTICK_VIRTUAL(joystick, false);
 
 #ifdef SDL_JOYSTICK_VIRTUAL
         result = SDL_SetJoystickVirtualTouchpadInner(joystick, touchpad, finger, down, x, y, pressure);
@@ -1320,6 +1355,7 @@ bool SDL_SendJoystickVirtualSensorData(SDL_Joystick *joystick, SDL_SensorType ty
     SDL_LockJoysticks();
     {
         CHECK_JOYSTICK_MAGIC(joystick, false);
+        CHECK_JOYSTICK_VIRTUAL(joystick, false);
 
 #ifdef SDL_JOYSTICK_VIRTUAL
         result = SDL_SendJoystickVirtualSensorDataInner(joystick, type, sensor_timestamp, data, num_values);
@@ -2305,6 +2341,25 @@ void SDL_SendJoystickButton(Uint64 timestamp, SDL_Joystick *joystick, Uint8 butt
         event.type = SDL_EVENT_JOYSTICK_BUTTON_UP;
     }
 
+    if (joystick->swap_face_buttons) {
+        switch (button) {
+        case 0:
+            button = 1;
+            break;
+        case 1:
+            button = 0;
+            break;
+        case 2:
+            button = 3;
+            break;
+        case 3:
+            button = 2;
+            break;
+        default:
+            break;
+        }
+    }
+
     // Make sure we're not getting garbage or duplicate events
     if (button >= joystick->nbuttons) {
         return;
@@ -2353,11 +2408,13 @@ static void SendSteamHandleUpdateEvents(void)
         if (info) {
             if (joystick->steam_handle != info->handle) {
                 joystick->steam_handle = info->handle;
+                joystick->swap_face_buttons = ShouldSwapFaceButtons(info);
                 changed = true;
             }
         } else {
             if (joystick->steam_handle != 0) {
                 joystick->steam_handle = 0;
+                joystick->swap_face_buttons = false;
                 changed = true;
             }
         }
@@ -2546,158 +2603,14 @@ void SDL_GetJoystickGUIDInfo(SDL_GUID guid, Uint16 *vendor, Uint16 *product, Uin
     }
 }
 
-static int PrefixMatch(const char *a, const char *b)
-{
-    int matchlen = 0;
-    while (*a && *b) {
-        if (SDL_tolower((unsigned char)*a++) == SDL_tolower((unsigned char)*b++)) {
-            ++matchlen;
-        } else {
-            break;
-        }
-    }
-    return matchlen;
-}
-
 char *SDL_CreateJoystickName(Uint16 vendor, Uint16 product, const char *vendor_name, const char *product_name)
 {
-    static struct
-    {
-        const char *prefix;
-        const char *replacement;
-    } replacements[] = {
-        { "ASTRO Gaming", "ASTRO" },
-        { "Bensussen Deutsch & Associates,Inc.(BDA)", "BDA" },
-        { "Guangzhou Chicken Run Network Technology Co., Ltd.", "GameSir" },
-        { "HORI CO.,LTD", "HORI" },
-        { "HORI CO.,LTD.", "HORI" },
-        { "Mad Catz Inc.", "Mad Catz" },
-        { "Nintendo Co., Ltd.", "Nintendo" },
-        { "NVIDIA Corporation ", "" },
-        { "Performance Designed Products", "PDP" },
-        { "QANBA USA, LLC", "Qanba" },
-        { "QANBA USA,LLC", "Qanba" },
-        { "Unknown ", "" },
-    };
-    const char *custom_name;
-    char *name;
-    size_t i, len;
-
-    custom_name = GuessControllerName(vendor, product);
+    const char *custom_name = GuessControllerName(vendor, product);
     if (custom_name) {
         return SDL_strdup(custom_name);
     }
 
-    if (!vendor_name) {
-        vendor_name = "";
-    }
-    if (!product_name) {
-        product_name = "";
-    }
-
-    while (*vendor_name == ' ') {
-        ++vendor_name;
-    }
-    while (*product_name == ' ') {
-        ++product_name;
-    }
-
-    if (*vendor_name && *product_name) {
-        len = (SDL_strlen(vendor_name) + 1 + SDL_strlen(product_name) + 1);
-        name = (char *)SDL_malloc(len);
-        if (name) {
-            (void)SDL_snprintf(name, len, "%s %s", vendor_name, product_name);
-        }
-    } else if (*product_name) {
-        name = SDL_strdup(product_name);
-    } else if (vendor || product) {
-        // Couldn't find a controller name, try to give it one based on device type
-        switch (SDL_GetGamepadTypeFromVIDPID(vendor, product, NULL, true)) {
-        case SDL_GAMEPAD_TYPE_XBOX360:
-            name = SDL_strdup("Xbox 360 Controller");
-            break;
-        case SDL_GAMEPAD_TYPE_XBOXONE:
-            name = SDL_strdup("Xbox One Controller");
-            break;
-        case SDL_GAMEPAD_TYPE_PS3:
-            name = SDL_strdup("PS3 Controller");
-            break;
-        case SDL_GAMEPAD_TYPE_PS4:
-            name = SDL_strdup("PS4 Controller");
-            break;
-        case SDL_GAMEPAD_TYPE_PS5:
-            name = SDL_strdup("DualSense Wireless Controller");
-            break;
-        case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_PRO:
-            name = SDL_strdup("Nintendo Switch Pro Controller");
-            break;
-        default:
-            len = (6 + 1 + 6 + 1);
-            name = (char *)SDL_malloc(len);
-            if (name) {
-                (void)SDL_snprintf(name, len, "0x%.4x/0x%.4x", vendor, product);
-            }
-            break;
-        }
-    } else {
-        name = SDL_strdup("Controller");
-    }
-
-    if (!name) {
-        return NULL;
-    }
-
-    // Trim trailing whitespace
-    for (len = SDL_strlen(name); (len > 0 && name[len - 1] == ' '); --len) {
-        // continue
-    }
-    name[len] = '\0';
-
-    // Compress duplicate spaces
-    for (i = 0; i < (len - 1);) {
-        if (name[i] == ' ' && name[i + 1] == ' ') {
-            SDL_memmove(&name[i], &name[i + 1], (len - i));
-            --len;
-        } else {
-            ++i;
-        }
-    }
-
-    // Perform any manufacturer replacements
-    for (i = 0; i < SDL_arraysize(replacements); ++i) {
-        size_t prefixlen = SDL_strlen(replacements[i].prefix);
-        if (SDL_strncasecmp(name, replacements[i].prefix, prefixlen) == 0) {
-            size_t replacementlen = SDL_strlen(replacements[i].replacement);
-            if (replacementlen <= prefixlen) {
-                SDL_memcpy(name, replacements[i].replacement, replacementlen);
-                SDL_memmove(name + replacementlen, name + prefixlen, (len - prefixlen) + 1);
-                len -= (prefixlen - replacementlen);
-            } else {
-                // FIXME: Need to handle the expand case by reallocating the string
-            }
-            break;
-        }
-    }
-
-    /* Remove duplicate manufacturer or product in the name
-     * e.g. Razer Razer Raiju Tournament Edition Wired
-     */
-    for (i = 1; i < (len - 1); ++i) {
-        int matchlen = PrefixMatch(name, &name[i]);
-        while (matchlen > 0) {
-            if (name[matchlen] == ' ' || name[matchlen] == '-') {
-                SDL_memmove(name, name + matchlen + 1, len - matchlen);
-                break;
-            }
-            --matchlen;
-        }
-        if (matchlen > 0) {
-            // We matched the manufacturer's name and removed it
-            break;
-        }
-    }
-
-    return name;
+    return SDL_CreateDeviceName(vendor, product, vendor_name, product_name, "Controller");
 }
 
 SDL_GUID SDL_CreateJoystickGUID(Uint16 bus, Uint16 vendor, Uint16 product, Uint16 version, const char *vendor_name, const char *product_name, Uint8 driver_signature, Uint8 driver_data)

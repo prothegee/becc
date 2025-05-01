@@ -5,37 +5,24 @@
         /*
         windows:
         "/std:c++17 /EHsc"
+        or
+        "/std:c++20 /EHsc"
 
         unix:
-        "-std=c++17" "-fPIC"
+        "-std=c++17 -fPIC"
         or
-        "-std=c++20" "-fcoroutines" "-fPIC"
+        "-std=c++20 -fcoroutines -fPIC"
         */
         // "CMAKE_CXX_FLAGS": "-std=c++20 -fcoroutines",
-
-        "BECC_TESTS": true,
-        "BECC_TOOLS": true,
-
-        "BUILD_TESTS": true,
+        "BUILD_TESTS": false,
+        "BUILD_TOOLS": false,
         "BUILD_SHARED_LIBS": false,
 
-        "BUILD_VENDOR_STB": true,
-        "BUILD_VENDOR_SDL3": true,
-        "BUILD_VENDOR_HARU": true,
-        "BUILD_VENDOR_NANOSVG": true,
-        "BUILD_VENDOR_ZXING_CPP": true,
-
-        "BECC_STB": true,
-        "BECC_SDL3": true,
-        "BECC_ARGON2": true,
-        "BECC_DROGON": true,
-        "BECC_LIBHARU": true,
-        "BECC_JSONCPP": true,
-        "BECC_OPENSSL": true,
-        "BECC_NANOSVG": true,
-        "BECC_SCYLLADB": true,
-        "BECC_POSTGRESQL": true,
-        "BECC_ZXING_CPP": true,
+        "BUILD_VENDOR_STB": false,
+        "BUILD_VENDOR_SDL3": false,
+        "BUILD_VENDOR_HARU": false,
+        "BUILD_VENDOR_NANOSVG": false,
+        "BUILD_VENDOR_ZXING_CPP": false,
 
         "BECC_BUILD_TARGET": 1, // 0:undefined 1:linux 2:windows 3:osx 4:android 5:ios (supported: 1, 2)
 
@@ -66,13 +53,8 @@
         - arm-ios
         - arm64-ios
         */
-        "BUILD_USE_VCPKG": false,
-
-        "BUILD_CUSTOM_OUTPUT": "", // mostly .out dir
-
-        // tmp
-        "VCPKG_TRIPLET": "",
-        "VCPKG_DEFAULT_TRIPLET": "",
+        "BUILD_VCPKG": false,
+        "BUILD_VCPKG_TRIPLET": "",
 
         "_": "don't use me"
     },
