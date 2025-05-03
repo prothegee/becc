@@ -175,13 +175,13 @@ include(FindPackageHandleStandardArgs)
 if(NOT DEFINED BEC_HEADERS_FILES)
     set(BEC_HEADERS_FILES)
 endif()
-## constants
+### constants
 set(BEC_HEADERS_FILES_CONSTANTS
     src/inc/becc/constants/string_const.hh
 )
 list(APPEND BEC_HEADERS_FILES ${BEC_HEADERS_FILES_CONSTANTS})
-## enums
-## functions
+### enums
+### functions
 set(BEC_HEADERS_FILES_FUNCTIONS
     src/inc/becc/functions/communication.hh
     src/inc/becc/functions/cryptography.hh
@@ -191,14 +191,14 @@ set(BEC_HEADERS_FILES_FUNCTIONS
     src/inc/becc/functions/utility.hh
 )
 list(APPEND BEC_HEADERS_FILES ${BEC_HEADERS_FILES_FUNCTIONS})
-## interfaces
+### interfaces
 set(BEC_HEADERS_FILES_INTERFACES
     src/inc/becc/interfaces/ipostgresql_core_interface.hh
     src/inc/becc/interfaces/iscylladb_core_interface.hh
 )
 list(APPEND BEC_HEADERS_FILES ${BEC_HEADERS_FILES_INTERFACES})
-## modules
-## types
+### modules
+### types
 set(BEC_HEADERS_FILES_TYPES
     src/inc/becc/types/auth_type.hh
     src/inc/becc/types/look_type.hh
@@ -227,6 +227,12 @@ list(APPEND
         src/iscylladb_core_interface.cc
         # modules
 )
+
+# list of used becc vendor/thirdparty lib
+if(NOT DEFINED BECC_USED_VENDORS_DIR)
+    set(BECC_USED_VENDORS_DIR)
+endif()
+
 
 # packages, lib related
 ## 
@@ -466,6 +472,7 @@ if(BECC_BUILD_VENDOR_SDL3)
 
     set(BECC_USING_SDL3 true)
     message(NOTICE "-- ${PROJECT_NAME}: adding sdl3")
+    list(APPEND BECC_USED_VENDORS_DIR "BECC_SDL3")
 endif()
 ##
 ## haru
@@ -500,6 +507,7 @@ if(BECC_BUILD_VENDOR_HARU)
 
     set(BECC_USING_HARU true)
     message(NOTICE "-- ${PROJECT_NAME}: adding haru hpdf")
+    list(APPEND BECC_USED_VENDORS_DIR "BECC_LIBHARU")
 endif()
 ##
 ## nanosvg
@@ -528,6 +536,7 @@ if(BECC_BUILD_VENDOR_NANOSVG)
 
     set(BECC_USING_NANOSVG true)
     message(NOTICE "-- ${PROJECT_NAME}: adding nanosvg")
+    list(APPEND BECC_USED_VENDORS_DIR "BECC_NANOSVG")
 endif()
 ##
 ## zxing-cpp
@@ -561,6 +570,7 @@ if(BECC_BUILD_VENDOR_ZXING_CPP)
 
     set(BECC_USING_ZXING_CPP true)
     message(NOTICE "-- ${PROJECT_NAME}: adding zxing-cpp")
+    list(APPEND BECC_USED_VENDORS_DIR "BECC_ZXING_CPP")
 endif()
 
 # project lib
@@ -784,3 +794,16 @@ endif(BECC_BUILD_TESTS)
 if(BECC_BUILD_TOOLS)
     
 endif(BECC_BUILD_TOOLS)
+
+# check if not treat as main project ( treat as sub dir ) as last notice
+if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    message(AUTHOR_WARNING "${PROJECT_NAME}@prothegee: becc CMakeLists.txt not main/root project")
+    message(NOTICE "-- ${PROJECT_NAME}: please add below dir to your project `include_directories` & `link_directories` if you intend to use some becc vendor/thirdparties module:")
+
+    foreach(BECC_VENDOR_DIR IN LISTS BECC_USED_VENDORS_DIR)
+        message(NOTICE "-- ${BECC_VENDOR_DIR}, example:
+   include_directories(    \"$\{CMAKE_BINARY_DIR}/${BECC_VENDOR_DIR}\")
+   link_directories(BEFORE \"$\{CMAKE_BINARY_DIR}/${BECC_VENDOR_DIR}\")
+")
+    endforeach()
+endif()
