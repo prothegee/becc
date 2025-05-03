@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.15)
 set(BECC_VERSION_MAJOR 0)
 set(BECC_VERSION_MINOR 12)
 set(BECC_VERSION_PATCH 0)
-set(BECC_VERSION_RELEASE_DATE 20250501)
+set(BECC_VERSION_RELEASE_DATE 20250503)
 
 # package project
 project(becc
@@ -573,14 +573,16 @@ add_library(${PROJECT_NAME} ${BEC_SOURCES_FILES})
 #     )
 #     set(BECC_BUILD_SHARED_LIBS true)
 # endif() # skip for now
-## force shared libs
-if(BUILD_SHARED_LIBS)
+## force shared libs by becc value
+if(BECC_BUILD_SHARED_LIBS)
+    set(BUILD_SHARED_LIBS ON)
     set(BECC_BUILD_SHARED_LIBS true)
 
-    message(WARNING "-- ${PROJECT_NAME}: -DBUILD_SHARED_LIBS is ON/true, might cause error when adding this project as subdir when linking")
+    message(WARNING "-- ${PROJECT_NAME}: -DBECC_BUILD_SHARED_LIBS is ON/true, might cause error when adding this project as subdir when linking")
 else()
+    set(BUILD_SHARED_LIBS OFF)
     set(BECC_BUILD_SHARED_LIBS false)
-endif(BUILD_SHARED_LIBS)
+endif(BECC_BUILD_SHARED_LIBS)
 
 # target libs, package, & executeable
 # MARK: note target_link_libraries & target_include_directories
