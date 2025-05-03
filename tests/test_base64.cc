@@ -10,9 +10,11 @@ int main()
     decode = becc::utility_functions::base64decode(encode);
 
     assert(input == decode);
-    std::cout << "passed: base64 encode & decode using stl ( without sanity check )\n";
+    std::cout << "passed: base64 encode & decode using stl\n";
 
     // no base64 sanity check
+
+    //////////////////////////////////////////////////////////////////
 
     #if BECC_USING_OPENSSL
     encode_ssl = becc::utility_functions::base64encode_openssl(input);

@@ -32,11 +32,35 @@ int32_t file_exists(const std::string& file_path);
 /**
  * @brief check if input is numeric value
  * 
+ * @note next value of zero '0' will considered false, i.e. "0123"
+ * 
  * @param input 
  * @return true 
  * @return false 
  */
 bool is_numeric(const std::string& input);
+
+/**
+ * @brief check if input is floating valu (float/double)
+ * 
+ * @note next value of zero '0' will considered false, i.e. "01.234"
+ * 
+ * @param input 
+ * @return true 
+ * @return false 
+ */
+bool is_numeric_decimal(const std::string& input);
+
+/**
+ * @brief check if input is unsigned numeric
+ * 
+ * @note next value of zero '0' will considered false, i.e. "0123"
+ * 
+ * @param input 
+ * @return true 
+ * @return false 
+ */
+bool is_numeric_unsigned(const std::string& input);
 
 /**
  * @brief encode base64
@@ -229,6 +253,15 @@ namespace string
  * @return buffer_t 
  */
 buffer_t to_buffer(const std::string& input, size_t required_size);
+
+/**
+ * @brief convert input to another letter case
+ * 
+ * @param input 
+ * @param mode 0:lowercase, 1:uppercase, 2:mixcase
+ * @return std::string 
+ */
+std::string to_another_letter_case(const std::string& input, const int32_t& mode);
 
 } // namespace string
 

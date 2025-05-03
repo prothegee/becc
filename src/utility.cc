@@ -24,7 +24,100 @@ int32_t file_exists(const std::string& file_path)
 
 bool is_numeric(const std::string& input)
 {
-    return !input.empty() && std::all_of(input.begin(), input.end(), ::isdigit);
+    if (input.empty()) return false;
+    if (input == "0") return true;
+    if (input[0] == '-')
+    {
+        if (input.size() == 1) return false;
+        if (input.size() == 2 && input[1] == '0') return true; // handle "-0"
+        if (input[1] == '0') return false; // leading zero after '-'
+        if (!std::all_of(input.begin() + 1, input.end(), ::isdigit)) return false;
+    }
+    else
+    {
+        if (input[0] == '0' && input.size() > 1) return false; // leading zero
+        if (!std::all_of(input.begin(), input.end(), ::isdigit)) return false;
+    }
+
+    // try conversion to int64_t is possible
+    try
+    {
+        std::stoll(input);
+    }
+    catch (...)
+    {
+        return false;
+    }
+    return true;
+}
+
+bool is_numeric_decimal(const std::string& input)
+{
+    if (input.empty()) return false;
+
+    size_t dot_pos = input.find('.');
+    if (dot_pos == std::string::npos || dot_pos == 0 || dot_pos == input.size() - 1)
+    {
+        return false; // wrong decimal format: no dot, dot at start, or dot at end
+    }
+
+    std::string integer_part = input.substr(0, dot_pos);
+    std::string fractional_part = input.substr(dot_pos + 1);
+
+    // validate integer part
+    if (integer_part == "0" || integer_part == "-0")
+    {
+        // ok for "0" or "-0"
+    }
+    else
+    {
+        if (integer_part[0] == '-')
+        {
+            if (integer_part.size() == 1 || integer_part[1] == '0') return false;
+            // ensure no leading zeros after '-' and all characters are digits
+            if (!std::all_of(integer_part.begin() + 1, integer_part.end(), ::isdigit)) return false;
+        }
+        else
+        {
+            if (integer_part[0] == '0' && integer_part.size() > 1) return false; // leading zero
+            if (!std::all_of(integer_part.begin(), integer_part.end(), ::isdigit)) return false;
+        }
+    }
+
+    // validate fractional part
+    if (!std::all_of(fractional_part.begin(), fractional_part.end(), ::isdigit)) return false;
+
+    // try conversion to double is possible
+    try
+    {
+        std::stod(input);
+    }
+    catch (...)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool is_numeric_unsigned(const std::string& input)
+{
+    if (input.empty() || input[0] == '-') return false;
+    if (input == "0") return true;
+    if (input[0] == '0' && input.size() > 1) return false; // leading zero
+    if (!std::all_of(input.begin(), input.end(), ::isdigit)) return false;
+
+    // try conversion to uint64_t is possible
+    try
+    {
+        std::stoull(input);
+    }
+    catch (...)
+    {
+        return false;
+    }
+
+    return true;
 }
 
 std::string base64encode(const std::string& input)
@@ -408,6 +501,65 @@ buffer_t to_buffer(const std::string& input, size_t required_size)
     else if (result.size() < required_size)
     {
         result.resize(required_size, 0x00);
+    }
+
+    return result;
+}
+
+std::string to_another_letter_case(const std::string &input, const int32_t &mode)
+{
+    std::string result;
+
+    result.reserve(input.length());
+
+    switch (mode)
+    {
+        case 0:
+        {
+            for (size_t i = 0; i < input.length(); i++)
+            {
+                result += tolower(input[i]);
+            }
+        }
+        break;
+
+        case 1:
+        {
+            for (size_t i = 0; i < input.length(); i++)
+            {
+                result += toupper(input[i]);
+            }
+        }
+        break;
+
+        case 2:
+        {
+            for (size_t i = 0; i < input.length(); i++)
+            {
+                //  0 is lower, 1 is upper
+                int mixedcase = generate::random_number(0, 1);
+
+                if (mixedcase == 0 && isalpha(input[i]))
+                {
+                    result += tolower(input[i]);
+                }
+                else if (mixedcase == 1 && isalpha(input[i]))
+                {
+                    result += toupper(input[i]);
+                }
+                else
+                {
+                    result += input[i];
+                }
+            }
+        }
+        break;
+
+        default:
+        {
+            result = input;
+        }
+        break;
     }
 
     return result;
