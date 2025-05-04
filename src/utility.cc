@@ -641,7 +641,18 @@ Json::Value from_csv_file(const std::string& csv_file_path)
                     
                     if (header_index < headers.size())
                     {
-                        if (is_numeric(cell))
+                        std::string upper_cell = cell;
+                        std::transform(upper_cell.begin(), upper_cell.end(), upper_cell.begin(), ::toupper);
+
+                        if (upper_cell == "TRUE")
+                        {
+                            json_obj[headers[header_index]] = true;
+                        }
+                        else if (upper_cell == "FALSE")
+                        {
+                            json_obj[headers[header_index]] = false;
+                        }
+                        else if (is_numeric(cell))
                         {
                             try
                             {

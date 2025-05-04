@@ -873,42 +873,24 @@ int64_t to_millis(const std::string &YYYYMMDDhhmmss)
 
 int64_t to_millis_now(const int32_t& time_offset)
 {
-    int64_t result;
+    const int32_t tz_offset = std::max(-12, std::min(time_offset, 14));
 
-    std::string tmpStr;
-    std::stringstream ss;
-    int32_t timezone_offset = time_offset;
-
-    if (timezone_offset <= -12) { timezone_offset = -12; }
-    if (timezone_offset >= 14) { timezone_offset = 14; }
-
-    auto adjust_time_offset = timezone_offset * 3600;
     auto now = std::chrono::system_clock::now();
+    auto adjusted = now + std::chrono::hours(tz_offset);
 
-    std::time_t now_time = std::chrono::system_clock::to_time_t(now);
-    std::time_t now_time_utc = now_time + adjust_time_offset;
+    return std::chrono::duration_cast<std::chrono::milliseconds>(
+        adjusted.time_since_epoch()
+    ).count();
+}
 
-    std::tm tm_buf {};
-    #if defined(__GNUC__) || defined(__clang__)
-    gmtime_r(&now_time_utc, &tm_buf);
-    #else
-    gmtime_s(&tm_buf, &now_time_utc);
-    #endif
-
-    ss << std::put_time(&tm_buf, "%Y-%m-%dT%H:%M:%S");
-
-    tmpStr = ss.str();
-
-    std::tm time = {};
-    std::stringstream sss(tmpStr);
-
-    sss >> std::get_time(&time, "%Y-%m-%dT%H:%M:%S");
-
-    time_t time_since_epoch = mktime(&time);
-
-    result = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::from_time_t(time_since_epoch).time_since_epoch()).count();
-
-    return result;
+std::string to_millis_string(const int64_t& YYYYMMDDhhmmss, const bool& use_time_sign)
+{
+    std::chrono::system_clock::time_point tp{std::chrono::milliseconds{YYYYMMDDhhmmss}};
+    time_t tt = std::chrono::system_clock::to_time_t(tp);
+    std::tm* tm = std::gmtime(&tt);
+    std::stringstream ss;
+    ss << (use_time_sign ? std::put_time(tm, "%Y-%m-%dT%H:%M:%S") : std::put_time(tm, "%Y-%m-%d %H:%M:%S"));
+    return ss.str();
 }
 
 std::string to_string(const int32_t& time_offset)
@@ -1067,53 +1049,25 @@ int64_t to_millis(const std::string &YYYYMMDDhhmmssms)
 
 int64_t to_millis_now(const int32_t& time_offset)
 {
-    int64_t result;
-
-    std::string tmpStr;
-    std::stringstream ss;
-    int32_t timezone_offset = time_offset;
-
-    if (timezone_offset <= -12) { timezone_offset = -12; }
-    if (timezone_offset >= 14) { timezone_offset = 14; }
-
-    auto adjust_time_offset = timezone_offset * 3600;
+    int32_t timezone_offset = std::max(-12, std::min(time_offset, 14));
     auto now = std::chrono::system_clock::now();
 
-    std::time_t now_time = std::chrono::system_clock::to_time_t(now);
-    std::time_t now_time_utc = now_time + adjust_time_offset;
+    auto adjusted = now + std::chrono::seconds(timezone_offset * 3600);
 
-    std::tm tm_buf {};
-    #if defined(__GNUC__) || defined(__clang__)
-    gmtime_r(&now_time_utc, &tm_buf);
-    #else
-    gmtime_s(&tm_buf, &now_time_utc);
-    #endif
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(adjusted.time_since_epoch());
+    return duration.count();
+}
 
-    auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
-    auto milliseconds = now_ms.time_since_epoch() % std::chrono::seconds(1);
-
-    ss << std::put_time(&tm_buf, "%Y%m%dT%H%M%S") << '.' << std::setw(3) << std::setfill('0') << milliseconds.count();
-
-    tmpStr = ss.str();
-
-    std::tm time = {};
-    std::stringstream sss(tmpStr);
-
-    sss >> std::get_time(&time, "%Y-%m-%dT%H:%M:%S");
-
-    int32_t millis = 0;
-    if (sss.peek() == '.')
-    {
-        sss.ignore();
-        sss >> millis;
-    }
-
-    time_t time_since_epoch = mktime(&time);
-
-    result = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::from_time_t(time_since_epoch).time_since_epoch()).count();
-    result += millis;
-
-    return result;
+std::string to_millis_string(const int64_t& YYYYMMDDhhmmssms, const bool& use_time_sign)
+{
+    std::chrono::system_clock::time_point tp{std::chrono::milliseconds{YYYYMMDDhhmmssms}};
+    time_t tt = std::chrono::system_clock::to_time_t(tp);
+    std::tm* tm = std::gmtime(&tt);
+    std::stringstream ss;
+    ss << (use_time_sign ? std::put_time(tm, "%Y-%m-%dT%H:%M:%S") : std::put_time(tm, "%Y-%m-%d %H:%M:%S"));
+    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(tp.time_since_epoch()) % 1000;
+    ss << "." << std::setfill('0') << std::setw(3) << ms.count();
+    return ss.str();
 }
 
 std::string to_string(const int32_t& time_offset)
@@ -1222,35 +1176,6 @@ std::string to_string_second_offset(const int32_t& seconds_offset)
 namespace YYYYMMDDhhmmssµs
 {
 
-int64_t to_int64(const int32_t& time_offset)
-{
-    std::stringstream ss;
-    int32_t timezone_offset = time_offset;
-
-    if (timezone_offset <= -12) { timezone_offset = -12; }
-    if (timezone_offset >= 14) { timezone_offset = 14; }
-
-    auto adjust_time_offset = timezone_offset * 3600;
-    auto now = std::chrono::system_clock::now();
-
-    std::time_t now_time = std::chrono::system_clock::to_time_t(now);
-    std::time_t now_time_utc = now_time + adjust_time_offset;
-
-    std::tm tm_buf {};
-    #if defined(__GNUC__) || defined(__clang__)
-    gmtime_r(&now_time_utc, &tm_buf);
-    #else
-    gmtime_s(&tm_buf, &now_time_utc);
-    #endif
-
-    auto now_mcs = std::chrono::time_point_cast<std::chrono::microseconds>(now);
-    auto microseconds = now_mcs.time_since_epoch() % std::chrono::seconds(1);
-
-    ss << std::put_time(&tm_buf, "%Y%m%d%H%M%S") << std::setw(6) << std::setfill('0') << microseconds.count();
-
-    return std::stoll(ss.str());
-}
-
 int64_t to_millis(const std::string &YYYYMMDDhhmmssµs)
 {
     int64_t result;
@@ -1281,53 +1206,25 @@ int64_t to_millis(const std::string &YYYYMMDDhhmmssµs)
 
 int64_t to_millis_now(const int32_t& time_offset)
 {
-    int64_t result;
-
-    std::string tmp_str;
-    std::stringstream ss;
-    int32_t timezone_offset = time_offset;
-
-    if (timezone_offset <= -12) { timezone_offset = -12; }
-    if (timezone_offset >= 14) { timezone_offset = 14; }
-
-    auto adjust_time_offset = timezone_offset * 3600;
+    int32_t timezone_offset = std::max(-12, std::min(time_offset, 14));
     auto now = std::chrono::system_clock::now();
 
-    std::time_t now_time = std::chrono::system_clock::to_time_t(now);
-    std::time_t now_time_utc = now_time + adjust_time_offset;
+    auto adjusted = now + std::chrono::seconds(timezone_offset * 3600);
 
-    std::tm tm_buf {};
-    #if defined(__GNUC__) || defined(__clang__)
-    gmtime_r(&now_time_utc, &tm_buf);
-    #else
-    gmtime_s(&tm_buf, &now_time_utc);
-    #endif
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(adjusted.time_since_epoch());
+    return duration.count();
+}
 
-    auto now_mcs = std::chrono::time_point_cast<std::chrono::microseconds>(now);
-    auto microseconds = now_mcs.time_since_epoch() % std::chrono::seconds(1);
-
-    ss << std::put_time(&tm_buf, "%Y%m%dT%H%M%S") << '.' << std::setw(6) << std::setfill('0') << microseconds.count();
-
-    tmp_str = ss.str();
-
-    std::tm time = {};
-    std::stringstream sss(tmp_str);
-
-    sss >> std::get_time(&time, "%Y-%m-%dT%H:%M:%S");
-
-    int32_t micros = 0;
-    if (sss.peek() == '.')
-    {
-        sss.ignore();
-        sss >> micros;
-    }
-
-    time_t time_since_epoch = mktime(&time);
-
-    result = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::from_time_t(time_since_epoch).time_since_epoch()).count();
-    result += micros;
-
-    return result;
+std::string to_millis_string(const int64_t& YYYYMMDDhhmmssµs, const bool& use_time_sign)
+{
+    std::chrono::system_clock::time_point tp{std::chrono::microseconds{YYYYMMDDhhmmssµs}};
+    time_t tt = std::chrono::system_clock::to_time_t(tp);
+    std::tm* tm = std::gmtime(&tt);
+    std::stringstream ss;
+    ss << (use_time_sign ? std::put_time(tm, "%Y-%m-%dT%H:%M:%S") : std::put_time(tm, "%Y-%m-%d %H:%M:%S"));
+    auto us = std::chrono::duration_cast<std::chrono::microseconds>(tp.time_since_epoch()) % 1000000;
+    ss << "." << std::setfill('0') << std::setw(6) << us.count();
+    return ss.str();
 }
 
 std::string to_string(const int32_t& time_offset)
@@ -1436,35 +1333,6 @@ std::string to_string_second_offset(const int32_t& seconds_offset)
 namespace YYYYMMDDhhmmssns
 {
 
-int64_t to_int64(const int32_t& time_offset)
-{
-    std::stringstream ss;
-    int32_t timezone_offset = time_offset;
-
-    if (timezone_offset <= -12) { timezone_offset = -12; }
-    if (timezone_offset >= 14) { timezone_offset = 14; }
-
-    auto adjust_time_offset = timezone_offset * 3600;
-    auto now = std::chrono::system_clock::now();
-
-    std::time_t now_time = std::chrono::system_clock::to_time_t(now);
-    std::time_t now_time_utc = now_time + adjust_time_offset;
-
-    std::tm tm_buf {};
-    #if defined(__GNUC__) || defined(__clang__)
-    gmtime_r(&now_time_utc, &tm_buf);
-    #else
-    gmtime_s(&tm_buf, &now_time_utc);
-    #endif
-
-    auto now_ns = std::chrono::time_point_cast<std::chrono::nanoseconds>(now);
-    auto nanoseconds = now_ns.time_since_epoch() % std::chrono::seconds(1);
-
-    ss << std::put_time(&tm_buf, "%Y%m%d%H%M%S") << std::setw(9) << std::setfill('0') << nanoseconds.count();
-
-    return std::stoll(ss.str());
-}
-
 int64_t to_millis(const std::string &YYYYMMDDhhmmssns)
 {
     int64_t result;
@@ -1495,53 +1363,25 @@ int64_t to_millis(const std::string &YYYYMMDDhhmmssns)
 
 int64_t to_millis_now(const int32_t& time_offset)
 {
-    int64_t result;
-
-    std::string tmp_str;
-    std::stringstream ss;
-    int32_t timezone_offset = time_offset;
-
-    if (timezone_offset <= -12) { timezone_offset = -12; }
-    if (timezone_offset >= 14) { timezone_offset = 14; }
-
-    auto adjust_time_offset = timezone_offset * 3600;
+    int32_t timezone_offset = std::max(-12, std::min(time_offset, 14));
     auto now = std::chrono::system_clock::now();
 
-    std::time_t now_time = std::chrono::system_clock::to_time_t(now);
-    std::time_t now_time_utc = now_time + adjust_time_offset;
+    auto adjusted = now + std::chrono::seconds(timezone_offset * 3600);
 
-    std::tm tm_buf {};
-    #if defined(__GNUC__) || defined(__clang__)
-    gmtime_r(&now_time_utc, &tm_buf);
-    #else
-    gmtime_s(&tm_buf, &now_time_utc);
-    #endif
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(adjusted.time_since_epoch());
+    return duration.count();
+}
 
-    auto now_ns = std::chrono::time_point_cast<std::chrono::nanoseconds>(now);
-    auto nanoseconds = now_ns.time_since_epoch() % std::chrono::seconds(1);
-
-    ss << std::put_time(&tm_buf, "%Y%m%dT%H%M%S") << '.' << std::setw(9) << std::setfill('0') << nanoseconds.count();
-
-    tmp_str = ss.str();
-
-    std::tm time = {};
-    std::stringstream sss(tmp_str);
-
-    sss >> std::get_time(&time, "%Y-%m-%dT%H:%M:%S");
-
-    int64_t nanos = 0;
-    if (sss.peek() == '.')
-    {
-        sss.ignore();
-        sss >> nanos;
-    }
-
-    time_t time_since_epoch = mktime(&time);
-
-    result = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::from_time_t(time_since_epoch).time_since_epoch()).count();
-    result += nanos;
-
-    return result;
+std::string to_millis_string(const int64_t& YYYYMMDDhhmmssns, const bool& use_time_sign)
+{
+    std::chrono::system_clock::time_point tp{std::chrono::nanoseconds{YYYYMMDDhhmmssns}};
+    time_t tt = std::chrono::system_clock::to_time_t(tp);
+    std::tm* tm = std::gmtime(&tt);
+    std::stringstream ss;
+    ss << (use_time_sign ? std::put_time(tm, "%Y-%m-%dT%H:%M:%S") : std::put_time(tm, "%Y-%m-%d %H:%M:%S"));
+    auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(tp.time_since_epoch()) % 1000000000;
+    ss << "." << std::setfill('0') << std::setw(9) << ns.count();
+    return ss.str();
 }
 
 std::string to_string(const int32_t& time_offset)
