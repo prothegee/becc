@@ -840,7 +840,7 @@ int64_t to_int64(const int32_t& time_offset)
 
     result = ss.str();
 
-    return std::stol(result);
+    return std::stoll(result);
 }
 
 int64_t to_millis(const std::string &YYYYMMDDhhmmss)
@@ -1374,7 +1374,17 @@ int64_t to_millis_now(const int32_t& time_offset)
 
 std::string to_millis_string(const int64_t& YYYYMMDDhhmmssns, const bool& use_time_sign)
 {
-    std::chrono::system_clock::time_point tp{std::chrono::nanoseconds{YYYYMMDDhhmmssns}};
+    std::chrono::system_clock::time_point tp;
+    #if defined(__GNUC__) || defined(__clang__)
+    tp = std::chrono::system_clock::time_point{std::chrono::nanoseconds{YYYYMMDDhhmmssns}};
+    #else
+    tp = std::chrono::system_clock::time_point{
+        std::chrono::duration_cast<std::chrono::system_clock::duration>(
+            std::chrono::nanoseconds{YYYYMMDDhhmmssns}
+        )
+    };
+    #endif
+
     time_t tt = std::chrono::system_clock::to_time_t(tp);
     std::tm* tm = std::gmtime(&tt);
     std::stringstream ss;
