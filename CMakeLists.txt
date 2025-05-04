@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 3.15)
 
 # package
 set(BECC_VERSION_MAJOR 0)
-set(BECC_VERSION_MINOR 12)
+set(BECC_VERSION_MINOR 13)
 set(BECC_VERSION_PATCH 0)
-set(BECC_VERSION_RELEASE_DATE 20250503)
+set(BECC_VERSION_RELEASE_DATE 20250504)
 
 # package project
 project(becc
@@ -792,12 +792,12 @@ endif(BECC_BUILD_TESTS)
 
 # build tools
 if(BECC_BUILD_TOOLS)
-    
+    # n/a
 endif(BECC_BUILD_TOOLS)
 
 # check if not treat as main project ( treat as sub dir ) as last notice
 if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-    message(AUTHOR_WARNING "${PROJECT_NAME}@prothegee: becc CMakeLists.txt not main/root project")
+    message(AUTHOR_WARNING "${PROJECT_NAME}@prothegee: becc CMakeLists.txt is not main/root project")
     message(NOTICE "-- ${PROJECT_NAME}: please add below dir to your project `include_directories` & `link_directories` if you intend to use some becc vendor/thirdparties module:")
 
     foreach(BECC_VENDOR_DIR IN LISTS BECC_USED_VENDORS_DIR)

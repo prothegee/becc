@@ -252,6 +252,15 @@ int64_t to_millis(const std::string &YYYYMMDDhhmmss);
 int64_t to_millis_now(const int32_t& time_offset = 0);
 
 /**
+ * @brief YYYYMMDDhhmmss to milis timestring, as YYYY-MM-DDThh:mm:ss or YYYY-MM-DD hh:mm:ss if use_time_sign = false
+ * 
+ * @param YYYYMMDDhhmmssms 
+ * @param use_time_sign 
+ * @return std::string 
+ */
+std::string to_millis_string(const int64_t& YYYYMMDDhhmmssms, const bool& use_time_sign = false);
+
+/**
  * @brief get YYYYMMDDhhmmss as is
  * 
  * @param time_offset 
@@ -306,6 +315,15 @@ int64_t to_millis(const std::string &YYYYMMDDhhmmssms);
 int64_t to_millis_now(const int32_t& time_offset = 0);
 
 /**
+ * @brief YYYYMMDDhhmmssms to milis timestring, as YYYY-MM-DDThh:mm:ss.xxx or YYYY-MM-DD hh:mm:ss.xxx if use_time_sign = false
+ * 
+ * @param YYYYMMDDhhmmssms 
+ * @param use_time_sign 
+ * @return std::string 
+ */
+std::string to_millis_string(const int64_t& YYYYMMDDhhmmssms, const bool& use_time_sign = false);
+
+/**
  * @brief get YYYYMMDDhhmmssms as is string
  * 
  * @param time_offset 
@@ -336,14 +354,6 @@ namespace YYYYMMDDhhmmssµs
 {
 
 /**
- * @brief get YYYYMMDDhhmmssµs as int64
- * 
- * @param time_offset 
- * @return int64_t 
- */
-int64_t to_int64(const int32_t& time_offset = 0);
-
-/**
  * @brief convert YYYYMMDDhhmmssµs to millis
  * 
  * @param YYYYMMDDhhmmssµs 
@@ -358,6 +368,15 @@ int64_t to_millis(const std::string &YYYYMMDDhhmmssµs);
  * @return int64_t 
  */
 int64_t to_millis_now(const int32_t& time_offset = 0);
+
+/**
+ * @brief YYYYMMDDhhmmssµs to milis timestring, as YYYY-MM-DDThh:mm:ss.xxxxxx or YYYY-MM-DD hh:mm:ss.xxxxx if use_time_sign = false
+ * 
+ * @param YYYYMMDDhhmmssµs 
+ * @param use_time_sign 
+ * @return std::string 
+ */
+std::string to_millis_string(const int64_t& YYYYMMDDhhmmssµs, const bool& use_time_sign = false);
 
 /**
  * @brief get YYYYMMDDhhmmssµs as is string
@@ -390,14 +409,6 @@ namespace YYYYMMDDhhmmssns
 {
 
 /**
- * @brief get YYYYMMDDhhmmssns as int64
- * 
- * @param time_offset 
- * @return int64_t 
- */
-int64_t to_int64(const int32_t& time_offset = 0);
-
-/**
  * @brief convert YYYYMMDDhhmmssns to millis
  * 
  * @param YYYYMMDDhhmmssns 
@@ -412,6 +423,15 @@ int64_t to_millis(const std::string &YYYYMMDDhhmmssns);
  * @return int64_t 
  */
 int64_t to_millis_now(const int32_t& time_offset = 0);
+
+/**
+ * @brief YYYYMMDDhhmmssns to milis timestring, as YYYY-MM-DDThh:mm:ss.xxxxxxxxx or YYYY-MM-DD hh:mm:ss.xxxxxxxxx if use_time_sign = false
+ * 
+ * @param YYYYMMDDhhmmssns 
+ * @param use_time_sign 
+ * @return std::string 
+ */
+std::string to_millis_string(const int64_t& YYYYMMDDhhmmssns, const bool& use_time_sign = false);
 
 /**
  * @brief get YYYYMMDDhhmmssns as is string
