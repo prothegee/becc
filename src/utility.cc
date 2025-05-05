@@ -295,7 +295,7 @@ int32_t input_ends_with(const std::string& input, const std::string& keyword)
     return input.compare(input.length() - keyword.length(), keyword.length(), keyword) == 0 ? 1 : -2;
 }
 
-int32_t keyword_after(const std::string& source, const std::string& keyword, std::string &extraction_result)
+int32_t keyword_after(const std::string& source, const std::string& keyword, std::string& extraction_result)
 {
     size_t pos = source.find(keyword);
 
@@ -308,7 +308,7 @@ int32_t keyword_after(const std::string& source, const std::string& keyword, std
     return 1;
 }
 
-int32_t keyword_before(const std::string& source, const std::string& keyword, std::string &extraction_result)
+int32_t keyword_before(const std::string& source, const std::string& keyword, std::string& extraction_result)
 {
     size_t pos = source.find(keyword);
 
@@ -506,7 +506,7 @@ buffer_t to_buffer(const std::string& input, size_t required_size)
     return result;
 }
 
-std::string to_another_letter_case(const std::string &input, const int32_t &mode)
+std::string to_another_letter_case(const std::string& input, const int32_t& mode)
 {
     std::string result;
 
@@ -822,7 +822,7 @@ int32_t save_to_csv(const Json::Value& input, const std::string& output_file_pat
     return 1;
 }
 
-int32_t save_to_json(const Json::Value& input, const std::string& output_file_path, const int32_t &indent, const int32_t &precision)
+int32_t save_to_json(const Json::Value& input, const std::string& output_file_path, const int32_t& indent, const int32_t& precision)
 {
     if (find::input_ends_with(output_file_path, ".json") != 0)
     {

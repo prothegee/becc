@@ -1,6 +1,6 @@
 {
     "cmake.generator": "Ninja",
-    "cmake.buildDirectory": "${workspaceFolder}/build/${buildType}",
+    "cmake.buildDirectory": "${workspaceFolder}/build/${variant:buildType}",
     "cmake.configureSettings": {
         /*
         windows:
