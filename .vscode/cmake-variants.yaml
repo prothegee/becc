@@ -5,6 +5,10 @@ buildType:
       short: Debug
       long: debug build
       buildType: Debug
+    profile:
+      short: Profile
+      long: profile debug build
+      buildType: Debug
     release:
       short: Release
       long: release build
@@ -15,5 +19,5 @@ buildType:
       buildType: RelWithDebInfo
     minsizerel:
       short: MinSizeRel
-      long: minsize release build
+      long: minimal size in release build
       buildType: MinSizeRel
