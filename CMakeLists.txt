@@ -3,8 +3,8 @@ cmake_minimum_required(VERSION 3.15)
 # package
 set(BECC_VERSION_MAJOR 0)
 set(BECC_VERSION_MINOR 14)
-set(BECC_VERSION_PATCH 2)
-set(BECC_VERSION_RELEASE_DATE 20250505)
+set(BECC_VERSION_PATCH 3)
+set(BECC_VERSION_RELEASE_DATE 20250506)
 
 # package project
 project(becc
@@ -90,7 +90,7 @@ if(NOT DEFINED CMAKE_CXX_STANDARD)
     if(NOT _detected_standard AND MSVC)
         string(REGEX MATCH "/std:c\\+\\+latest" _ "${CMAKE_CXX_FLAGS}")
         if(CMAKE_MATCH_0)
-            set(_detected_standard 20) # map /std:c++latest to C++20
+            set(_detected_standard latest) # map /std:c++latest to C++20
         else()
             string(REGEX MATCH "/std:c\\+\\+([0-9]+)" _ "${CMAKE_CXX_FLAGS}")
             if(CMAKE_MATCH_1)
@@ -117,7 +117,7 @@ if(NOT DEFINED CMAKE_CXX_FLAGS)
         list(APPEND CMAKE_CXX_FLAGS "-std=c++${CMAKE_CXX_STANDARD}")
     endif()
 else()
-    # Clean existing standard flags
+    # clean existing standard flags
     string(REGEX REPLACE "-std=[^ ]+" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     string(REGEX REPLACE "/std:c\\+\\+[^ ]+" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     

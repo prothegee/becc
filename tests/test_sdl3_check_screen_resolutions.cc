@@ -14,6 +14,7 @@ using namespace becc;
 
 //////////////////////////////////////////////////////////////////
 
+#if BECC_USING_SDL3
 struct TDisplayResolutionData
 {
     int32_t width;
@@ -122,9 +123,11 @@ public:
         return m_displayResolutionsData;
     }
 };
+#endif // BECC_USING_SDL3
 
 int main()
 {
+    #if BECC_USING_SDL3
     CTestNativeResolution *pNativeRes = new CTestNativeResolution();
 
     pNativeRes->initialize();
@@ -152,6 +155,7 @@ int main()
     pNativeRes->terminateAndShutdown();
 
     delete pNativeRes;
+    #endif // BECC_USING_SDL3
 
     return 1;
 }

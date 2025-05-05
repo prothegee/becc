@@ -4,6 +4,7 @@
 
 int main()
 {
+    #if BECC_USING_STB && BECC_USING_NANOSVG && BECC_USING_ZXING_CPP
     // barcode
     {
         std::string in_1 = "my barcode in 1";
@@ -59,6 +60,7 @@ int main()
     }
 
     // encode decode batch?
+    #endif // BECC_USING_STB && BECC_USING_NANOSVG && BECC_USING_ZXING_CPP
 
     return 1;
 }
