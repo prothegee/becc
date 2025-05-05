@@ -33,7 +33,7 @@ namespace curl_cmd_impl
  * @param smtp_sender_address e.g. no-reply@foo.bar
  * @param smtp_sender_name e.g. no-reply
  * @param smtp_sender_password e.g. your_smtp_password_123
- * @return std::future<int32_t> 0 mean ok
+ * @return std::future<int32_t> 1 mean ok
  */
 std::future<int32_t> smtps_send_mail_by_template_future(const std::string& template_html, const std::string& template_title, const std::string& template_recipient, const std::vector<look_and_replace_t>& template_look_and_teplace, const std::string& smtp_server, const std::string& smtp_port, const std::string& smtp_sender_address, const std::string& smtp_sender_name, const std::string& smtp_sender_password);
 } // namespace curl_cmd_impl
@@ -55,7 +55,7 @@ namespace drogon_sparkpost_impl
  * @param sparkpost_endpoint e.g. /api/v1/transmissions
  * @param sender_user_agent your sender user agent, default is "org.drogon-sparkpost"
  * @param enable_tracking if true, some url will change to click not as original data pass from templateLookAndReplace
- * @return std::future<int32_t> 0 mean ok
+ * @return std::future<int32_t> 1 mean ok
  */
 std::future<int32_t> send_mail_by_template_future(const std::string& template_html, const std::string& template_title, const std::string& template_recipient, const std::vector<look_and_replace_t>& template_look_and_replace, const std::string& sparkpost_api_key, const std::string& sparkpost_sender_name, const std::string& sparkpost_url, const std::string& sparkpost_endpoint, const std::string& sender_user_agent = "org.drogon-sparkpost", const bool& enable_tracking = false);
 } // namespace drogon_sparkpost_impl

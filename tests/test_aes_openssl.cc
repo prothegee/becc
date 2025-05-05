@@ -17,5 +17,5 @@ int main()
     assert(message == decrypted);
     std::cout << "passed: message is original\n";
 
-    return 0;
+    return 1;
 }

@@ -50,5 +50,5 @@ int main()
     }
     #endif // BECC_USING_JSONCPP && BECC_USING_CURL_EXECUTEABLE
 
-    return 0;
+    return 1;
 }

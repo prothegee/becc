@@ -60,5 +60,5 @@ int main()
 
     // encode decode batch?
 
-    return 0;
+    return 1;
 }

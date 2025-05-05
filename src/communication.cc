@@ -74,7 +74,7 @@ Content-Type: text/html; charset="UTF-8"
 
         if (status.get() == 0)
         {
-            response_promise.set_value(0);
+            response_promise.set_value(1);
         }
         else
         {
@@ -91,7 +91,7 @@ Content-Type: text/html; charset="UTF-8"
 
         if (status == 0)
         {
-            response_promise.set_value(0);
+            response_promise.set_value(1);
         }
         else
         {
@@ -159,23 +159,20 @@ std::future<int32_t> send_mail_by_template_future(const std::string& template_ht
 
         pClient->sendRequest(pRequest, [&response_promise](drogon::ReqResult result, const drogon::HttpResponsePtr &pResp)
         {
-            int32_t tmp_val_1 = -2;
-
             if (result == drogon::ReqResult::Ok && pResp->getStatusCode() == drogon::k200OK)
             {
                 #if BECC_IS_DEBUG
                 std::cout << "drogon_sparkpost_impl::send_mail_by_template_future: reponse ok\n";
                 #endif // LIBPRCPP_IS_DEBUG
-                tmp_val_1 = 0;
 
-                response_promise.set_value(tmp_val_1);
+                response_promise.set_value(1);
             }
             else
             {
                 #if BECC_IS_DEBUG
                 std::cout << "drogon_sparkpost_impl::send_mail_by_template_future: status code is " << pResp->getStatusCode() << "\n";
                 #endif // LIBPRCPP_IS_DEBUG
-                response_promise.set_value(tmp_val_1);
+                response_promise.set_value(-2);
             }
         });
 

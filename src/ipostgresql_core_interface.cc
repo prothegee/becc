@@ -69,7 +69,7 @@ int32_t IPostgreSqlCoreInterface::_IPostgreSQL::initialize_database(const postgr
         return -69;
     }
 
-    return 0;
+    return 1;
 }
 
 std::string IPostgreSqlCoreInterface::_IPostgreSQL::generate_uuid_v1_as_string()

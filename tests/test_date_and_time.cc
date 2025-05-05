@@ -49,5 +49,5 @@ int main()
     std::cout << "[MLS] YYYYMMDDhhmmssns : " << YYYYMMDDhhmmssns_MLS << "\n";
     std::cout << "\n";
 
-    return 0;
+    return 1;
 }

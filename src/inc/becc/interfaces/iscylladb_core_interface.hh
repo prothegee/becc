@@ -172,7 +172,7 @@ struct IScyllaDbCoreInterface
          * 
          * @param connection 
          * @param extra_info 
-         * @return int32_t 0 mean ok
+         * @return int32_t 1 mean ok
          */
         int32_t initialize_constructor(const scylladb_connection_t& connection, const char* extra_info = "");
 

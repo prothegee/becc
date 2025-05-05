@@ -66,7 +66,7 @@ struct IPostgreSqlCoreInterface
          * 
          * @param connection_data 
          * @param create_db 
-         * @return int32_t 0 mean ok
+         * @return int32_t 1 mean ok
          */
         int32_t initialize_database(const postgresql_connection_t& connection_data, const bool& create_db = false);
 

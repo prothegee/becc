@@ -43,7 +43,7 @@ namespace image
  * @param width 
  * @param height 
  * @param margin 
- * @return int32_t 0 mean ok
+ * @return int32_t 1 mean ok
  */
 int32_t matrix_to_svg(const std::string& file_output, const BitMatrix& matrix, const int32_t& width, const int32_t& height, const int32_t& margin);
 #endif // BECC_USING_ZXING_CPP && BECC_USING_NANOSVG
@@ -57,7 +57,7 @@ int32_t matrix_to_svg(const std::string& file_output, const BitMatrix& matrix, c
  * @param width 
  * @param height 
  * @param stb_comp 
- * @return int32_t 0 mean ok
+ * @return int32_t 1 mean ok
  */
 int32_t buffer_to_png(const std::string& file_output, const buffer_t& buffer, const int32_t& width, const int32_t& height, const int32_t& stb_comp = 4);
 
@@ -69,7 +69,7 @@ int32_t buffer_to_png(const std::string& file_output, const buffer_t& buffer, co
  * @param width 
  * @param height 
  * @param stb_comp 
- * @return int32_t 0 mean ok
+ * @return int32_t 1 mean ok
  */
 int32_t buffer_to_jpg(const std::string& file_output, const buffer_t& buffer, const int32_t& width, const int32_t& height, const int32_t& stb_comp = 4);
 #endif // BECC_USING_STB
@@ -85,7 +85,7 @@ namespace rasterize
  * @param output 
  * @param width 
  * @param height 
- * @return int32_t 0 mean ok
+ * @return int32_t 1 mean ok
  */
 int32_t from_svg(const std::string& file_path, std::vector<uint8_t>& output, int32_t& width, int32_t& height);
 #endif // BECC_USING_NANOSVG
@@ -107,7 +107,7 @@ namespace barqr
  * @param margin 
  * @param format 
  * @param channels 
- * @return int32_t 0 mean ok
+ * @return int32_t 1 mean ok
  */
 int32_t encode(const std::string& content, const std::string& file_output, const int32_t& width, const int32_t& height, const int32_t& margin, const BarcodeFormat& format, const int32_t& channels = 4);
 
@@ -121,7 +121,7 @@ int32_t encode(const std::string& content, const std::string& file_output, const
  * @param file_output 
  * @param format 
  * @param tryhard 
- * @return int32_t 0 mean ok
+ * @return int32_t 1 mean ok
  */
 int32_t decode(const std::string& content, std::string& file_output, const BarcodeFormat& format, const bool& tryhard = true);
 #endif // BECC_USING_ZXING_CPP && BECC_USING_STB && BECC_USING_NANOSVG

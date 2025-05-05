@@ -209,7 +209,7 @@ int32_t argon2id_verifier(const std::string& input, const std::string& hash_enco
         return -1;
     }
 
-    return 0;
+    return 1;
 }
 #endif // BECC_USING_ARGON2
 
@@ -260,7 +260,7 @@ int32_t aes_cbc_encrypt_openssl(const std::string& input, std::string& output, c
 
     EVP_CIPHER_CTX_free(pCtx); // start free object/s
 
-    return 0;
+    return 1;
 }
 
 int32_t aes_cbc_decrypt_openssl(const std::string& input, std::string& output, const std::string& iv, const std::string& ik)
@@ -304,7 +304,7 @@ int32_t aes_cbc_decrypt_openssl(const std::string& input, std::string& output, c
 
     EVP_CIPHER_CTX_free(pCtx);
 
-    return 0;
+    return 1;
 }
 
 buffer_t aes_cbc_encrypt_to_buffer_openssl(const buffer_t& buffer, uchr_t* iv_buffer, uchr_t* ik_buffer)

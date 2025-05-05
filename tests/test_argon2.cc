@@ -16,5 +16,5 @@ int main()
     assert(verify == ARGON2_OK);
     std::cout << "passed: argon2id verified\n";
 #endif // BECC_USING_ARGON2
-    return 0;
+    return 1;
 }
