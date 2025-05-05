@@ -91,3 +91,4 @@ project-build-release*.*
 ## exception [Internal Usage]
 ##
 !vendors/jsoncpp/include/json/config.h
+/CMakePresets.json

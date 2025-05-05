@@ -137,7 +137,7 @@ int32_t input_ends_with(const std::string& input, const std::string& keyword);
  * @param extraction_result 
  * @return int32_t 1 mean ok
  */
-int32_t keyword_after(const std::string& source, const std::string& keyword, std::string &extraction_result);
+int32_t keyword_after(const std::string& source, const std::string& keyword, std::string& extraction_result);
 
 /**
  * @brief find keywird before `keyword` in source & extract it
@@ -147,7 +147,7 @@ int32_t keyword_after(const std::string& source, const std::string& keyword, std
  * @param extraction_result 
  * @return int32_t 
  */
-int32_t keyword_before(const std::string& source, const std::string& keyword, std::string &extraction_result);
+int32_t keyword_before(const std::string& source, const std::string& keyword, std::string& extraction_result);
 
 } // namespace find
 
@@ -323,7 +323,7 @@ int32_t save_to_csv(const Json::Value& input, const std::string& output_file_pat
  * @param precision 
  * @return int32_t 1 mean ok
  */
-int32_t save_to_json(const Json::Value& input, const std::string& output_file_path, const int32_t &indent = 4, const int32_t &precision = 16);
+int32_t save_to_json(const Json::Value& input, const std::string& output_file_path, const int32_t& indent = 4, const int32_t& precision = 16);
 
 } // namespace jsoncpp
 #endif // BECC_USING_JSONCPP
