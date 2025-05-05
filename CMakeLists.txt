@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.15)
 # package
 set(BECC_VERSION_MAJOR 0)
 set(BECC_VERSION_MINOR 14)
-set(BECC_VERSION_PATCH 1)
+set(BECC_VERSION_PATCH 2)
 set(BECC_VERSION_RELEASE_DATE 20250505)
 
 # package project
@@ -90,7 +90,7 @@ if(NOT DEFINED CMAKE_CXX_STANDARD)
     if(NOT _detected_standard AND MSVC)
         string(REGEX MATCH "/std:c\\+\\+latest" _ "${CMAKE_CXX_FLAGS}")
         if(CMAKE_MATCH_0)
-            set(_detected_standard 20) # Map /std:c++latest to C++20
+            set(_detected_standard 20) # map /std:c++latest to C++20
         else()
             string(REGEX MATCH "/std:c\\+\\+([0-9]+)" _ "${CMAKE_CXX_FLAGS}")
             if(CMAKE_MATCH_1)
@@ -121,7 +121,7 @@ else()
     string(REGEX REPLACE "-std=[^ ]+" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     string(REGEX REPLACE "/std:c\\+\\+[^ ]+" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     
-    # Add correct standard flag
+    # add correct standard flag
     if(MSVC)
         if(CMAKE_CXX_STANDARD GREATER_EQUAL 20)
             list(APPEND CMAKE_CXX_FLAGS "/std:c++latest")
@@ -752,6 +752,16 @@ else()
     set(BECC_COMPILER_CLANG false)
 
     message(NOTICE "-- ${PROJECT_NAME}: -DCMAKE_CXX_COMPILER_ID is not supported as ${CMAKE_CXX_COMPILER_ID}")
+endif()
+
+if(BECC_COMPILER_GNU) # gcc 12.2
+    target_link_libraries(${PROJECT_NAME} PRIVATE -lm)
+
+    if(EXISTS "/usr/lib/x86_64-linux-gnu/libm.so")
+        target_link_libraries(${PROJECT_NAME} PRIVATE "/usr/lib/x86_64-linux-gnu/libm.so") # somehow build not error
+    else()
+        message(WARNING "-- ${PROJECT_NAME}: for gcc has error, be warn")
+    endif()
 endif()
 
 ## warning
