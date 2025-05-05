@@ -67,7 +67,7 @@ int32_t matrix_to_svg(const std::string& file_output, const BitMatrix& matrix, c
         return -69;
     }
 
-    return 0;
+    return 1;
 }
 #endif // BECC_USING_ZXING_CPP && BECC_USING_NANOSVG
 
@@ -160,7 +160,7 @@ int32_t from_svg(const std::string& file_path, std::vector<uint8_t>& output, int
     nsvgDeleteRasterizer(pRast);
     nsvgDelete(pImage);
 
-    return 0;
+    return 1;
 }
 #endif // BECC_USING_NANOSVG
 } // namespace rasterize
@@ -332,7 +332,7 @@ int32_t decode(const std::string& content, std::string& file_output, const Barco
         return -69;
     }
 
-    return 0;
+    return 1;
 }
 #endif // BECC_USING_ZXING_CPP && BECC_USING_STB && BECC_USING_NANOSVG
 } // namespace barqr

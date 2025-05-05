@@ -150,7 +150,7 @@ int32_t IScyllaDbCoreInterface::_IScyllaDb::initialize_constructor(const scyllad
     std::cout << "DEBUG: \"IScyllaDbCoreInterface::_IScyllaDb::initialize_constructor\" connected \"" << extra_info << "\"\n";
     #endif // BECC_IS_DEBUG
 
-    return 0;
+    return 1;
 }
 
 std::string IScyllaDbCoreInterface::_IScyllaDb::generate_uuid_v1_as_string()

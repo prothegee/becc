@@ -19,7 +19,7 @@ namespace utility_functions
 int32_t file_exists(const std::string& file_path)
 {
     std::ifstream file(file_path);
-    return file.good() ? 0 : -1;
+    return file.good() ? 1 : -1;
 }
 
 bool is_numeric(const std::string& input)
@@ -276,7 +276,7 @@ int32_t and_replace_all(std::string& source, const std::string& query, const std
             position += replacement.size();
         }
 
-        return 0;
+        return 1;
     }
     catch(const std::exception& e)
     {
@@ -292,7 +292,7 @@ int32_t input_ends_with(const std::string& input, const std::string& keyword)
         return -1;
     }
 
-    return input.compare(input.length() - keyword.length(), keyword.length(), keyword) == 0 ? 0 : 1;
+    return input.compare(input.length() - keyword.length(), keyword.length(), keyword) == 0 ? 1 : -2;
 }
 
 int32_t keyword_after(const std::string& source, const std::string& keyword, std::string &extraction_result)
@@ -305,7 +305,7 @@ int32_t keyword_after(const std::string& source, const std::string& keyword, std
     }
 
     extraction_result = source.substr(pos + keyword.length());
-    return 0;
+    return 1;
 }
 
 int32_t keyword_before(const std::string& source, const std::string& keyword, std::string &extraction_result)
@@ -318,7 +318,7 @@ int32_t keyword_before(const std::string& source, const std::string& keyword, st
     }
 
     extraction_result = source.substr(0, pos);
-    return 0;
+    return 1;
 }
 
 } // namespace find
@@ -819,7 +819,7 @@ int32_t save_to_csv(const Json::Value& input, const std::string& output_file_pat
     }
     file.close();
 
-    return 0;
+    return 1;
 }
 
 int32_t save_to_json(const Json::Value& input, const std::string& output_file_path, const int32_t &indent, const int32_t &precision)
@@ -858,7 +858,7 @@ int32_t save_to_json(const Json::Value& input, const std::string& output_file_pa
     file << Json::writeString(writer, input);
     file.close();
 
-    return 0;
+    return 1;
 }
 
 } // namespace jsoncpp
@@ -894,7 +894,7 @@ int32_t file_to_buffer(const std::string& file_path, buffer_t& buffer_data, cons
         }
     }
 
-    return 0;
+    return 1;
 }
 
 } // namespace read
@@ -918,7 +918,7 @@ int32_t file_from_buffer(const std::string& file_path, const buffer_t& buffer_da
         return -2;
     }
 
-    return 0;
+    return 1;
 }
 
 } // namespace write
@@ -984,7 +984,7 @@ int32_t encrypt(const int32_t& mode, const std::string& file_input, const std::s
 
     if (!isOk) { return -69; } // mode error
 
-    return 0;
+    return 1;
 }
 
 int32_t decrypt(const int32_t& mode, const std::string& file_input, const std::string& file_output, const std::string& iv, const std::string& ik, const size_t& chunk_size)
@@ -1044,7 +1044,7 @@ int32_t decrypt(const int32_t& mode, const std::string& file_input, const std::s
 
     if (!isOk) { return -69; } // mode error
 
-    return 0;
+    return 1;
 }
 #endif // BECC_USING_OPENSSL
 

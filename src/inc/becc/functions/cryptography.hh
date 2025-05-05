@@ -122,7 +122,7 @@ std::string sha512_openssl(const std::string& input);
  * @param block block size of memory cost KiB
  * @param parallelism thread usage cost
  * @param derived_length derive length
- * @return int32_t 0 mean ok
+ * @return int32_t 1 mean ok
  */
 int32_t argon2id(const std::string& input, const std::string& salt, std::string& result, const uint32_t& computation = 2, const uint32_t& block = 1 << 21, const uint32_t& parallelism = 1, const uint32_t& derived_length = 32);
 
@@ -131,7 +131,7 @@ int32_t argon2id(const std::string& input, const std::string& salt, std::string&
  * 
  * @param input raw input
  * @param hash_encoded hash encoded
- * @return int32_t  mean ok
+ * @return int32_t 1 mean ok
  */
 int32_t argon2id_verifier(const std::string& input, const std::string& hash_encoded);
 #endif // BECC_USING_ARGON2
@@ -149,7 +149,7 @@ namespace stream_cipher
  * @param output output to store the result
  * @param iv recomended length is 16
  * @param ik recomended length is 32
- * @return int32_t 
+ * @return int32_t 1 mean ok
  */
 int32_t aes_cbc_encrypt_openssl(const std::string& input, std::string& output, const std::string& iv, const std::string& ik);
 
@@ -160,7 +160,7 @@ int32_t aes_cbc_encrypt_openssl(const std::string& input, std::string& output, c
  * @param output 
  * @param iv 
  * @param ik 
- * @return int32_t 
+ * @return int32_t 1 mean ok
  */
 int32_t aes_cbc_decrypt_openssl(const std::string& input, std::string& output, const std::string& iv, const std::string& ik);
 

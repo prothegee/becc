@@ -25,7 +25,7 @@ namespace utility_functions
  * @brief check if file_path is exists
  * 
  * @param file_path 
- * @return int32_t 0 mean ok
+ * @return int32_t 1 mean ok
  */
 int32_t file_exists(const std::string& file_path);
 
@@ -116,7 +116,7 @@ std::vector<std::string> each_keywords(const std::string& source, const std::vec
  * @param source 
  * @param query 
  * @param replacement 
- * @return int32_t 0 mean ok
+ * @return int32_t 1 mean ok
  */
 int32_t and_replace_all(std::string& source, const std::string& query, const std::string& replacement);
 
@@ -125,7 +125,7 @@ int32_t and_replace_all(std::string& source, const std::string& query, const std
  * 
  * @param input 
  * @param keyword 
- * @return int32_t 0 mean ok
+ * @return int32_t 1 mean ok
  */
 int32_t input_ends_with(const std::string& input, const std::string& keyword);
 
@@ -135,7 +135,7 @@ int32_t input_ends_with(const std::string& input, const std::string& keyword);
  * @param source 
  * @param keyword 
  * @param extraction_result 
- * @return int32_t 0 mean ok
+ * @return int32_t 1 mean ok
  */
 int32_t keyword_after(const std::string& source, const std::string& keyword, std::string &extraction_result);
 
@@ -310,7 +310,7 @@ Json::Value from_string(const std::string& input, const int32_t& indent = 4, con
  * 
  * @param input 
  * @param output_file_path literal required correct extension file
- * @return int32_t 0 mean ok
+ * @return int32_t 1 mean ok
  */
 int32_t save_to_csv(const Json::Value& input, const std::string& output_file_path);
 
@@ -321,7 +321,7 @@ int32_t save_to_csv(const Json::Value& input, const std::string& output_file_pat
  * @param output_file_path literal required correct extension file
  * @param indent 
  * @param precision 
- * @return int32_t 0 mean ok
+ * @return int32_t 1 mean ok
  */
 int32_t save_to_json(const Json::Value& input, const std::string& output_file_path, const int32_t &indent = 4, const int32_t &precision = 16);
 
@@ -337,7 +337,7 @@ namespace read
  * @param file_path 
  * @param buffer_data 
  * @param chunk_size default 1 Mb
- * @return int32_t 0 mean ok
+ * @return int32_t 1 mean ok
  */
 int32_t file_to_buffer(const std::string& file_path, buffer_t& buffer_data, const size_t& chunk_size = 1 * 1024 * 1024);
 
@@ -351,7 +351,7 @@ namespace write
  * 
  * @param file_path 
  * @param buffer_data 
- * @return int32_t 0 mean ok
+ * @return int32_t 1 mean ok
  */
 int32_t file_from_buffer(const std::string& file_path, const buffer_t& buffer_data);
 
@@ -372,7 +372,7 @@ namespace file
  * @param iv 
  * @param ik 
  * @param chunk_size default 1 Mb
- * @return int32_t 0 mean ok
+ * @return int32_t 1 mean ok
  */
 int32_t encrypt(const int32_t& mode, const std::string& file_input, const std::string& file_output, const std::string& iv, const std::string& ik, const size_t& chunk_size = 1 * 1024 * 1024);
 
@@ -387,7 +387,7 @@ int32_t encrypt(const int32_t& mode, const std::string& file_input, const std::s
  * @param iv 
  * @param ik 
  * @param chunk_size default 1 Mb
- * @return int32_t 0 mean ok
+ * @return int32_t 1 mean ok
  */
 int32_t decrypt(const int32_t& mode, const std::string& file_input, const std::string& file_output, const std::string& iv, const std::string& ik, const size_t& chunk_size = 1 * 1024 * 1024);
 #endif // BECC_USING_OPENSSL

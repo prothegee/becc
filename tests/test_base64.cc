@@ -26,5 +26,5 @@ int main()
     // no base64 openssl sanity check
     #endif // BECC_USING_OPENSSL
 
-    return 0;
+    return 1;
 }
