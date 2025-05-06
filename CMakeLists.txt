@@ -577,8 +577,16 @@ add_library(becc_static STATIC $<TARGET_OBJECTS:becc_objects>)
 add_library(becc_shared SHARED $<TARGET_OBJECTS:becc_objects>)
 ### lib/s name
 if(WIN32)
-    set_target_properties(becc_static PROPERTIES OUTPUT_NAME "becc")
-    set_target_properties(becc_shared PROPERTIES OUTPUT_NAME "becc")
+    # set_target_properties(becc_static PROPERTIES OUTPUT_NAME "becc")
+    set_target_properties(becc_static PROPERTIES
+        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+        OUTPUT_NAME "becc"
+    )
+    # set_target_properties(becc_shared PROPERTIES OUTPUT_NAME "becc")
+    set_target_properties(becc_static PROPERTIES
+        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+        OUTPUT_NAME "becc"
+    )
 else()
     set_target_properties(becc_static PROPERTIES OUTPUT_NAME "becc")
     set_target_properties(becc_shared PROPERTIES OUTPUT_NAME "becc")
