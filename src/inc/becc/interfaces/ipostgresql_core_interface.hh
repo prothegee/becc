@@ -5,7 +5,11 @@
 namespace becc
 {
 #if BECC_USING_POSTGRESQL
+#if BECC_USING_VCPKG
 #include <libpq-fe.h>
+#else
+#include <postgresql/libpq-fe.h>
+#endif // BECC_USING_VCPKG
 
 /**
  * @brief postgresql connection type structure

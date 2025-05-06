@@ -2,6 +2,11 @@
 #define BECC_HH
 #include "config.hh"
 #include "export.hh"
+#ifdef becc_shared_EXPORTS
+  #include "export_shared.hh"
+#else
+  #include "export_static.hh" 
+#endif
 
 #include <cstdint>
 #include <array>

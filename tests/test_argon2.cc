@@ -12,7 +12,7 @@ int main()
     assert(status == (int32_t)ARGON2_OK);
     std::cout << "passed: argon2id as " << result << "\n";
  
-    auto verify = argon2id_verify(result.c_str(), password.data(), password.length());
+    auto verify = becc::cryptography_functions::hash::argon2id_verifier(password, result);
     assert(verify == ARGON2_OK);
     std::cout << "passed: argon2id verified\n";
     #endif // BECC_USING_ARGON2

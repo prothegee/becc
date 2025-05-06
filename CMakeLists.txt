@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.15)
 
 # package
 set(BECC_VERSION_MAJOR 0)
-set(BECC_VERSION_MINOR 14)
-set(BECC_VERSION_PATCH 3)
+set(BECC_VERSION_MINOR 15)
+set(BECC_VERSION_PATCH 0)
 set(BECC_VERSION_RELEASE_DATE 20250506)
 
 # package project
@@ -29,8 +29,6 @@ option(BECC_BUILD_VENDOR_HARU        "build vendor haru" OFF)
 option(BECC_BUILD_VENDOR_NANOSVG     "build vendor nanosvg" OFF)
 ## build vendor zxing-cpp, default false/OFF
 option(BECC_BUILD_VENDOR_ZXING_CPP   "build vendor zxing-cpp" OFF)
-### build shared libs
-option(BECC_BUILD_SHARED_LIBS        "build force param to standard -DBUILD_SHARED_LIBS" OFF)
 ### build use vcpkg, default false/OFF
 option(BECC_BUILD_VCPKG              "build use vcpkg" OFF)
 ### build vcpkg_triplet, default false/OFF, should be string value
@@ -244,9 +242,6 @@ endif()
 ## package manager: vcpkg
 set(BECC_USING_VCPKG false)
 if(BECC_BUILD_VCPKG)
-    # message(WARNING "-- ${PROJECT_NAME}: this configuration has conflict with SDL3 & hpdf/libharu")
-    # either disable it, or remove it
-
     set(BECC_VCPKG_DIR)
     set(BECC_VCPKG_TRIPLET)
     set(BECC_VCPKG_INSTALLED_DIR)
@@ -574,113 +569,23 @@ if(BECC_BUILD_VENDOR_ZXING_CPP)
 endif()
 
 # project lib
-add_library(${PROJECT_NAME} ${BEC_SOURCES_FILES})
-## shared libs
-# if(BECC_BUILD_SHARED_LIBS)
-#     set_target_properties(${PROJECT_NAME} PROPERTIES
-#         VERSION "${BECC_VERSION_MAJOR}.${BECC_VERSION_MINOR}.${BECC_VERSION_PATCH}"
-#         SOVERSION "${BECC_VERSION_MAJOR}.${BECC_VERSION_MINOR}.${BECC_VERSION_PATCH}"
-#     )
-#     set(BECC_BUILD_SHARED_LIBS true)
-# endif() # skip for now
-## force shared libs by becc value
-if(BECC_BUILD_SHARED_LIBS)
-    set(BUILD_SHARED_LIBS ON)
-    set(BECC_BUILD_SHARED_LIBS true)
-
-    message(WARNING "-- ${PROJECT_NAME}: -DBECC_BUILD_SHARED_LIBS is ON/true, might cause error when adding this project as subdir when linking")
+## object core lib
+add_library(becc_objects OBJECT ${BEC_SOURCES_FILES})
+## static core lib
+add_library(becc_static STATIC $<TARGET_OBJECTS:becc_objects>)
+## shared code lib
+add_library(becc_shared SHARED $<TARGET_OBJECTS:becc_objects>)
+### lib/s name
+if(WIN32)
+    set_target_properties(becc_static PROPERTIES OUTPUT_NAME "becc")
+    set_target_properties(becc_shared PROPERTIES OUTPUT_NAME "becc")
 else()
-    set(BUILD_SHARED_LIBS OFF)
-    set(BECC_BUILD_SHARED_LIBS false)
-endif(BECC_BUILD_SHARED_LIBS)
-
-# target libs, package, & executeable
-# MARK: note target_link_libraries & target_include_directories
-#[=[
-even if using vcpkg will keep build the vendor dir for just because
-#]=]
-##
-## jsoncpp
-if(BECC_USING_JSONCPP)
-    if(NOT BECC_BUILD_VCPKG)
-        target_link_libraries(${PROJECT_NAME} PRIVATE jsoncpp)
-    else()
-        find_package(jsoncpp CONFIG REQUIRED)
-        target_link_libraries(${PROJECT_NAME} PRIVATE JsonCpp::JsonCpp)
-    endif()
-endif()
-##
-## openssl
-if(BECC_USING_OPENSSL)
-    target_link_libraries(${PROJECT_NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
-endif()
-##
-## drogon
-if(BECC_USING_DROGON)
-    target_link_libraries(${PROJECT_NAME} PRIVATE Drogon::Drogon)
-endif()
-##
-## argon2
-if(BECC_USING_ARGON2)
-    if(BECC_BUILD_VCPKG)
-        target_link_libraries(${PROJECT_NAME} PRIVATE unofficial::argon2::libargon2)
-    else()
-        target_link_libraries(${PROJECT_NAME} PRIVATE argon2)
-    endif()
-endif()
-##
-## postgresql
-if(BECC_USING_POSTGRESQL)
-    target_link_libraries(${PROJECT_NAME} PRIVATE PostgreSQL::PostgreSQL)
-endif()
-##
-## scylladb
-if(BECC_USING_SCYLLADB)
-    target_link_libraries(${PROJECT_NAME} PRIVATE scylla-cpp-driver)
-endif()
-##
-## stb
-if(BECC_USING_STB)
-    target_include_directories(${PROJECT_NAME} PRIVATE ${Stb_INCLUDE_DIR})
-endif()
-##
-## sdl
-if(BECC_USING_SDL3)
-    if(BECC_BUILD_VCPKG)
-        target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
-    else()
-        target_link_libraries(${PROJECT_NAME} PRIVATE SDL3-static SDL_uclibc SDL3_Headers)
-    endif()
-endif()
-##
-## haru
-if(BECC_USING_HARU)
-    if(BECC_BUILD_VCPKG)
-        target_link_libraries(${PROJECT_NAME} PRIVATE unofficial::libharu::hpdf)
-    else()
-        target_link_libraries(${PROJECT_NAME} PRIVATE hpdf)
-
-        target_include_directories(${PROJECT_NAME} PRIVATE ${BECC_VENDOR_LIBHARU_DIR_SOURCE_OUT})
-        target_include_directories(${PROJECT_NAME} PRIVATE ${BECC_VENDOR_LIBHARU_DIR_INCLUDE_OUT})
-    endif()
-endif()
-##
-## nanosvg
-if(BECC_USING_NANOSVG)
-    if(BECC_BUILD_VCPKG)
-        target_link_libraries(${PROJECT_NAME} PRIVATE NanoSVG::nanosvg NanoSVG::nanosvgrast)
-    else()
-        target_link_libraries(${PROJECT_NAME} PRIVATE nanosvg nanosvgrast)
-    endif()
-endif()
-##
-## zxing-cpp
-if(BECC_USING_ZXING_CPP)
-    target_link_libraries(${PROJECT_NAME} PRIVATE ZXing::Core ZXing::ZXing)
+    set_target_properties(becc_static PROPERTIES OUTPUT_NAME "becc")
+    set_target_properties(becc_shared PROPERTIES OUTPUT_NAME "becc")
 endif()
 
 ## installed options
-### reserved
+### reserved: TODO - install configs
 
 # compiler options
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
@@ -689,7 +594,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(BECC_COMPILER_MSVC  false)
     set(BECC_COMPILER_CLANG false)
 
-    target_compile_options(${PROJECT_NAME} PRIVATE
+    target_compile_options(becc_objects PRIVATE
         -Wall
         -Wextra
         -Wpedantic
@@ -706,6 +611,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         -Wno-unused-function
         -Wno-deprecated-declarations
         -lm
+        -fPIC
     )
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     set(BECC_COMPILER_ID    2)
@@ -713,7 +619,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     set(BECC_COMPILER_MSVC  true)
     set(BECC_COMPILER_CLANG false)
 
-    target_compile_options(${PROJECT_NAME} PRIVATE
+    target_compile_options(becc_objects PRIVATE
         /W4
         /wd4996
     )
@@ -723,7 +629,7 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "[Cc]lang")
     set(BECC_COMPILER_MSVC  false)
     set(BECC_COMPILER_CLANG true)
 
-    target_compile_options(${PROJECT_NAME} PRIVATE
+    target_compile_options(becc_objects PRIVATE
         -Wall
         -Wextra
         -Wpedantic
@@ -744,6 +650,7 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "[Cc]lang")
         -Wno-unused-function
         -Wno-tautological-constant-out-of-range-compare
         -Wno-deprecated-declarations
+        -fPIC
     )
 else()
     set(BECC_COMPILER_ID    0)
@@ -755,12 +662,12 @@ else()
 endif()
 
 if(BECC_COMPILER_GNU) # gcc 12.2
-    target_link_libraries(${PROJECT_NAME} PRIVATE -lm)
+    target_link_libraries(becc_objects PRIVATE -lm)
 
     if(EXISTS "/usr/lib/x86_64-linux-gnu/libm.so")
-        target_link_libraries(${PROJECT_NAME} PRIVATE "/usr/lib/x86_64-linux-gnu/libm.so") # somehow build not error
+        target_link_libraries(becc_objects PRIVATE "/usr/lib/x86_64-linux-gnu/libm.so") # somehow build not error
     else()
-        message(WARNING "-- ${PROJECT_NAME}: for gcc has error, be warn")
+        message(WARNING "-- becc_objects: for gcc has error, be warn")
     endif()
 endif()
 
@@ -769,35 +676,197 @@ if(CMAKE_CXX_FLAGS STREQUAL "")
     message(WARNING "-- ${PROJECT_NAME} cxx flags is empty")
 endif()
 
-# libprcpp config
+# becc config
 configure_file(
     ${PROJECT_SOURCE_DIR}/src/inc/becc/config.in.hh
     ${PROJECT_SOURCE_DIR}/src/inc/becc/config.hh
 )
 
-# libprcpp export
-generate_export_header(${PROJECT_NAME}
+# becc export
+generate_export_header(becc_objects
     EXPORT_FILE_NAME
         ${PROJECT_SOURCE_DIR}/src/inc/becc/export.hh
 )
+generate_export_header(becc_static
+    EXPORT_FILE_NAME
+        ${PROJECT_SOURCE_DIR}/src/inc/becc/export_static.hh
+)
+generate_export_header(becc_shared
+    EXPORT_FILE_NAME
+        ${PROJECT_SOURCE_DIR}/src/inc/becc/export_shared.hh
+)
+
+# becc shared definitions
+target_compile_definitions(becc_shared PRIVATE BECC_SHARED)
 
 # target include dirs
 ## core include: src/inc
-target_include_directories(${PROJECT_NAME}
+target_include_directories(becc_objects
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/src/inc
 )
 
 # target source
 ## dont expand this yet
-target_sources(${PROJECT_NAME}
+target_sources(becc_objects
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
+# dependencies for static & shared
+## loop dependencies target
+foreach(BECC_TARGET becc_static becc_shared)
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        target_compile_options(${BECC_TARGET} PRIVATE
+            -Wall
+            -Wextra
+            -Wpedantic
+            -Wno-unused-value
+            -Wno-unused-variable
+            -Wno-reorder
+            -Wno-parentheses
+            -Wno-switch
+            -Wno-format
+            -Wno-invalid-offsetof
+            -Wno-multichar
+            -Wno-char-subscripts
+            -Wno-empty-body
+            -Wno-unused-function
+            -Wno-deprecated-declarations
+            -lm
+            -fPIC
+        )
+    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+        target_compile_options(${BECC_TARGET} PRIVATE
+            /W4
+            /wd4996
+        )
+    elseif(CMAKE_CXX_COMPILER_ID MATCHES "[Cc]lang")
+        target_compile_options(${BECC_TARGET} PRIVATE
+            -Wall
+            -Wextra
+            -Wpedantic
+            -Wno-unused-value
+            -Wno-unused-variable
+            -Wno-reorder
+            -Wno-parentheses
+            -Wno-switch
+            -Wno-format
+            -Wno-dynamic-class-memaccess
+            -Wno-unused-private-field
+            -Wno-invalid-offsetof
+            -Wno-multichar
+            -Wno-char-subscripts
+            -Wno-null-conversion
+            -Wno-empty-body
+            -Wno-unused-lambda-capture
+            -Wno-unused-function
+            -Wno-tautological-constant-out-of-range-compare
+            -Wno-deprecated-declarations
+            -fPIC
+        )
+    else()
+        message(NOTICE "-- ${PROJECT_NAME}: -DCMAKE_CXX_COMPILER_ID is not supported as ${CMAKE_CXX_COMPILER_ID}")
+    endif()
+
+    ## jsoncpp
+    if(BECC_USING_JSONCPP)
+        if(NOT BECC_BUILD_VCPKG)
+            target_link_libraries(${BECC_TARGET} PRIVATE jsoncpp)
+        else()
+            find_package(jsoncpp CONFIG REQUIRED)
+            target_link_libraries(${BECC_TARGET} PRIVATE JsonCpp::JsonCpp)
+        endif()
+    endif()
+    ##
+    ## openssl
+    if(BECC_USING_OPENSSL)
+        target_link_libraries(${BECC_TARGET} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+    endif()
+    ##
+    ## drogon
+    if(BECC_USING_DROGON)
+        target_link_libraries(${BECC_TARGET} PRIVATE Drogon::Drogon)
+    endif()
+    ##
+    ## argon2
+    if(BECC_USING_ARGON2)
+        if(BECC_BUILD_VCPKG)
+            target_link_libraries(${BECC_TARGET} PRIVATE unofficial::argon2::libargon2)
+        else()
+            target_link_libraries(${BECC_TARGET} PRIVATE argon2)
+        endif()
+    endif()
+    ##
+    ## postgresql
+    if(BECC_USING_POSTGRESQL)
+        target_link_libraries(${BECC_TARGET} PRIVATE PostgreSQL::PostgreSQL)
+    endif()
+    ##
+    ## scylladb
+    if(BECC_USING_SCYLLADB)
+        target_link_libraries(${BECC_TARGET} PRIVATE scylla-cpp-driver)
+    endif()
+    ##
+    ## stb
+    if(BECC_USING_STB)
+        target_include_directories(${BECC_TARGET} PRIVATE ${Stb_INCLUDE_DIR})
+    endif()
+    ##
+    ## sdl
+    if(BECC_USING_SDL3)
+        if(BECC_BUILD_VCPKG)
+            target_link_libraries(${BECC_TARGET} PRIVATE SDL3::SDL3)
+        else()
+            set_target_properties(SDL3-static PROPERTIES POSITION_INDEPENDENT_CODE ON)
+            set_target_properties(SDL_uclibc PROPERTIES POSITION_INDEPENDENT_CODE ON)
+            set_target_properties(SDL3_Headers PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+            target_link_libraries(${BECC_TARGET} PRIVATE SDL3-static SDL_uclibc SDL3_Headers)
+        endif()
+    endif()
+    ##
+    ## haru
+    if(BECC_USING_HARU)
+        if(BECC_BUILD_VCPKG)
+            target_link_libraries(${BECC_TARGET} PRIVATE unofficial::libharu::hpdf)
+        else()
+            set_target_properties(hpdf PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+            target_link_libraries(${BECC_TARGET} PRIVATE hpdf)
+
+            target_include_directories(${BECC_TARGET} PRIVATE ${BECC_VENDOR_LIBHARU_DIR_SOURCE_OUT})
+            target_include_directories(${BECC_TARGET} PRIVATE ${BECC_VENDOR_LIBHARU_DIR_INCLUDE_OUT})
+        endif()
+    endif()
+    ##
+    ## nanosvg
+    if(BECC_USING_NANOSVG)
+        if(BECC_BUILD_VCPKG)
+            target_link_libraries(${BECC_TARGET} PRIVATE NanoSVG::nanosvg NanoSVG::nanosvgrast)
+        else()
+            set_target_properties(nanosvg PROPERTIES POSITION_INDEPENDENT_CODE ON)
+            set_target_properties(nanosvgrast PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+            target_link_libraries(${BECC_TARGET} PRIVATE nanosvg nanosvgrast)
+        endif()
+    endif()
+    ##
+    ## zxing-cpp
+    if(BECC_USING_ZXING_CPP)
+        target_link_libraries(${BECC_TARGET} PRIVATE ZXing::Core ZXing::ZXing)
+    endif()
+endforeach()
+
+# version shared lib
+set_target_properties(becc_shared PROPERTIES
+    VERSION "${BECC_VERSION_MAJOR}.${BECC_VERSION_MINOR}.${BECC_VERSION_PATCH}"
+    SOVERSION "${BECC_VERSION_MAJOR}.${BECC_VERSION_MINOR}.${BECC_VERSION_PATCH}"
+)
+
 # build tests
 if(BECC_BUILD_TESTS)
-    add_subdirectory(tests BECC_TESTS)
+    add_subdirectory(tests BECC_TESTS) # NOTE: error when adding this
 endif(BECC_BUILD_TESTS)
 
 # build tools
