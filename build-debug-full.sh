@@ -1,6 +1,6 @@
 # unix
-mkdir -p build/Debug;
+mkdir -p build/debug;
 
-cmake -G "Ninja" -B build/Debug -DBECC_BUILD_TOOLS=false -DBECC_BUILD_TESTS=true -DBECC_BUILD_SHARED_LIBS=false -DBECC_BUILD_STATIC_LIBS=false -DBECC_BUILD_VENDOR_SDL3=true -DBECC_BUILD_VENDOR_STB=true -DBECC_BUILD_VENDOR_HARU=true -DBECC_BUILD_VENDOR_JSONCPP=true -DBECC_BUILD_VENDOR_OPENSSL=true -DBECC_BUILD_VENDOR_NANOSVG=true -DBECC_BUILD_VENDOR_ZXING_CPP=true;
+cmake -G "Ninja" -B build/debug -DCMAKE_BUILD_TYPE=Debug -DBECC_BUILD_TOOLS=true -DBECC_BUILD_TESTS=true -DBECC_BUILD_VENDOR_STB=true -DBECC_BUILD_VENDOR_SDL3=true -DBECC_BUILD_VENDOR_HARU=true -DBECC_BUILD_VENDOR_NANOSVG=true;
 
-cmake --build build/Debug --target all;
+cmake --build build/debug --target all;
