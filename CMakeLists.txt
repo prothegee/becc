@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.15)
 # package
 set(BECC_VERSION_MAJOR 0)
 set(BECC_VERSION_MINOR 15)
-set(BECC_VERSION_PATCH 0)
+set(BECC_VERSION_PATCH 1)
 set(BECC_VERSION_RELEASE_DATE 20250506)
 
 # package project
@@ -583,7 +583,7 @@ if(WIN32)
         OUTPUT_NAME "becc"
     )
     # set_target_properties(becc_shared PROPERTIES OUTPUT_NAME "becc")
-    set_target_properties(becc_static PROPERTIES
+    set_target_properties(becc_shared PROPERTIES
         ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
         OUTPUT_NAME "becc"
     )
