@@ -17,9 +17,6 @@
         "BECC_BUILD_TESTS": true,
         "BECC_BUILD_TOOLS": true,
 
-        "BUILD_SHARED_LIBS":false,
-        "BECC_BUILD_SHARED_LIBS": false,
-
         "BECC_BUILD_VENDOR_STB": true,
         "BECC_BUILD_VENDOR_SDL3": true,
         "BECC_BUILD_VENDOR_HARU": true,

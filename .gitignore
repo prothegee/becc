@@ -92,3 +92,5 @@ project-build-release*.*
 ##
 !vendors/jsoncpp/include/json/config.h
 /CMakePresets.json
+/src/inc/becc/export_shared.hh
+/src/inc/becc/export_static.hh
