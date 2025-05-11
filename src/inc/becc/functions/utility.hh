@@ -1,7 +1,7 @@
 #ifndef BECC_UTILITY_HH
 #define BECC_UTILITY_HH
-#include "../becc.hh"
-#include "../constants/string_const.hh"
+#include <becc/becc.hh>
+#include <becc/constants/string_const.hh>
 
 #if BECC_USING_OPENSSL
 #include <openssl/aes.h>

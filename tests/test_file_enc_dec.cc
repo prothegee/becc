@@ -3,23 +3,21 @@
 #include <iostream>
 
 // all output is inside "BECC_TESTS" of build dir
-int main()
-{
+int main() {
     std::string iv_16 = "abcdefghijklmnop";
     std::string iv_24 = "abcdefghijklmnopqrstuvwx";
     std::string ik_32 = "abcdefghijklmnopqrstuvwxyz012345";
 
-    std::string example_in1      = "../../../tests/example_in1.json";
+    std::string example_in1 = "../../../tests/example_in1.json";
     std::string example_out1_enc = "../../../tests/example_out1_enc.json";
     std::string example_out1_dec = "../../../tests/example_out1_dec.json";
 
-    #if BECC_USING_OPENSSL
+#if BECC_USING_OPENSSL
     auto example_in1_status = becc::utility_functions::file::encrypt(
         1,
         example_in1, example_out1_enc,
         iv_16,
-        ik_32
-    );
+        ik_32);
     assert(example_in1_status == 0);
     std::cout << "passed: example_in1_status\n";
 
@@ -27,11 +25,10 @@ int main()
         1,
         example_out1_enc, example_out1_dec,
         iv_16,
-        ik_32
-    );
+        ik_32);
     assert(example_out1_status == 0);
     std::cout << "passed: example_out1_status\n";
-    #endif // BECC_USING_OPENSSL
+#endif // BECC_USING_OPENSSL
 
     return 1;
 }

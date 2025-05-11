@@ -54,11 +54,11 @@
 #define BECC_COMPILER_CLANG @BECC_COMPILER_CLANG@
 
 #if defined(__GNUC__) || defined(__clang__)
-    #define DEPRECATED(msg) __attribute__((deprecated(msg)))
+#define DEPRECATED(msg) __attribute__((deprecated(msg)))
 #elif defined(_MSC_VER)
-    #define DEPRECATED(msg) __declspec(deprecated(msg))
+#define DEPRECATED(msg) __declspec(deprecated(msg))
 #else
-    #define DEPRECATED(msg)
+#define DEPRECATED(msg)
 #endif
 
 #endif // BECC_CONFIG_HH

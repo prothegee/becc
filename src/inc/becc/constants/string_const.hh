@@ -1,52 +1,41 @@
 #ifndef BECC_STRING_CONST_HH
 #define BECC_STRING_CONST_HH
-#include "../becc.hh"
+#include <becc/becc.hh>
 
-namespace becc
-{
+namespace becc {
 
-/*
-ABCDEFGHIJKLMNOPQRSTUVWXYZ
-abcdefghijklmnopqrstuvwxyz
-0123456789+/
-*/
+// ABCDEFGHIJKLMNOPQRSTUVWXYZ
+// abcdefghijklmnopqrstuvwxyz
+// 0123456789+/
 INLNSTTCCNST std::string BASE64_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 // 0123456789
 INLNSTTCCNST std::string NUMERIC = "0123456789";
-/*
-ABCDEFGHIJKLMNOPQRSTUVWXYZ
-abcdefghijklmnopqrstuvwxyz
-*/
+
+// ABCDEFGHIJKLMNOPQRSTUVWXYZ
+// abcdefghijklmnopqrstuvwxyz
 INLNSTTCCNST std::string ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-/*
-ABCDEFGHIJKLMNOPQRSTUVWXYZ
-abcdefghijklmnopqrstuvwxyz
-0123456789
-*/
+
+// ABCDEFGHIJKLMNOPQRSTUVWXYZ
+// abcdefghijklmnopqrstuvwxyz
+// 0123456789
 INLNSTTCCNST std::string ALPHANUMERIC = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-/*
-~!@#$%^&*()_+{}|:\"<>?`-=[]';,./\\
-*/
+
+// ~!@#$%^&*()_+{}|:\"<>?`-=[]';,./\\
 INLNSTTCCNST std::string SPECIAL_CHARACTER = "~!@#$%^&*()_+{}|:\"<>?`-=[]';,./\\";
-/*
-abcdefghijklmnopqrstuvwxyz
-ABCDEFGHIJKLMNOPQRSTUVWXYZ
-0123456789
-~!@#$%^&*-_=+
-*/
+
+// abcdefghijklmnopqrstuvwxyz
+// ABCDEFGHIJKLMNOPQRSTUVWXYZ
+// 0123456789
+// ~!@#$%^&*-_=+
 INLNSTTCCNST std::string ALPHANUMERIC_WITH_SPECIAL_CHARACTER = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789~!@#$%^&*-_=+";
 
-/*
-ABCDEFGHIJKLMNOPQRSTUVWXYZ
-0123456789
-*/
+// ABCDEFGHIJKLMNOPQRSTUVWXYZ
+// 0123456789
 INLNSTTCCNST std::string BASE36_DIGITS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
-/*
-ABCDEFGHIJKLMNOPQRSTUVWXYZ
-0123456789
-*/
+// ABCDEFGHIJKLMNOPQRSTUVWXYZ
+// 0123456789
 INLNSTTCCNST char HEX_DIGITS[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
 } // namespace becc

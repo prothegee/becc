@@ -1,10 +1,9 @@
 #include <becc/functions/generate.hh>
-#include <iostream>
 #include <cassert>
+#include <iostream>
 
-int main()
-{
-    #if BECC_USING_STB && BECC_USING_NANOSVG && BECC_USING_ZXING_CPP
+int main() {
+#if BECC_USING_STB && BECC_USING_NANOSVG && BECC_USING_ZXING_CPP
     // barcode
     {
         std::string in_1 = "my barcode in 1";
@@ -18,16 +17,14 @@ int main()
             256,
             256,
             0,
-            format
-        );
+            format);
         assert(encode == 0);
         std::cout << "passed: encode barcode\n";
 
         auto decode = becc::generate_functions::barqr::decode(
             out_1_file,
             out_1,
-            format
-        );
+            format);
         assert(decode == 0);
         std::cout << "passed: decode barcode\n";
     }
@@ -45,22 +42,20 @@ int main()
             256,
             256,
             0,
-            format
-        );
+            format);
         assert(encode == 0);
         std::cout << "passed: encode qrcode\n";
 
         auto decode = becc::generate_functions::barqr::decode(
             out_1_file,
             out_1,
-            format
-        );
+            format);
         assert(decode == 0);
         std::cout << "passed: decode qrcode\n";
     }
 
-    // encode decode batch?
-    #endif // BECC_USING_STB && BECC_USING_NANOSVG && BECC_USING_ZXING_CPP
+// encode decode batch?
+#endif // BECC_USING_STB && BECC_USING_NANOSVG && BECC_USING_ZXING_CPP
 
     return 1;
 }

@@ -1,10 +1,9 @@
-#include <becc/functions/utility.hh>
 #include <becc/functions/communication.hh>
-#include <iostream>
+#include <becc/functions/utility.hh>
 #include <cassert>
+#include <iostream>
 
-struct smtp_conf_t
-{
+struct smtp_conf_t {
     std::string server;
     std::string server_port;
     std::string sender_name;
@@ -12,9 +11,8 @@ struct smtp_conf_t
     std::string sender_password;
 };
 
-int main()
-{
-    #if BECC_USING_JSONCPP && BECC_USING_CURL_EXECUTEABLE
+int main() {
+#if BECC_USING_JSONCPP && BECC_USING_CURL_EXECUTEABLE
     // curl executeable
     {
         // actual config
@@ -36,19 +34,17 @@ int main()
 
         const std::vector<becc::look_and_replace_t> look_and_replaces = {
             {"{TITLE}", TEMPLATE_TITLE},
-            {"{RECIPIENT_EMAIL}", TEMPLATE_RECIPIENT}
-        };
+            {"{RECIPIENT_EMAIL}", TEMPLATE_RECIPIENT}};
 
         auto result = becc::communication_functions::curl_cmd_impl::smtps_send_mail_by_template_future(
             TEMPLATE_HTML, TEMPLATE_TITLE,
             TEMPLATE_RECIPIENT, look_and_replaces,
-            smtps_conf.server, smtps_conf.server_port, smtps_conf.sender_address, smtps_conf.sender_name, smtps_conf.sender_password
-        );
+            smtps_conf.server, smtps_conf.server_port, smtps_conf.sender_address, smtps_conf.sender_name, smtps_conf.sender_password);
 
         assert(result.get() == 0);
         std::cout << "passed: test_communication_smtps\n";
     }
-    #endif // BECC_USING_JSONCPP && BECC_USING_CURL_EXECUTEABLE
+#endif // BECC_USING_JSONCPP && BECC_USING_CURL_EXECUTEABLE
 
     return 1;
 }

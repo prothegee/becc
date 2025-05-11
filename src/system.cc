@@ -1,34 +1,32 @@
 #include <becc/functions/system.hh>
 
-namespace becc
-{
-namespace system_functions
-{
+namespace becc {
+namespace system_functions {
 
-int32_t is_port_available(const int32_t& port)
-{
-    #if WIN32
+int32_t is_port_available(const int32_t& port) {
+#if _WIN32
     int32_t sock = (int32_t)socket(AF_INET, SOCK_STREAM, 0);
-    #else
+#else
     int32_t sock = socket(AF_INET, SOCK_STREAM, 0);
-    #endif
-    if (sock < 0) return false;
+#endif
+    if (sock < 0)
+        return false;
 
     sockaddr_in addr{};
     addr.sin_family = AF_INET;
-    #if WIN32
+#if _WIN32
     addr.sin_port = htons(static_cast<u_short>(port));
-    #else
+#else
     addr.sin_port = htons(port);
-    #endif // WIN32 
+#endif // WIN32
     addr.sin_addr.s_addr = INADDR_ANY;
 
     bool available = (bind(sock, (struct sockaddr*)&addr, sizeof(addr)) == 0);
-    #ifdef _WIN32
+#ifdef _WIN32
     closesocket(sock);
-    #else
+#else
     close(sock);
-    #endif
+#endif
     return available;
 }
 

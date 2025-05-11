@@ -1,7 +1,7 @@
 #ifndef BECC_COMMUNICATION_HH
 #define BECC_COMMUNICATION_HH
-#include "../becc.hh"
-#include "../types/look_type.hh"
+#include <becc/becc.hh>
+#include <becc/types/look_type.hh>
 
 #if BECC_USING_JSONCPP
 #include <json/json.h>
@@ -13,17 +13,14 @@
 
 #include <future>
 
-namespace becc
-{
-namespace communication_functions
-{
+namespace becc {
+namespace communication_functions {
 
 #if BECC_USING_CURL_EXECUTEABLE
-namespace curl_cmd_impl
-{
+namespace curl_cmd_impl {
 /**
  * @brief secure smtp send email by template using curl executeable
- * 
+ *
  * @param template_html template html file
  * @param template_title head title
  * @param template_recipient email recipient
@@ -40,11 +37,10 @@ std::future<int32_t> smtps_send_mail_by_template_future(const std::string& templ
 #endif // BECC_USING_CURL_EXECUTEABLE
 
 #if BECC_USING_DROGON
-namespace drogon_sparkpost_impl
-{
+namespace drogon_sparkpost_impl {
 /**
  * @brief send mail by template future using drogon to sparkpost
- * 
+ *
  * @param template_html template html file
  * @param template_title head title
  * @param template_recipient email recipient
@@ -61,7 +57,7 @@ std::future<int32_t> send_mail_by_template_future(const std::string& template_ht
 } // namespace drogon_sparkpost_impl
 #endif // BECC_USING_DROGON
 
-} // communication_functions
+} // namespace communication_functions
 } // namespace becc
 
 #endif // BECC_COMMUNICATION_HH

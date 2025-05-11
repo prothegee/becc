@@ -1,14 +1,12 @@
 #ifndef BECC_AUTH_TYPE_HH
 #define BECC_AUTH_TYPE_HH
 
-namespace becc
-{
+namespace becc {
 
 /**
  * @brief auth basic type structure
  */
-struct auth_basic_t
-{
+struct auth_basic_t {
     const char* username;
     const char* password;
 };
