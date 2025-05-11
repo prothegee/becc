@@ -3,8 +3,8 @@ cmake_minimum_required(VERSION 3.15)
 # package
 set(BECC_VERSION_MAJOR 0)
 set(BECC_VERSION_MINOR 15)
-set(BECC_VERSION_PATCH 1)
-set(BECC_VERSION_RELEASE_DATE 20250506)
+set(BECC_VERSION_PATCH 2)
+set(BECC_VERSION_RELEASE_DATE 20250510)
 
 # package project
 project(becc
@@ -77,13 +77,11 @@ endif()
 if(NOT DEFINED CMAKE_CXX_STANDARD)
     # automatic standard detection from compiler flags
     set(_detected_standard 17)
-    
     # check for Unix-style flags (-std=c++XX or -std=gnu++XX)
     string(REGEX MATCH "-std=([c|gnu]\\+\\+)([0-9]+)" _ "${CMAKE_CXX_FLAGS}")
     if(CMAKE_MATCH_2)
         set(_detected_standard ${CMAKE_MATCH_2})
     endif()
-    
     # check for MSVC flags (/std:c++XX or /std:c++latest)
     if(NOT _detected_standard AND MSVC)
         string(REGEX MATCH "/std:c\\+\\+latest" _ "${CMAKE_CXX_FLAGS}")
@@ -96,7 +94,6 @@ if(NOT DEFINED CMAKE_CXX_STANDARD)
             endif()
         endif()
     endif()
-    
     set(CMAKE_CXX_STANDARD ${_detected_standard} CACHE STRING "C++ standard to use (17, 20, etc.)")
 else()
     set(CMAKE_CXX_STANDARD "${CMAKE_CXX_STANDARD}" CACHE STRING "C++ standard to use (17, 20, etc.)" FORCE)
@@ -107,27 +104,27 @@ endif()
 if(NOT DEFINED CMAKE_CXX_FLAGS)
     if(MSVC)
         if(CMAKE_CXX_STANDARD GREATER_EQUAL 20)
-            list(APPEND CMAKE_CXX_FLAGS "/std:c++latest")
+            set(CMAKE_CXX_FLAGS "/std:c++latest /EHsc")
         else()
-            list(APPEND CMAKE_CXX_FLAGS "/std:c++${CMAKE_CXX_STANDARD}")
+            set(CMAKE_CXX_FLAGS "/std:c++${CMAKE_CXX_STANDARD} /EHsc")
         endif()
     else()
-        list(APPEND CMAKE_CXX_FLAGS "-std=c++${CMAKE_CXX_STANDARD}")
+        set(CMAKE_CXX_FLAGS "-std=c++${CMAKE_CXX_STANDARD}")
     endif()
 else()
-    # clean existing standard flags
+    # clean existing flags
     string(REGEX REPLACE "-std=[^ ]+" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     string(REGEX REPLACE "/std:c\\+\\+[^ ]+" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    
-    # add correct standard flag
+    string(REGEX REPLACE "/EH[^ ]+" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}") # remove old /EH flags
+    string(REPLACE "/MP" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")  # remove /MP
     if(MSVC)
         if(CMAKE_CXX_STANDARD GREATER_EQUAL 20)
-            list(APPEND CMAKE_CXX_FLAGS "/std:c++latest")
+            set(CMAKE_CXX_FLAGS "/std:c++latest /EHsc")
         else()
-            list(APPEND CMAKE_CXX_FLAGS "/std:c++${CMAKE_CXX_STANDARD}")
+            set(CMAKE_CXX_FLAGS "/std:c++${CMAKE_CXX_STANDARD} /EHsc")
         endif()
     else()
-        list(APPEND CMAKE_CXX_FLAGS "-std=c++${CMAKE_CXX_STANDARD}")
+        set(CMAKE_CXX_FLAGS "-std=c++${CMAKE_CXX_STANDARD}")
     endif()
 endif()
 
@@ -170,17 +167,17 @@ include(FindPackageHandleStandardArgs)
 
 # files
 ## headers files
-if(NOT DEFINED BEC_HEADERS_FILES)
-    set(BEC_HEADERS_FILES)
+if(NOT DEFINED BECC_HEADERS_FILES)
+    set(BECC_HEADERS_FILES)
 endif()
 ### constants
-set(BEC_HEADERS_FILES_CONSTANTS
+set(BECC_HEADERS_FILES_CONSTANTS
     src/inc/becc/constants/string_const.hh
 )
-list(APPEND BEC_HEADERS_FILES ${BEC_HEADERS_FILES_CONSTANTS})
+list(APPEND BECC_HEADERS_FILES ${BECC_HEADERS_FILES_CONSTANTS})
 ### enums
 ### functions
-set(BEC_HEADERS_FILES_FUNCTIONS
+set(BECC_HEADERS_FILES_FUNCTIONS
     src/inc/becc/functions/communication.hh
     src/inc/becc/functions/cryptography.hh
     src/inc/becc/functions/date_and_time.hh
@@ -188,28 +185,28 @@ set(BEC_HEADERS_FILES_FUNCTIONS
     src/inc/becc/functions/system.hh
     src/inc/becc/functions/utility.hh
 )
-list(APPEND BEC_HEADERS_FILES ${BEC_HEADERS_FILES_FUNCTIONS})
+list(APPEND BECC_HEADERS_FILES ${BECC_HEADERS_FILES_FUNCTIONS})
 ### interfaces
-set(BEC_HEADERS_FILES_INTERFACES
+set(BECC_HEADERS_FILES_INTERFACES
     src/inc/becc/interfaces/ipostgresql_core_interface.hh
     src/inc/becc/interfaces/iscylladb_core_interface.hh
 )
-list(APPEND BEC_HEADERS_FILES ${BEC_HEADERS_FILES_INTERFACES})
+list(APPEND BECC_HEADERS_FILES ${BECC_HEADERS_FILES_INTERFACES})
 ### modules
 ### types
-set(BEC_HEADERS_FILES_TYPES
+set(BECC_HEADERS_FILES_TYPES
     src/inc/becc/types/auth_type.hh
     src/inc/becc/types/look_type.hh
 )
-list(APPEND BEC_HEADERS_FILES ${BEC_HEADERS_FILES_TYPES})
+list(APPEND BECC_HEADERS_FILES ${BECC_HEADERS_FILES_TYPES})
 
 ## sources files
-if(NOT DEFINED BEC_SOURCES_FILES)
-    set(BEC_SOURCES_FILES)
+if(NOT DEFINED BECC_SOURCES_FILES)
+    set(BECC_SOURCES_FILES)
 endif()
 
 list(APPEND
-    BEC_SOURCES_FILES
+    BECC_SOURCES_FILES
         src/becc.cc
         # constants
         # enums
@@ -230,7 +227,6 @@ list(APPEND
 if(NOT DEFINED BECC_USED_VENDORS_DIR)
     set(BECC_USED_VENDORS_DIR)
 endif()
-
 
 # packages, lib related
 ## 
@@ -570,7 +566,7 @@ endif()
 
 # project lib
 ## object core lib
-add_library(becc_objects OBJECT ${BEC_SOURCES_FILES})
+add_library(becc_objects OBJECT ${BECC_SOURCES_FILES})
 ## static core lib
 add_library(becc_static STATIC $<TARGET_OBJECTS:becc_objects>)
 ## shared code lib
