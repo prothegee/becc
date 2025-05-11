@@ -1,3 +1,2 @@
-namespace becc
-{
+namespace becc {
 } // namespace becc

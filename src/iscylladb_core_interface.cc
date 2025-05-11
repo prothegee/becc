@@ -14,21 +14,17 @@
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #endif // BECC_COMPILER_CLANG
 
-namespace becc
-{
+namespace becc {
 #if BECC_USING_SCYLLADB
-void IScyllaDbCoreInterface::OnAuth::initialize(CassAuthenticator* pCassAuth, void* pVoidData)
-{
-    const becc::auth_basic_t* pCredential = (const becc::auth_basic_t*)new becc::auth_basic_t({
-        IScyllaDbCoreInterface::m_connection.username.c_str(),
-        IScyllaDbCoreInterface::m_connection.password.c_str()
-    });
+void IScyllaDbCoreInterface::OnAuth::initialize(CassAuthenticator* pCassAuth, void* pVoidData) {
+    const becc::auth_basic_t* pCredential = (const becc::auth_basic_t*)new becc::auth_basic_t({IScyllaDbCoreInterface::m_connection.username.c_str(),
+                                                                                               IScyllaDbCoreInterface::m_connection.password.c_str()});
 
     size_t username_size = std::strlen(pCredential->username);
     size_t password_size = std::strlen(pCredential->password);
     size_t size = username_size + password_size + 2;
 
-    char *response = cass_authenticator_response(pCassAuth, size);
+    char* response = cass_authenticator_response(pCassAuth, size);
 
     response[0] = '\0';
     std::memcpy(response + 1, pCredential->username, username_size);
@@ -39,36 +35,31 @@ void IScyllaDbCoreInterface::OnAuth::initialize(CassAuthenticator* pCassAuth, vo
     delete pCredential;
 }
 
-void IScyllaDbCoreInterface::OnAuth::challenge(CassAuthenticator *pCassAuth, void *pVoidData, const char *pToken, size_t tokenSize)
-{
+void IScyllaDbCoreInterface::OnAuth::challenge(CassAuthenticator* pCassAuth, void* pVoidData, const char* pToken, size_t tokenSize) {
     /**
      * not used for plain text authentication, but this is to be used for handling an authentication challenge initiated by the server
-    */
+     */
 }
 
-void IScyllaDbCoreInterface::OnAuth::success(CassAuthenticator *pCassAuth, void *pVoidData, const char *pToken, size_t tokenSize)
-{
+void IScyllaDbCoreInterface::OnAuth::success(CassAuthenticator* pCassAuth, void* pVoidData, const char* pToken, size_t tokenSize) {
     /**
      * not used for plain text authentication, but this is to be used for handling the success phase of an exchange
-    */
+     */
 }
 
-void IScyllaDbCoreInterface::OnAuth::cleanup(CassAuthenticator *pCassAuth, void *pVoidData)
-{
+void IScyllaDbCoreInterface::OnAuth::cleanup(CassAuthenticator* pCassAuth, void* pVoidData) {
     /**
      * no resources cleanup is necessary for plain text authentication, but this is used to cleanup resources acquired during the authentication exchange
-    */
+     */
 }
 
-IScyllaDbCoreInterface::_IScyllaDb::~_IScyllaDb()
-{
+IScyllaDbCoreInterface::_IScyllaDb::~_IScyllaDb() {
     cass_future_free(m_pCassFuture);
     cass_cluster_free(m_pCassCluster);
     cass_session_free(m_pCassSession);
 }
 
-void IScyllaDbCoreInterface::_IScyllaDb::print_error(CassFuture *pCassFuture, const char *info)
-{
+void IScyllaDbCoreInterface::_IScyllaDb::print_error(CassFuture* pCassFuture, const char* info) {
     const char* message;
     size_t messageSize;
 
@@ -77,8 +68,7 @@ void IScyllaDbCoreInterface::_IScyllaDb::print_error(CassFuture *pCassFuture, co
     std::fprintf(stderr, "ERROR: \"%s\":\n%.*s\n", info, (int)messageSize, message);
 }
 
-int32_t IScyllaDbCoreInterface::_IScyllaDb::initialize_constructor(const scylladb_connection_t &connection, const char *extra_info)
-{
+int32_t IScyllaDbCoreInterface::_IScyllaDb::initialize_constructor(const scylladb_connection_t& connection, const char* extra_info) {
     IScyllaDbCoreInterface::m_connection.host = connection.host;
     IScyllaDbCoreInterface::m_connection.username = connection.username;
     IScyllaDbCoreInterface::m_connection.password = connection.password;
@@ -91,70 +81,64 @@ int32_t IScyllaDbCoreInterface::_IScyllaDb::initialize_constructor(const scyllad
     IScyllaDbCoreInterface::m_connection.factors_configs = connection.factors_configs;
     IScyllaDbCoreInterface::m_connection.factors_configs_extra = connection.factors_configs_extra;
 
-    if (m_pCassCluster == nullptr) { m_pCassCluster = cass_cluster_new(); }
-    if (m_pCassSession == nullptr) { m_pCassSession = cass_session_new(); }
+    if (m_pCassCluster == nullptr) {
+        m_pCassCluster = cass_cluster_new();
+    }
+    if (m_pCassSession == nullptr) {
+        m_pCassSession = cass_session_new();
+    }
 
-    becc::auth_basic_t *pAuth = new becc::auth_basic_t({
-        IScyllaDbCoreInterface::m_connection.username.c_str(),
-        IScyllaDbCoreInterface::m_connection.password.c_str()
-    });
+    becc::auth_basic_t* pAuth = new becc::auth_basic_t({IScyllaDbCoreInterface::m_connection.username.c_str(),
+                                                        IScyllaDbCoreInterface::m_connection.password.c_str()});
 
     CassAuthenticatorCallbacks authCallbacks = {
         IScyllaDbCoreInterface::OnAuth::initialize,
         IScyllaDbCoreInterface::OnAuth::challenge,
         IScyllaDbCoreInterface::OnAuth::success,
-        IScyllaDbCoreInterface::OnAuth::cleanup
-    };
+        IScyllaDbCoreInterface::OnAuth::cleanup};
 
     IScyllaDbCoreInterface::m_connection.auth_mode = connection.auth_mode;
 
     bool error = false;
 
-    switch (IScyllaDbCoreInterface::m_connection.auth_mode)
-    {
-        case SCYLLADB_AUTH_MODE_ALLOW_ALL_AUTHENTICATOR:
-        {
-            cass_cluster_set_contact_points(m_pCassCluster, IScyllaDbCoreInterface::m_connection.host.c_str());
+    switch (IScyllaDbCoreInterface::m_connection.auth_mode) {
+    case SCYLLADB_AUTH_MODE_ALLOW_ALL_AUTHENTICATOR: {
+        cass_cluster_set_contact_points(m_pCassCluster, IScyllaDbCoreInterface::m_connection.host.c_str());
 
-            cass_cluster_set_authenticator_callbacks(m_pCassCluster, &authCallbacks, nullptr, pAuth);
-        }
-        break;
+        cass_cluster_set_authenticator_callbacks(m_pCassCluster, &authCallbacks, nullptr, pAuth);
+    } break;
 
-        case SCYLLADB_AUTH_MODE_PASSWORD_AUTHENTICATOR:
-        {
-            cass_cluster_set_contact_points(m_pCassCluster, IScyllaDbCoreInterface::m_connection.host.c_str());
+    case SCYLLADB_AUTH_MODE_PASSWORD_AUTHENTICATOR: {
+        cass_cluster_set_contact_points(m_pCassCluster, IScyllaDbCoreInterface::m_connection.host.c_str());
 
-            cass_cluster_set_authenticator_callbacks(m_pCassCluster, &authCallbacks, nullptr, pAuth);
+        cass_cluster_set_authenticator_callbacks(m_pCassCluster, &authCallbacks, nullptr, pAuth);
 
-            m_pCassFuture = cass_session_connect(m_pCassSession, m_pCassCluster);
-        }
-        break;
+        m_pCassFuture = cass_session_connect(m_pCassSession, m_pCassCluster);
+    } break;
 
-        default:
-        {
-            std::cerr << "ERROR: core interface for scylladb auth mode is default, it's not implemented\n";
-            error = true;
-        }
-        break;
+    default: {
+        std::cerr << "ERROR: core interface for scylladb auth mode is default, it's not implemented\n";
+        error = true;
+    } break;
     }
 
-    if (error) { return -1; }
+    if (error) {
+        return -1;
+    }
 
-    if (cass_future_error_code(m_pCassFuture) != CASS_OK)
-    {
+    if (cass_future_error_code(m_pCassFuture) != CASS_OK) {
         std::cerr << "ERROR: \"IScyllaDbCoreInterface::_IScyllaDb::initialize_constructor\" fail to make connection on: \"" << extra_info << "\"\n";
         return -2;
     }
 
-    #if BECC_IS_DEBUG
+#if BECC_IS_DEBUG
     std::cout << "DEBUG: \"IScyllaDbCoreInterface::_IScyllaDb::initialize_constructor\" connected \"" << extra_info << "\"\n";
-    #endif // BECC_IS_DEBUG
+#endif // BECC_IS_DEBUG
 
     return 1;
 }
 
-std::string IScyllaDbCoreInterface::_IScyllaDb::generate_uuid_v1_as_string()
-{
+std::string IScyllaDbCoreInterface::_IScyllaDb::generate_uuid_v1_as_string() {
     CassUuid uuid;
     CassUuidGen* pUuid = cass_uuid_gen_new();
     char uuid_str[CASS_UUID_STRING_LENGTH];
@@ -167,8 +151,7 @@ std::string IScyllaDbCoreInterface::_IScyllaDb::generate_uuid_v1_as_string()
     return std::string(uuid_str);
 }
 
-CassUuid IScyllaDbCoreInterface::_IScyllaDb::generate_uuid_v1_as_uuid()
-{
+CassUuid IScyllaDbCoreInterface::_IScyllaDb::generate_uuid_v1_as_uuid() {
     CassUuid uuid;
     CassUuidGen* pUuid = cass_uuid_gen_new();
 
@@ -179,8 +162,7 @@ CassUuid IScyllaDbCoreInterface::_IScyllaDb::generate_uuid_v1_as_uuid()
     return uuid;
 }
 
-std::string IScyllaDbCoreInterface::_IScyllaDb::generate_uuid_v4_as_string()
-{
+std::string IScyllaDbCoreInterface::_IScyllaDb::generate_uuid_v4_as_string() {
     CassUuid uuid;
     CassUuidGen* pUuid = cass_uuid_gen_new();
     char uuid_str[CASS_UUID_STRING_LENGTH];
@@ -193,8 +175,7 @@ std::string IScyllaDbCoreInterface::_IScyllaDb::generate_uuid_v4_as_string()
     return std::string(uuid_str);
 }
 
-CassUuid IScyllaDbCoreInterface::_IScyllaDb::generate_uuid_v4_as_uuid()
-{
+CassUuid IScyllaDbCoreInterface::_IScyllaDb::generate_uuid_v4_as_uuid() {
     CassUuid uuid;
     CassUuidGen* pUuid = cass_uuid_gen_new();
 
@@ -205,8 +186,7 @@ CassUuid IScyllaDbCoreInterface::_IScyllaDb::generate_uuid_v4_as_uuid()
     return uuid;
 }
 
-std::string IScyllaDbCoreInterface::_IScyllaDb::convert_uuid_to_string(const CassUuid &uuid_cass)
-{
+std::string IScyllaDbCoreInterface::_IScyllaDb::convert_uuid_to_string(const CassUuid& uuid_cass) {
     std::string result;
     CassUuid _uuid_cass = uuid_cass;
     char uuid[CASS_UUID_STRING_LENGTH];
@@ -220,8 +200,7 @@ std::string IScyllaDbCoreInterface::_IScyllaDb::convert_uuid_to_string(const Cas
     return result;
 }
 
-CassUuid IScyllaDbCoreInterface::_IScyllaDb::convert_string_to_uuid(const std::string &uuid_string)
-{
+CassUuid IScyllaDbCoreInterface::_IScyllaDb::convert_string_to_uuid(const std::string& uuid_string) {
     CassUuid result;
 
     char uuid[CASS_UUID_STRING_LENGTH];
@@ -235,8 +214,7 @@ CassUuid IScyllaDbCoreInterface::_IScyllaDb::convert_string_to_uuid(const std::s
     return result;
 }
 
-CassError IScyllaDbCoreInterface::_IScyllaDb::execute_cqlsh(CassSession *pCassSession, const char *query, const char *note)
-{
+CassError IScyllaDbCoreInterface::_IScyllaDb::execute_cqlsh(CassSession* pCassSession, const char* query, const char* note) {
     auto pStatement = cass_statement_new(query, 0);
 
     auto pFuture = cass_session_execute(pCassSession, pStatement);
@@ -244,19 +222,16 @@ CassError IScyllaDbCoreInterface::_IScyllaDb::execute_cqlsh(CassSession *pCassSe
 
     auto status = cass_future_error_code(pFuture);
 
-    if (status != CASS_OK)
-    {
-        #if BECC_IS_DEBUG
+    if (status != CASS_OK) {
+#if BECC_IS_DEBUG
         std::cout << "DEBUG: execute_cqlsh: fail, note \"" << note << "\"\n";
-        #endif // BECC_IS_DEBUG
+#endif // BECC_IS_DEBUG
         print_error(pFuture, note);
         return status;
-    }
-    else
-    {
-        #if BECC_IS_DEBUG
+    } else {
+#if BECC_IS_DEBUG
         std::cout << "DEBUG: execute_cqlsh: ok, note \"" << note << "\"\n";
-        #endif // BECC_IS_DEBUG
+#endif // BECC_IS_DEBUG
     }
 
     cass_future_free(pFuture);

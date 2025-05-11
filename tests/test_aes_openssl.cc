@@ -1,10 +1,9 @@
 #include <becc/functions/cryptography.hh>
-#include <iostream>
 #include <cassert>
+#include <iostream>
 
-int main()
-{
-    #if BECC_USING_OPENSSL
+int main() {
+#if BECC_USING_OPENSSL
     std::string message = "this is our message", encrypted, decrypted;
     std::string iv = "2TpQjkQLRsj5Zxgc";
     std::string ik = "zu7yvTKAH8C5c2V6Ja7VBG4U7fNjjkGL";
@@ -17,7 +16,7 @@ int main()
 
     assert(message == decrypted);
     std::cout << "passed: message is original\n";
-    #endif // BECC_USING_OPENSSL
+#endif // BECC_USING_OPENSSL
 
     return 1;
 }
