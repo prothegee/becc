@@ -21,7 +21,7 @@ INLNSTTCCNST std::string ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQ
 // 0123456789
 INLNSTTCCNST std::string ALPHANUMERIC = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
-// ~!@#$%^&*()_+{}|:\"<>?`-=[]';,./\\
+/* ~!@#$%^&*()_+{}|:\"<>?`-=[]';,./\\ */ // using "//" will make code below seems like a comment
 INLNSTTCCNST std::string SPECIAL_CHARACTER = "~!@#$%^&*()_+{}|:\"<>?`-=[]';,./\\";
 
 // abcdefghijklmnopqrstuvwxyz
