@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.15)
 
 # package
 set(BECC_VERSION_MAJOR 0)
-set(BECC_VERSION_MINOR 16)
-set(BECC_VERSION_PATCH 1)
+set(BECC_VERSION_MINOR 17)
+set(BECC_VERSION_PATCH 0)
 set(BECC_VERSION_RELEASE_DATE 20250513)
 
 # package project
@@ -594,19 +594,19 @@ if(BECC_BUILD_VENDOR_COUCHBASE_CXX_CLIENT)
     list(APPEND BECC_USED_VENDORS_DIR "BECC_COUCHBASE_CXX_CLIENT")
 
     # post include, somewhat taocpp json can't detect, is it windows case only?
+    ## taocpp-json
+    include_directories("${CMAKE_BINARY_DIR}/_deps/json-src/include")
+    link_directories(AFTER "${CMAKE_BINARY_DIR}/_deps/json-src/include")
+
+    ## taocpp-pegtl
+    include_directories("${CMAKE_BINARY_DIR}/_deps/json-src/external/PEGTL/include")
+    link_directories(AFTER "${CMAKE_BINARY_DIR}/_deps/json-src/external/PEGTL/include")
+
+    ## spdlog
+    include_directories("${CMAKE_BINARY_DIR}/_deps/spdlog-src/include")
+    link_directories(AFTER "${CMAKE_BINARY_DIR}/_deps/spdlog-src/include")
+    ## yes, wtf windows
     if(WIN32)
-        # taocpp-json
-        include_directories("${CMAKE_BINARY_DIR}/_deps/json-src/include")
-        link_directories(AFTER "${CMAKE_BINARY_DIR}/_deps/json-src/include")
-
-        # taocpp-pegtl
-        include_directories("${CMAKE_BINARY_DIR}/_deps/json-src/external/PEGTL/include")
-        link_directories(AFTER "${CMAKE_BINARY_DIR}/_deps/json-src/external/PEGTL/include")
-
-        # spdlog
-        include_directories("${CMAKE_BINARY_DIR}/_deps/spdlog-src/include")
-        link_directories(AFTER "${CMAKE_BINARY_DIR}/_deps/spdlog-src/include")
-
         # append /utf-8
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8")
     endif(WIN32)
