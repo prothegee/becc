@@ -566,26 +566,31 @@ endif()
 
 # project lib
 ## object core lib
-add_library(becc_objects OBJECT ${BECC_SOURCES_FILES})
+add_library(${PROJECT_NAME} OBJECT ${BECC_SOURCES_FILES})
 ## static core lib
-add_library(becc_static STATIC $<TARGET_OBJECTS:becc_objects>)
+add_library(becc_static STATIC $<TARGET_OBJECTS:${PROJECT_NAME}>)
 ## shared code lib
-add_library(becc_shared SHARED $<TARGET_OBJECTS:becc_objects>)
+add_library(becc_shared SHARED $<TARGET_OBJECTS:${PROJECT_NAME}>)
 ### lib/s name
+#### lib output
+set(BEGE_OUTPUT_NAME "becc")
+#### libs windows and else
 if(WIN32)
-    # set_target_properties(becc_static PROPERTIES OUTPUT_NAME "becc")
     set_target_properties(becc_static PROPERTIES
         ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
-        OUTPUT_NAME "becc"
+        OUTPUT_NAME "${BEGE_OUTPUT_NAME}"
     )
-    # set_target_properties(becc_shared PROPERTIES OUTPUT_NAME "becc")
     set_target_properties(becc_shared PROPERTIES
         ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-        OUTPUT_NAME "becc"
+        OUTPUT_NAME "${BEGE_OUTPUT_NAME}"
     )
 else()
-    set_target_properties(becc_static PROPERTIES OUTPUT_NAME "becc")
-    set_target_properties(becc_shared PROPERTIES OUTPUT_NAME "becc")
+    set_target_properties(becc_static PROPERTIES
+        OUTPUT_NAME "${BEGE_OUTPUT_NAME}"
+    )
+    set_target_properties(becc_shared PROPERTIES
+        OUTPUT_NAME "${BEGE_OUTPUT_NAME}"
+    )
 endif()
 
 ## installed options
@@ -598,7 +603,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(BECC_COMPILER_MSVC  false)
     set(BECC_COMPILER_CLANG false)
 
-    target_compile_options(becc_objects PRIVATE
+    target_compile_options(${PROJECT_NAME} PRIVATE
         -Wall
         -Wextra
         -Wpedantic
@@ -623,7 +628,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     set(BECC_COMPILER_MSVC  true)
     set(BECC_COMPILER_CLANG false)
 
-    target_compile_options(becc_objects PRIVATE
+    target_compile_options(${PROJECT_NAME} PRIVATE
         /W4
         /wd4996
     )
@@ -633,7 +638,7 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "[Cc]lang")
     set(BECC_COMPILER_MSVC  false)
     set(BECC_COMPILER_CLANG true)
 
-    target_compile_options(becc_objects PRIVATE
+    target_compile_options(${PROJECT_NAME} PRIVATE
         -Wall
         -Wextra
         -Wpedantic
@@ -666,12 +671,12 @@ else()
 endif()
 
 if(BECC_COMPILER_GNU) # gcc 12.2
-    target_link_libraries(becc_objects PRIVATE -lm)
+    target_link_libraries(${PROJECT_NAME} PRIVATE -lm)
 
     if(EXISTS "/usr/lib/x86_64-linux-gnu/libm.so")
-        target_link_libraries(becc_objects PRIVATE "/usr/lib/x86_64-linux-gnu/libm.so") # somehow build not error
+        target_link_libraries(${PROJECT_NAME} PRIVATE "/usr/lib/x86_64-linux-gnu/libm.so") # somehow build not error
     else()
-        message(WARNING "-- becc_objects: for gcc has error, be warn")
+        message(WARNING "-- ${PROJECT_NAME}: for gcc has error, be warn")
     endif()
 endif()
 
@@ -687,7 +692,7 @@ configure_file(
 )
 
 # becc export
-generate_export_header(becc_objects
+generate_export_header(becc
     EXPORT_FILE_NAME
         ${PROJECT_SOURCE_DIR}/src/inc/becc/export.hh
 )
@@ -705,14 +710,14 @@ target_compile_definitions(becc_shared PRIVATE BECC_SHARED)
 
 # target include dirs
 ## core include: src/inc
-target_include_directories(becc_objects
+target_include_directories(${PROJECT_NAME}
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/src/inc
 )
 
 # target source
 ## dont expand this yet
-target_sources(becc_objects
+target_sources(${PROJECT_NAME}
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
