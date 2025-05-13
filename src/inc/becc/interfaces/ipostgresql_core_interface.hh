@@ -87,7 +87,7 @@ struct IPostgreSqlCoreInterface {
     private:
         PGconn* m_pConn = nullptr;
     };
-    // postgresqk interface access
+    // postgresql interface access
     _IPostgreSQL IPostgreSQL = _IPostgreSQL();
 
 private:

@@ -223,6 +223,7 @@ list(APPEND
         # interfaces
         src/ipostgresql_core_interface.cc
         src/iscylladb_core_interface.cc
+        src/icouchbase_core_interface.cc
         # modules
 )
 
@@ -568,7 +569,7 @@ if(BECC_BUILD_VENDOR_ZXING_CPP)
 endif()
 ##
 ## couchbase-cxx-client
-set(BECC_USING_BECC_COUCHBASE_CXX_CLIENT false)
+set(BECC_USING_COUCHBASE_CXX_CLIENT false)
 
 if(BECC_BUILD_VENDOR_COUCHBASE_CXX_CLIENT)
     set(COUCHBASE_CXX_CLIENT_BUILD_TESTS false)
@@ -589,11 +590,10 @@ if(BECC_BUILD_VENDOR_COUCHBASE_CXX_CLIENT)
 
     add_subdirectory(${BECC_VENDOR_COUCHBASE_CXX_CLIENT_DIR} BECC_COUCHBASE_CXX_CLIENT)
 
-    set(BECC_USING_BECC_COUCHBASE_CXX_CLIENT true)
+    set(BECC_USING_COUCHBASE_CXX_CLIENT true)
     message(NOTICE "-- ${PROJECT_NAME}: adding couchbase-cxx-client")
     list(APPEND BECC_USED_VENDORS_DIR "BECC_COUCHBASE_CXX_CLIENT")
 
-    # post include, somewhat taocpp json can't detect, is it windows case only?
     ## taocpp-json
     include_directories("${CMAKE_BINARY_DIR}/_deps/json-src/include")
     link_directories(AFTER "${CMAKE_BINARY_DIR}/_deps/json-src/include")
@@ -605,11 +605,18 @@ if(BECC_BUILD_VENDOR_COUCHBASE_CXX_CLIENT)
     ## spdlog
     include_directories("${CMAKE_BINARY_DIR}/_deps/spdlog-src/include")
     link_directories(AFTER "${CMAKE_BINARY_DIR}/_deps/spdlog-src/include")
-    ## yes, wtf windows
+
+    ## windows need /utf-8
     if(WIN32)
         # append /utf-8
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8")
     endif(WIN32)
+
+    # tmp
+    if(BECC_IS_DEBUG)
+        message(AUTHOR_WARNING "-- ${PROJECT_NAME}: adding [taocpp-json, taocpp-pegtl, spdlog] packages & their dependencies, can make error for this couchbase-cxx-client")
+        # maybe force something if BECC_USING_COUCHBASE_CXX_CLIENT, do not add it
+    endif()
 endif()
 
 # project lib
@@ -915,7 +922,7 @@ foreach(BECC_TARGET becc_static becc_shared)
     endif()
     ##
     ## zxing-cpp
-    if(BECC_USING_BECC_COUCHBASE_CXX_CLIENT)
+    if(BECC_USING_COUCHBASE_CXX_CLIENT)
         if(WIN32)
             # 
             target_link_libraries(${BECC_TARGET} PRIVATE "${CMAKE_BINARY_DIR}/BECC_COUCHBASE_CXX_CLIENT/asio.lib")
@@ -935,7 +942,7 @@ set_target_properties(becc_shared PROPERTIES
 
 # build tests
 if(BECC_BUILD_TESTS)
-    add_subdirectory(tests BECC_TESTS) # NOTE: error when adding this
+    add_subdirectory(tests BECC_TESTS)
 endif(BECC_BUILD_TESTS)
 
 # build tools

@@ -40,6 +40,9 @@ add_executable(test_date_and_time test_date_and_time.cc)
 target_link_libraries(test_date_and_time PRIVATE becc becc_static)
 message(NOTICE "-- becc: adding test_date_and_time")
 
+#
+message(NOTICE "-- becc: TODO, add database/s test read write async")
+
 # test_file_enc_dec
 if(BECC_USING_OPENSSL)
     add_executable(test_file_enc_dec test_file_enc_dec.cc)
