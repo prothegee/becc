@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.15)
 # package
 set(BECC_VERSION_MAJOR 0)
 set(BECC_VERSION_MINOR 16)
-set(BECC_VERSION_PATCH 0)
+set(BECC_VERSION_PATCH 1)
 set(BECC_VERSION_RELEASE_DATE 20250513)
 
 # package project
@@ -16,26 +16,26 @@ project(becc
 
 # option/s
 ## build tests, default false/OFF
-option(BECC_BUILD_TESTS              "build project test/s" OFF)
+option(BECC_BUILD_TESTS                         "build project test/s" OFF)
 ## build tools, default false/OFF
-option(BECC_BUILD_TOOLS              "build project tool/s" OFF)
+option(BECC_BUILD_TOOLS                         "build project tool/s" OFF)
 ## build vendor stb, default false/OFF
-option(BECC_BUILD_VENDOR_STB         "build vendor stb" OFF)
+option(BECC_BUILD_VENDOR_STB                    "build vendor stb" OFF)
 ## build vendor sdl, default false/OFF
-option(BECC_BUILD_VENDOR_SDL3        "build vendor sdl3" OFF)
+option(BECC_BUILD_VENDOR_SDL3                   "build vendor sdl3" OFF)
 ## build vendor haru, default false/OFF
-option(BECC_BUILD_VENDOR_HARU        "build vendor haru" OFF)
+option(BECC_BUILD_VENDOR_HARU                   "build vendor haru" OFF)
 ## build vendor nanosvg, default false/OFF
-option(BECC_BUILD_VENDOR_NANOSVG     "build vendor nanosvg" OFF)
+option(BECC_BUILD_VENDOR_NANOSVG                "build vendor nanosvg" OFF)
 ## build vendor zxing-cpp, default false/OFF
-option(BECC_BUILD_VENDOR_ZXING_CPP   "build vendor zxing-cpp" OFF)
+option(BECC_BUILD_VENDOR_ZXING_CPP              "build vendor zxing-cpp" OFF)
 ## build vendor couchbase-cxx-client, default false/OFF
 option(BECC_BUILD_VENDOR_COUCHBASE_CXX_CLIENT   "build vendor couchbase-client-cxx" OFF)
 
 ### build use vcpkg, default false/OFF
-option(BECC_BUILD_VCPKG              "build use vcpkg" OFF)
+option(BECC_BUILD_VCPKG                         "build use vcpkg" OFF)
 ### build vcpkg_triplet, default false/OFF, should be string value
-option(BECC_BUILD_VCPKG_TRIPLET      "build triplet for vcpkg" OFF)
+option(BECC_BUILD_VCPKG_TRIPLET                 "build triplet for vcpkg" OFF)
 
 ## rules of options
 

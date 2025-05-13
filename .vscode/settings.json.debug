@@ -22,6 +22,7 @@
         "BECC_BUILD_VENDOR_HARU": true,
         "BECC_BUILD_VENDOR_NANOSVG": true,
         "BECC_BUILD_VENDOR_ZXING_CPP": true,
+        "BECC_BUILD_VENDOR_COUCHBASE_CXX_CLIENT": true,
 
         "BECC_BUILD_TARGET": 1, // 0:undefined 1:linux 2:windows 3:osx 4:android 5:ios (supported: 1)
 
