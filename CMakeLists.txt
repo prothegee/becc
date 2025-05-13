@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 
 # package
 set(BECC_VERSION_MAJOR 0)
-set(BECC_VERSION_MINOR 16)
+set(BECC_VERSION_MINOR 17)
 set(BECC_VERSION_PATCH 0)
 set(BECC_VERSION_RELEASE_DATE 20250513)
 
@@ -16,23 +16,26 @@ project(becc
 
 # option/s
 ## build tests, default false/OFF
-option(BECC_BUILD_TESTS              "build project test/s" OFF)
+option(BECC_BUILD_TESTS                         "build project test/s" OFF)
 ## build tools, default false/OFF
-option(BECC_BUILD_TOOLS              "build project tool/s" OFF)
+option(BECC_BUILD_TOOLS                         "build project tool/s" OFF)
 ## build vendor stb, default false/OFF
-option(BECC_BUILD_VENDOR_STB         "build vendor stb" OFF)
+option(BECC_BUILD_VENDOR_STB                    "build vendor stb" OFF)
 ## build vendor sdl, default false/OFF
-option(BECC_BUILD_VENDOR_SDL3        "build vendor sdl3" OFF)
+option(BECC_BUILD_VENDOR_SDL3                   "build vendor sdl3" OFF)
 ## build vendor haru, default false/OFF
-option(BECC_BUILD_VENDOR_HARU        "build vendor haru" OFF)
+option(BECC_BUILD_VENDOR_HARU                   "build vendor haru" OFF)
 ## build vendor nanosvg, default false/OFF
-option(BECC_BUILD_VENDOR_NANOSVG     "build vendor nanosvg" OFF)
+option(BECC_BUILD_VENDOR_NANOSVG                "build vendor nanosvg" OFF)
 ## build vendor zxing-cpp, default false/OFF
-option(BECC_BUILD_VENDOR_ZXING_CPP   "build vendor zxing-cpp" OFF)
+option(BECC_BUILD_VENDOR_ZXING_CPP              "build vendor zxing-cpp" OFF)
+## build vendor couchbase-cxx-client, default false/OFF
+option(BECC_BUILD_VENDOR_COUCHBASE_CXX_CLIENT   "build vendor couchbase-client-cxx" OFF)
+
 ### build use vcpkg, default false/OFF
-option(BECC_BUILD_VCPKG              "build use vcpkg" OFF)
+option(BECC_BUILD_VCPKG                         "build use vcpkg" OFF)
 ### build vcpkg_triplet, default false/OFF, should be string value
-option(BECC_BUILD_VCPKG_TRIPLET      "build triplet for vcpkg" OFF)
+option(BECC_BUILD_VCPKG_TRIPLET                 "build triplet for vcpkg" OFF)
 
 ## rules of options
 
@@ -563,6 +566,51 @@ if(BECC_BUILD_VENDOR_ZXING_CPP)
     message(NOTICE "-- ${PROJECT_NAME}: adding zxing-cpp")
     list(APPEND BECC_USED_VENDORS_DIR "BECC_ZXING_CPP")
 endif()
+##
+## couchbase-cxx-client
+set(BECC_USING_BECC_COUCHBASE_CXX_CLIENT false)
+
+if(BECC_BUILD_VENDOR_COUCHBASE_CXX_CLIENT)
+    set(COUCHBASE_CXX_CLIENT_BUILD_TESTS false)
+    set(COUCHBASE_CXX_CLIENT_BUILD_DOCS false)
+    set(COUCHBASE_CXX_CLIENT_BUILD_EXAMPLES false)
+    set(COUCHBASE_CXX_CLIENT_BUILD_TOOLS false)
+
+    if(WIN32)
+        add_definitions(-DWIN32)
+
+        set(COUCHBASE_CXX_CLIENT_BUILD_STATIC ON)
+    endif(WIN32)
+
+    set(BECC_VENDOR_COUCHBASE_CXX_CLIENT_DIR "${PROJECT_SOURCE_DIR}/vendors/couchbase-cxx-client")
+
+    include_directories("${BECC_VENDOR_COUCHBASE_CXX_CLIENT_DIR}")
+    link_directories(AFTER "${BECC_VENDOR_COUCHBASE_CXX_CLIENT_DIR}")
+
+    add_subdirectory(${BECC_VENDOR_COUCHBASE_CXX_CLIENT_DIR} BECC_COUCHBASE_CXX_CLIENT)
+
+    set(BECC_USING_BECC_COUCHBASE_CXX_CLIENT true)
+    message(NOTICE "-- ${PROJECT_NAME}: adding couchbase-cxx-client")
+    list(APPEND BECC_USED_VENDORS_DIR "BECC_COUCHBASE_CXX_CLIENT")
+
+    # post include, somewhat taocpp json can't detect, is it windows case only?
+    ## taocpp-json
+    include_directories("${CMAKE_BINARY_DIR}/_deps/json-src/include")
+    link_directories(AFTER "${CMAKE_BINARY_DIR}/_deps/json-src/include")
+
+    ## taocpp-pegtl
+    include_directories("${CMAKE_BINARY_DIR}/_deps/json-src/external/PEGTL/include")
+    link_directories(AFTER "${CMAKE_BINARY_DIR}/_deps/json-src/external/PEGTL/include")
+
+    ## spdlog
+    include_directories("${CMAKE_BINARY_DIR}/_deps/spdlog-src/include")
+    link_directories(AFTER "${CMAKE_BINARY_DIR}/_deps/spdlog-src/include")
+    ## yes, wtf windows
+    if(WIN32)
+        # append /utf-8
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8")
+    endif(WIN32)
+endif()
 
 # project lib
 ## object core lib
@@ -865,6 +913,18 @@ foreach(BECC_TARGET becc_static becc_shared)
     if(BECC_USING_ZXING_CPP)
         target_link_libraries(${BECC_TARGET} PRIVATE ZXing::Core ZXing::ZXing)
     endif()
+    ##
+    ## zxing-cpp
+    if(BECC_USING_BECC_COUCHBASE_CXX_CLIENT)
+        if(WIN32)
+            # 
+            target_link_libraries(${BECC_TARGET} PRIVATE "${CMAKE_BINARY_DIR}/BECC_COUCHBASE_CXX_CLIENT/asio.lib")
+
+            target_link_libraries(${BECC_TARGET} PRIVATE couchbase_cxx_client_static)
+        else()
+            target_link_libraries(${BECC_TARGET} PRIVATE couchbase_cxx_client)
+        endif()
+    endif()
 endforeach()
 
 # version shared lib
@@ -894,4 +954,12 @@ if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
    link_directories(BEFORE \"$\{CMAKE_BINARY_DIR}/${BECC_VENDOR_DIR}\")
 ")
     endforeach()
+endif()
+
+# check
+## cxx flags
+if(CMAKE_CXX_FLAGS STREQUAL "")
+    message(WARNING "-- ${PROJECT_NAME}: cxx flags is empty for some reason")
+else()
+    message(NOTICE "-- ${PROJECT_NAME}: build info\n   -DCMAKE_CXX_FLAGS=\"${CMAKE_CXX_FLAGS}\"")
 endif()
