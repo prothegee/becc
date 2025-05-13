@@ -29,6 +29,9 @@ option(BECC_BUILD_VENDOR_HARU        "build vendor haru" OFF)
 option(BECC_BUILD_VENDOR_NANOSVG     "build vendor nanosvg" OFF)
 ## build vendor zxing-cpp, default false/OFF
 option(BECC_BUILD_VENDOR_ZXING_CPP   "build vendor zxing-cpp" OFF)
+## build vendor couchbase-cxx-client, default false/OFF
+option(BECC_BUILD_VENDOR_COUCHBASE_CXX_CLIENT   "build vendor couchbase-client-cxx" OFF)
+
 ### build use vcpkg, default false/OFF
 option(BECC_BUILD_VCPKG              "build use vcpkg" OFF)
 ### build vcpkg_triplet, default false/OFF, should be string value
@@ -563,6 +566,33 @@ if(BECC_BUILD_VENDOR_ZXING_CPP)
     message(NOTICE "-- ${PROJECT_NAME}: adding zxing-cpp")
     list(APPEND BECC_USED_VENDORS_DIR "BECC_ZXING_CPP")
 endif()
+##
+## couchbase-cxx-client
+set(BECC_USING_BECC_COUCHBASE_CXX_CLIENT false)
+
+if(BECC_BUILD_VENDOR_COUCHBASE_CXX_CLIENT)
+    set(COUCHBASE_CXX_CLIENT_BUILD_TESTS false)
+    set(COUCHBASE_CXX_CLIENT_BUILD_DOCS false)
+    set(COUCHBASE_CXX_CLIENT_BUILD_EXAMPLES false)
+    set(COUCHBASE_CXX_CLIENT_BUILD_TOOLS false)
+
+    if(WIN32)
+        add_definitions(-DWIN32)
+
+        set(COUCHBASE_CXX_CLIENT_BUILD_STATIC ON)
+    endif(WIN32)
+
+    include_directories("${CMAKE_BINARY_DIR}/BECC_COUCHBASE_CXX_CLIENT")
+    link_directories(AFTER "${CMAKE_BINARY_DIR}/BECC_COUCHBASE_CXX_CLIENT")
+
+    set(BECC_VENDOR_COUCHBASE_CXX_CLIENT_DIR "${PROJECT_SOURCE_DIR}/vendors/couchbase-cxx-client")
+
+    add_subdirectory(${BECC_VENDOR_COUCHBASE_CXX_CLIENT_DIR} BECC_COUCHBASE_CXX_CLIENT)
+
+    set(BECC_USING_BECC_COUCHBASE_CXX_CLIENT true)
+    message(NOTICE "-- ${PROJECT_NAME}: adding couchbase-cxx-client")
+    list(APPEND BECC_USED_VENDORS_DIR "BECC_COUCHBASE_CXX_CLIENT")
+endif()
 
 # project lib
 ## object core lib
@@ -864,6 +894,18 @@ foreach(BECC_TARGET becc_static becc_shared)
     ## zxing-cpp
     if(BECC_USING_ZXING_CPP)
         target_link_libraries(${BECC_TARGET} PRIVATE ZXing::Core ZXing::ZXing)
+    endif()
+    ##
+    ## zxing-cpp
+    if(BECC_USING_BECC_COUCHBASE_CXX_CLIENT)
+        if(WIN32)
+            # 
+            target_link_libraries(${BECC_TARGET} PRIVATE "${CMAKE_BINARY_DIR}/BECC_COUCHBASE_CXX_CLIENT/asio.lib")
+
+            target_link_libraries(${BECC_TARGET} PRIVATE couchbase_cxx_client_static)
+        else()
+            target_link_libraries(${BECC_TARGET} PRIVATE couchbase_cxx_client)
+        endif()
     endif()
 endforeach()
 
