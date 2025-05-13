@@ -582,16 +582,34 @@ if(BECC_BUILD_VENDOR_COUCHBASE_CXX_CLIENT)
         set(COUCHBASE_CXX_CLIENT_BUILD_STATIC ON)
     endif(WIN32)
 
-    include_directories("${CMAKE_BINARY_DIR}/BECC_COUCHBASE_CXX_CLIENT")
-    link_directories(AFTER "${CMAKE_BINARY_DIR}/BECC_COUCHBASE_CXX_CLIENT")
-
     set(BECC_VENDOR_COUCHBASE_CXX_CLIENT_DIR "${PROJECT_SOURCE_DIR}/vendors/couchbase-cxx-client")
+
+    include_directories("${BECC_VENDOR_COUCHBASE_CXX_CLIENT_DIR}")
+    link_directories(AFTER "${BECC_VENDOR_COUCHBASE_CXX_CLIENT_DIR}")
 
     add_subdirectory(${BECC_VENDOR_COUCHBASE_CXX_CLIENT_DIR} BECC_COUCHBASE_CXX_CLIENT)
 
     set(BECC_USING_BECC_COUCHBASE_CXX_CLIENT true)
     message(NOTICE "-- ${PROJECT_NAME}: adding couchbase-cxx-client")
     list(APPEND BECC_USED_VENDORS_DIR "BECC_COUCHBASE_CXX_CLIENT")
+
+    # post include, somewhat taocpp json can't detect, is it windows case only?
+    if(WIN32)
+        # taocpp-json
+        include_directories("${CMAKE_BINARY_DIR}/_deps/json-src/include")
+        link_directories(AFTER "${CMAKE_BINARY_DIR}/_deps/json-src/include")
+
+        # taocpp-pegtl
+        include_directories("${CMAKE_BINARY_DIR}/_deps/json-src/external/PEGTL/include")
+        link_directories(AFTER "${CMAKE_BINARY_DIR}/_deps/json-src/external/PEGTL/include")
+
+        # spdlog
+        include_directories("${CMAKE_BINARY_DIR}/_deps/spdlog-src/include")
+        link_directories(AFTER "${CMAKE_BINARY_DIR}/_deps/spdlog-src/include")
+
+        # append /utf-8
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8")
+    endif(WIN32)
 endif()
 
 # project lib
@@ -936,4 +954,12 @@ if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
    link_directories(BEFORE \"$\{CMAKE_BINARY_DIR}/${BECC_VENDOR_DIR}\")
 ")
     endforeach()
+endif()
+
+# check
+## cxx flags
+if(CMAKE_CXX_FLAGS STREQUAL "")
+    message(WARNING "-- ${PROJECT_NAME}: cxx flags is empty for some reason")
+else()
+    message(NOTICE "-- ${PROJECT_NAME}: build info\n   -DCMAKE_CXX_FLAGS=\"${CMAKE_CXX_FLAGS}\"")
 endif()
