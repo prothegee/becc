@@ -17,7 +17,7 @@
 INLNSTTCCNST std::string CONFIG_FILE = "../../../tests/test_database_scylla_rw.json";
 
 std::mutex print_mutex;
-class ScyllaDbTable : public becc::IScyllaDbCoreInterface {
+class BasicDbTable : public becc::IScyllaDbCoreInterface {
 private:
     becc::scylladb_connection_t m_conn; // connection data
 
@@ -54,7 +54,7 @@ create table if not exists {KEYSPACE}.{TABLE_NAME} (
 
     /////////////////////////////////////////////////////////////////
 
-    ScyllaDbTable() {
+    BasicDbTable() {
         const auto CONFIG = becc::utility_functions::jsoncpp::from_json_file(CONFIG_FILE);
 
         const int32_t CONN_AUTH = CONFIG["becc_test_scylladb"]["connection"]["auth"].asInt();
@@ -83,13 +83,13 @@ create table if not exists {KEYSPACE}.{TABLE_NAME} (
 
         IScyllaDb.initialize_constructor(conn);
 
-        // check table gen
-        std::cout << "table gen: " << TABLE_GEN_1ST << "\n";
+        // // check table gen
+        // std::cout << "table gen: " << TABLE_GEN_1ST << "\n";
 
         // finally
         m_conn = conn;
     }
-    ~ScyllaDbTable() {};
+    ~BasicDbTable() {};
 
     void initialize() {
         // create keyspace if not exists
@@ -120,7 +120,7 @@ create table if not exists {KEYSPACE}.{TABLE_NAME} (
         becc::utility_functions::find::and_replace_all(query, "{KEYSPACE}", m_conn.keyspace);
         becc::utility_functions::find::and_replace_all(query, "{TABLE_NAME}", TABLE_NAME);
 
-        if (IScyllaDb.execute_cqlsh(IScyllaDb.get_cass_session(), query.c_str(), "ScyllaDbTable::initialize_table") != CASS_OK) {
+        if (IScyllaDb.execute_cqlsh(IScyllaDb.get_cass_session(), query.c_str(), "BasicDbTable::initialize_table") != CASS_OK) {
             IScyllaDb.print_error(
                 IScyllaDb.get_cass_future()
             );
@@ -232,9 +232,9 @@ create table if not exists {KEYSPACE}.{TABLE_NAME} (
         becc::utility_functions::find::and_replace_all(query, "{KEYSPACE}", m_conn.keyspace);
         becc::utility_functions::find::and_replace_all(query, "{TABLE_NAME}", TABLE_NAME);
 
-        if (IScyllaDb.execute_cqlsh(IScyllaDb.get_cass_session(), query.c_str(), "ScyllaDbTable::cleanup") != CASS_OK) {
+        if (IScyllaDb.execute_cqlsh(IScyllaDb.get_cass_session(), query.c_str(), "BasicDbTable::cleanup") != CASS_OK) {
             IScyllaDb.print_error(
-                IScyllaDb.get_cass_future(), "ScyllaDbTable::cleanup: can't drop the table"
+                IScyllaDb.get_cass_future(), "BasicDbTable::cleanup: can't drop the table"
             );
         }
     }
@@ -245,7 +245,7 @@ create table if not exists {KEYSPACE}.{TABLE_NAME} (
 int main() {
 #if BECC_USING_SCYLLADB
     // base data table
-    ScyllaDbTable table;
+    BasicDbTable table;
     table.initialize();
     table.initialize_table();
     table.initialize_table_index();
