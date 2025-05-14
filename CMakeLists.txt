@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.15)
 # package
 set(BECC_VERSION_MAJOR 0)
 set(BECC_VERSION_MINOR 17)
-set(BECC_VERSION_PATCH 1)
+set(BECC_VERSION_PATCH 2)
 set(BECC_VERSION_RELEASE_DATE 20250514)
 
 # package project
@@ -11,7 +11,7 @@ project(becc
     VERSION "${BECC_VERSION_MAJOR}.${BECC_VERSION_MINOR}.${BECC_VERSION_PATCH}"
     DESCRIPTION "module library treatment for cpp backend project"
     HOMEPAGE_URL "https://github.com/prothegee/becc"
-    LANGUAGES CXX C
+    LANGUAGES CXX
 )
 
 # option/s
@@ -606,11 +606,16 @@ if(BECC_BUILD_VENDOR_COUCHBASE_CXX_CLIENT)
     include_directories("${CMAKE_BINARY_DIR}/_deps/spdlog-src/include")
     link_directories(AFTER "${CMAKE_BINARY_DIR}/_deps/spdlog-src/include")
 
-    ## windows need /utf-8
-    if(WIN32)
-        # append /utf-8
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8")
-    endif(WIN32)
+    ## msvc need /utf-8
+    if(MSVC)
+        # check /utf-8
+        string(FIND "${CMAKE_CXX_FLAGS}" "/utf-8" POS_UTF8_SLASH)
+
+        if(POS_UTF8_SLASH EQUAL -1)
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8")
+            message(NOTICE "-- becc: adding /utf-8 flags to msvc")
+        endif()
+    endif(MSVC)
 
     # tmp
     if(BECC_IS_DEBUG)

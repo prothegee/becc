@@ -1,5 +1,7 @@
 #include <becc/functions/system.hh>
 
+#include <iostream>
+
 namespace becc {
 namespace system_functions {
 
@@ -11,6 +13,11 @@ int32_t is_port_available(const int32_t& port) {
 #endif
     if (sock < 0)
         return false;
+
+    if (port > 65535) {
+        std::cerr << "port " << port << " is exceed more than 65535\n";
+        return false;
+    }
 
     sockaddr_in addr{};
     addr.sin_family = AF_INET;
