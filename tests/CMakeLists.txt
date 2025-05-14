@@ -40,8 +40,12 @@ add_executable(test_date_and_time test_date_and_time.cc)
 target_link_libraries(test_date_and_time PRIVATE becc becc_static)
 message(NOTICE "-- becc: adding test_date_and_time")
 
-#
-message(NOTICE "-- becc: TODO, add database/s test read write async")
+# test_database_scylla_rw
+if(BECC_USING_SCYLLADB)
+    add_executable(test_database_scylla_rw test_database_scylla_rw.cc)
+    target_link_libraries(test_database_scylla_rw becc becc_static)
+    message(NOTICE "-- becc: adding test_database_scylla_rw")
+endif()
 
 # test_file_enc_dec
 if(BECC_USING_OPENSSL)

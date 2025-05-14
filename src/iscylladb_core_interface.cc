@@ -224,13 +224,18 @@ CassError IScyllaDbCoreInterface::_IScyllaDb::execute_cqlsh(CassSession* pCassSe
 
     if (status != CASS_OK) {
 #if BECC_IS_DEBUG
-        std::cout << "DEBUG: execute_cqlsh: fail, note \"" << note << "\"\n";
+        // std::cout << "DEBUG: execute_cqlsh: fail, note \"" << note << "\"\n";
+        (std::strlen(note) > 0)
+            ? std::cout << "DEBUG: execute_cqlsh: fail, note: " << note << "\n"
+            : std::cout << "DEBUG: execute_cqlsh: fail ( note is not provided )\n";
 #endif // BECC_IS_DEBUG
         print_error(pFuture, note);
         return status;
     } else {
 #if BECC_IS_DEBUG
-        std::cout << "DEBUG: execute_cqlsh: ok, note \"" << note << "\"\n";
+        (std::strlen(note) > 0)
+            ? std::cout << "DEBUG: execute_cqlsh: ok, note: " << note << "\n"
+            : std::cout << "DEBUG: execute_cqlsh: ok ( note is not provided )\n";
 #endif // BECC_IS_DEBUG
     }
 

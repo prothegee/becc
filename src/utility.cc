@@ -601,7 +601,7 @@ Json::Value from_csv_file(const std::string& csv_file_path) {
 Json::Value from_json_file(const std::string& json_file_path) {
     Json::Value result;
 
-    if (find::input_ends_with(json_file_path, ".json") != 0) {
+    if (find::input_ends_with(json_file_path, ".json") != 1) {
         std::cerr << "json_file_path is not end with .json\n";
         return result;
     }
@@ -744,6 +744,231 @@ int32_t save_to_json(const Json::Value& input, const std::string& output_file_pa
 
 } // namespace jsoncpp
 #endif // BECC_USING_JSONCPP
+
+#if BECC_USING_COUCHBASE_CXX_CLIENT
+PRAGMA_MESSAGE("maybe there will be if using BECC_USING_JSONTAO")
+namespace jsontao {
+
+std::string to_string(const tao::json::value& input, const int32_t& indent, const int32_t& precision) {
+    int32_t _indent = indent, _precision = precision;
+
+    if (_indent <= 0) {
+        _indent = 0;
+    }
+    if (_precision <= 2) {
+        _precision = 2;
+    }
+
+    return tao::json::to_string(input, _indent);
+}
+
+tao::json::value from_csv_file(const std::string& csv_file_path) {
+    tao::json::value result = tao::json::empty_array;
+
+    if (!find::input_ends_with(csv_file_path, ".csv")) {
+        std::cerr << "csv_file_path is not end with .csv\n";
+        return result;
+    }
+
+    try {
+        std::ifstream file(csv_file_path);
+        std::string line;
+        std::vector<std::string> headers;
+
+        if (file.is_open()) {
+            if (std::getline(file, line)) {
+                std::stringstream ss(line);
+                std::string header;
+                while (std::getline(ss, header, ',')) {
+                    header.erase(header.find_last_not_of(" \t\r\n") + 1);
+                    header.erase(0, header.find_first_not_of(" \t\r\n"));
+                    headers.push_back(header);
+                }
+            }
+
+            tao::json::value json = tao::json::empty_array;
+
+            while (std::getline(file, line)) {
+                line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
+
+                std::stringstream ss(line);
+                std::string cell;
+                tao::json::value json_obj = tao::json::empty_object;
+                size_t header_index = 0;
+
+                while (std::getline(ss, cell, ',')) {
+                    cell.erase(cell.find_last_not_of(" \t\n") + 1);
+                    cell.erase(0, cell.find_first_not_of(" \t\n"));
+
+                    if (header_index < headers.size()) {
+                        std::string upper_cell = cell;
+                        std::transform(upper_cell.begin(), upper_cell.end(), upper_cell.begin(), ::toupper);
+
+                        if (upper_cell == "TRUE") {
+                            json_obj[headers[header_index]] = true;
+                        } else if (upper_cell == "FALSE") {
+                            json_obj[headers[header_index]] = false;
+                        } else {
+                            try {
+                                // Try to parse as number
+                                if (cell.find('.') != std::string::npos ||
+                                    cell.find('e') != std::string::npos ||
+                                    cell.find('E') != std::string::npos) {
+                                    json_obj[headers[header_index]] = std::stod(cell);
+                                } else {
+                                    json_obj[headers[header_index]] = std::stoll(cell);
+                                }
+                            } catch (...) {
+                                // If not a number, store as string
+                                json_obj[headers[header_index]] = cell;
+                            }
+                        }
+                    }
+                    header_index++;
+                }
+                json.emplace_back(json_obj);
+            }
+
+            result = json;
+            file.close();
+        } else {
+            std::cerr << "jsontao::from_csv: can't find csv file from \"" << csv_file_path << "\"\n";
+            result = tao::json::null;
+        }
+    } catch (const std::exception& e) {
+        std::cerr << "jsontao::from_csv: " << e.what() << '\n';
+        result = tao::json::null;
+    }
+
+    return result;
+}
+
+tao::json::value from_json_file(const std::string& json_file_path) {
+    tao::json::value result = tao::json::null;
+
+    if (!find::input_ends_with(json_file_path, ".json")) {
+        std::cerr << "json_file_path is not end with .json\n";
+        return result;
+    }
+
+    try {
+        std::ifstream file(json_file_path);
+        if (file.is_open()) {
+            result = tao::json::from_stream(file, json_file_path);
+            file.close();
+        } else {
+            std::cerr << "jsontao::from_json_file: can't find json file from \"" << json_file_path << "\"\n";
+        }
+    } catch (const std::exception& e) {
+        std::cerr << "jsontao::from_json_file: " << e.what() << '\n';
+    }
+
+    return result;
+}
+
+tao::json::value from_string(const std::string& input) {
+    tao::json::value result = tao::json::null;
+
+    try {
+        result = tao::json::from_string(input);
+    } catch (const std::exception& e) {
+        std::cerr << "exception jsontao::from_string: " << e.what() << '\n';
+    }
+
+    return result;
+}
+
+int32_t save_to_csv(const tao::json::value& input, const std::string& output_file_path) {
+    if (!find::input_ends_with(output_file_path, ".csv")) {
+        std::cerr << "jsontao::save_to_csv: output_file_path is not end with .csv\n";
+        return -1;
+    }
+
+    std::ofstream file(output_file_path);
+
+    if (!file.is_open()) {
+        std::cerr << "jsontao::save_to_csv: can't open file " << output_file_path << "\n";
+        return -2;
+    }
+
+    if (!input.is_array() || input.get_array().empty()) {
+        std::cerr << "jsontao::save_to_csv: input should be a non-empty array\n";
+        return -3;
+    }
+
+    // create headers from first object
+    const auto& first_obj = input[0];
+    if (!first_obj.is_object()) {
+        std::cerr << "jsontao::save_to_csv: array elements should be objects\n";
+        return -4;
+    }
+
+    bool first = true;
+    for (const auto& [key, _] : first_obj.get_object()) {
+        if (!first) {
+            file << ",";
+        }
+        file << key;
+        first = false;
+    }
+    file << "\n";
+
+    // insert rows
+    for (const auto& row : input.get_array()) {
+        if (!row.is_object()) {
+            continue; // skip non-object rows
+        }
+
+        first = true;
+        for (const auto& [key, _] : first_obj.get_object()) {
+            if (!first) {
+                file << ",";
+            }
+            const auto* val = row.find(key);
+            if (val != nullptr) {
+                if (val->is_string()) {
+                    file << val->get_string();
+                } else {
+                    file << tao::json::to_string(*val);
+                }
+            }
+            first = false;
+        }
+        file << "\n";
+    }
+    file.close();
+
+    return 1;
+}
+
+int32_t save_to_json(const tao::json::value& input, const std::string& output_file_path, const int32_t& indent, const int32_t& precision) {
+    if (!find::input_ends_with(output_file_path, ".json")) {
+        std::cerr << "jsontao::save_to_json: output_file_path is not end with .json\n";
+        return -1;
+    }
+
+    int32_t _indent = indent;
+
+    // force some rules
+    if (_indent <= 0) {
+        _indent = 0;
+    }
+
+    std::ofstream file(output_file_path);
+
+    if (!file.is_open()) {
+        std::cerr << "jsontao::save_to_json: can't write to file " << output_file_path << "\n";
+        return -2;
+    }
+
+    tao::json::to_stream(file, input, _indent);
+    file.close();
+
+    return 1;
+}
+
+} // namespace jsontao
+#endif // BECC_USING_COUCHBASE_CXX_CLIENT
 
 namespace read {
 
