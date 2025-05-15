@@ -275,14 +275,15 @@ int main() {
             ));
         }
 
-        for (auto& future : futures) {
-            future.get();
-        }
+        // for (auto& future : futures) {
+        //     future.get();
+        // }
 
         //
         /*
-        - for 100 with get   : 0.199751 seconds
-        - for 100 without get: 0.00568378 seconds
+        @prothegee (cpu 12 ram 32 gb) at 100 iter:
+            - for 100 with get   : 0.17466800 to 0.19975100 seconds
+            - for 100 without get: 0.00948864 to 0.00957523 seconds
         */
         //
 

@@ -1,6 +1,7 @@
 // THIS IS DEFAULT
+// bucket_name can't be empty
 {
-    "host": "http://127.0.0.1",
+    "host": "couchbase://127.0.0.1",
     "username": "Administrator",
     "password": "password",
     "scope_name": "_default",

@@ -22,7 +22,7 @@ INLNSTTCCNST std::string CONFIG_FILE = "../../../tests/test_database_couchbase_r
 std::mutex print_mutex;
 class BasicDbTable : public becc::ICouchbaseCoreInterface {
 private:
-    // tba
+    becc::couchbase_connection_t m_conn;
 
 public:
     BasicDbTable() {
@@ -37,7 +37,10 @@ public:
         conn.bucket_name = CONFIG["bucket_name"].asString();
         conn.collection_name = CONFIG["collection_name"].asString();
 
-        ICouchbase.initialize_constructor(conn, 6);
+        // ICouchbase.initialize_constructor(conn, 1); // trace
+        ICouchbase.initialize_constructor(conn, 6); // no log
+
+        m_conn = conn;
     }
     ~BasicDbTable() {
         // 
@@ -72,6 +75,8 @@ public:
 
     /////////////////////////////////////////////////////////////////
 
+    PRAGMA_MESSAGE("TODO: initialize_table / initialize_bucket")
+
     void initialize_table_index() {
         /* not implemented */
     }
@@ -95,11 +100,21 @@ public:
         data.created_timestamp = becc::date_and_time_functions::utc::YYYYMMDDhhmmss::to_millis_now();
         data.created_timestring = becc::date_and_time_functions::utc::YYYYMMDDhhmmss::to_millis_string(data.created_timestamp);
 
-        auto collection = ICouchbase.get_collection();
+        // CHECK: cluster
+        auto cluster_error = ICouchbase.get_cluster_error();
+
+        uint64_t error_iter = 0;
+        if (cluster_error) {
+            error_iter += 1;
+            error_iter = count_error.fetch_add(1, std::memory_order_relaxed) + 1;
+        }
+
+        // TMP: hold
+        auto collection = ICouchbase.get_cluster_collection();
 
         auto [err, resp] = collection.upsert(
             // primary key
-            doc_key::pk::id,
+            data.id,
             tao::json::value{
                 {doc_key::random_text, data.random_text},
                 {doc_key::random_integer, data.random_integer},
@@ -112,14 +127,12 @@ public:
             { /* n/a */ }
         ).get();
 
-        uint64_t current_iter = count_iter.fetch_add(1, std::memory_order_relaxed) + 1;
-
-        // uint64_t error_iter = 0;
         if (err.ec()) {
-            count_error += 1;
-            // error_iter = count_error.fetch_add(1, std::memory_order_relaxed) + 1;
+            error_iter += 1;
+            error_iter = count_error.fetch_add(1, std::memory_order_relaxed) + 1;
         }
 
+        uint64_t current_iter = count_iter.fetch_add(1, std::memory_order_relaxed) + 1;
         if (count_iter <= max_iter) {
             std::cout << "\r         \r";
             std::cout << "-- note: current iter is " << current_iter
@@ -132,6 +145,12 @@ public:
         }
         std::cout << std::flush;
     }
+
+    // this function will:
+    // - drop collection
+    void cleanup() {
+        PRAGMA_MESSAGE("TODO: this bucket/collection need to be cleanup")
+    }
 };
 #endif // BECC_USING_COUCHBASE_CXX_CLIENT
 
@@ -141,19 +160,65 @@ int main() {
     BasicDbTable table;
     table.initialize_table_index();
 
-    // prep atomic
+    std::atomic<uint64_t> count_iter(0), count_error(0), count_collide(0);
 
-    // prep iter
+    const uint64_t MAX_ITER_WRITE = 100;
+    // const uint64_t MAX_ITER_READ = 100;
+    // const uint64_t NUM_THREADS = std::thread::hardware_concurrency();
 
-    // do start write
+    std::cout << "start write\n";
     {
+        std::vector<std::future<void>> futures;
+
+        auto start = std::chrono::high_resolution_clock::now();
+
+        futures.reserve(MAX_ITER_WRITE);
+
+        for (uint64_t i = 0; i < MAX_ITER_WRITE; ++i) {
+            futures.push_back(std::async(
+                std::launch::async,
+                [&table, &count_error, &count_iter, &count_collide, &MAX_ITER_WRITE]() {
+                    table.generate_random_data(count_error, count_iter, count_collide, MAX_ITER_WRITE);
+                }
+            ));
+        }
+
+        // for (auto& future : futures) {
+        //     future.get();
+        // }
+
+        //
+        /*
+        @prothegee (cpu 12 ram 32 gb) at 100 iter:
+            - for 100 with get   : 0.16340700 to 0.17328500 seconds
+            - for 100 without get: 0.00860249 to 0.00932439 seconds
+        */
+        //
+
+        auto end = std::chrono::high_resolution_clock::now();
+
+        std::chrono::duration<float64_t> duration = end - start;
+
+        uint64_t errors = count_error.load();
+        uint64_t collides = count_collide.load();
+
+        if (errors > 0 || count_collide > 0)
+        {
+            std::cout << "\n-- note: found " << errors << " error & " << collides << " collide, while executing in " << duration.count() << "seconds\n";
+        }
+        else
+        {
+            std::cout << "\n-- note: no error & collide found in " << duration.count() << " seconds\n";
+        }
     }
 
-    // do start read
+    std::cout << "skipped: start read\n";
     {
+        // tba
     }
 
     // cleanup?
+    table.cleanup();
 #endif // BECC_USING_COUCHBASE_CXX_CLIENT
     return 0;
 }

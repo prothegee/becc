@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.15)
 # package
 set(BECC_VERSION_MAJOR 0)
 set(BECC_VERSION_MINOR 17)
-set(BECC_VERSION_PATCH 2)
+set(BECC_VERSION_PATCH 3)
 set(BECC_VERSION_RELEASE_DATE 20250515)
 
 # package project
@@ -585,14 +585,9 @@ if(BECC_BUILD_VENDOR_COUCHBASE_CXX_CLIENT)
 
     set(BECC_VENDOR_COUCHBASE_CXX_CLIENT_DIR "${PROJECT_SOURCE_DIR}/vendors/couchbase-cxx-client")
 
+    # couchbase it self
     include_directories("${BECC_VENDOR_COUCHBASE_CXX_CLIENT_DIR}")
     link_directories(AFTER "${BECC_VENDOR_COUCHBASE_CXX_CLIENT_DIR}")
-
-    add_subdirectory(${BECC_VENDOR_COUCHBASE_CXX_CLIENT_DIR} BECC_COUCHBASE_CXX_CLIENT)
-
-    set(BECC_USING_COUCHBASE_CXX_CLIENT true)
-    message(NOTICE "-- ${PROJECT_NAME}: adding couchbase-cxx-client")
-    list(APPEND BECC_USED_VENDORS_DIR "BECC_COUCHBASE_CXX_CLIENT")
 
     ## taocpp-json
     include_directories("${CMAKE_BINARY_DIR}/_deps/json-src/include")
@@ -616,6 +611,12 @@ if(BECC_BUILD_VENDOR_COUCHBASE_CXX_CLIENT)
             message(NOTICE "-- becc: adding /utf-8 flags to msvc")
         endif()
     endif(MSVC)
+
+    add_subdirectory(${BECC_VENDOR_COUCHBASE_CXX_CLIENT_DIR} BECC_COUCHBASE_CXX_CLIENT)
+
+    set(BECC_USING_COUCHBASE_CXX_CLIENT true)
+    message(NOTICE "-- ${PROJECT_NAME}: adding couchbase-cxx-client")
+    list(APPEND BECC_USED_VENDORS_DIR "BECC_COUCHBASE_CXX_CLIENT")
 
     # tmp
     if(BECC_IS_DEBUG)

@@ -51,7 +51,7 @@ struct couchbase_connection_t {
  * @note this interface structure still useless
  */
 struct ICouchbaseCoreInterface {
-    virtual ~ICouchbaseCoreInterface() = default;
+    virtual ~ICouchbaseCoreInterface();
 
     // skipped: initialize_table
 
@@ -89,20 +89,18 @@ struct ICouchbaseCoreInterface {
         std::string get_bucket_name() { return ICouchbaseCoreInterface::m_connection.bucket_name; }
 
         std::string get_collection_name() { return ICouchbaseCoreInterface::m_connection.collection_name; }
-
-        couchbase::cluster get_cluster() { return m_cluster.second; }
-
-        couchbase::error get_cluster_error() { return m_cluster.first; }
-
-        couchbase::collection get_collection() {
-            return m_cluster.second.bucket(get_bucket_name())
+        
+        couchbase::cluster get_cluster() { return m_cluster; }
+        couchbase::error get_cluster_error() { return m_cluster_error; }
+        
+        couchbase::collection get_cluster_collection() {
+            return m_cluster.bucket(get_bucket_name())
                 .scope(get_scope_name())
                 .collection(get_collection_name());
         }
     private:
-        // first: error data
-        // second: cluster data
-        std::pair<couchbase::error, couchbase::cluster> m_cluster;
+        couchbase::cluster m_cluster;
+        couchbase::error m_cluster_error;
     };
     // couchbase interface access
     _ICouchbase ICouchbase = _ICouchbase();

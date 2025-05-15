@@ -1,12 +1,18 @@
 #include <becc/interfaces/icouchbase_core_interface.hh>
 
 #include <iostream>
+#include <utility>
 
 namespace becc {
 #if BECC_USING_COUCHBASE_CXX_CLIENT
+ICouchbaseCoreInterface::~ICouchbaseCoreInterface() {
+    // 
+    std::cout << "TMP: ~ICouchbaseCoreInterface()\n";
+}
+
 ICouchbaseCoreInterface::_ICouchbase::~_ICouchbase() {
-    // close the cluster when out
-    m_cluster.second.close().get();
+    // 
+    std::cout << "TMP: ~ICouchbaseCoreInterface()\n";
 }
 
 int32_t ICouchbaseCoreInterface::_ICouchbase::initialize_constructor(const couchbase_connection_t& connection, const int32_t& couchbase_log_level, const char* extra_info) {
@@ -81,7 +87,30 @@ int32_t ICouchbaseCoreInterface::_ICouchbase::initialize_constructor(const couch
 
     option.apply_profile(couchbase_cluster_profiles::wan_development);
 
-    m_cluster = couchbase::cluster::connect(connection.host, option).get();
+    // // fine
+    // auto [error, cluster] = couchbase::cluster::connect(connection.host, option).get();
+
+    // if (error) {
+    //     std::cout << "error! " << error.ec().message() << "\n";
+    // } else {
+    //     std::cout << "continue!\n";
+    // }
+    // // fine
+
+    // do not use this again if first is 
+    auto&& connection_result = couchbase::cluster::connect(connection.host, option).get();
+
+    if (connection_result.first) {
+#if BECC_IS_DEBUG
+    (std::strlen(extra_info) > 0)
+        ? std::cerr << "DEBUG: \"ICouchbaseCoreInterface::_ICouchbase::initialize_constructor\" fail to connect: " << extra_info << "\"\n"
+        : std::cerr << "DEBUG: \"ICouchbaseCoreInterface::_ICouchbase::initialize_constructor\" fail to connect: ( extra_info is not provided )\n";
+#endif // BECC_IS_DEBUG
+        return -9;
+    }
+
+    m_cluster = std::forward<couchbase::cluster>(connection_result.second);
+    m_cluster_error = std::forward<couchbase::error>(connection_result.first);
 
 #if BECC_IS_DEBUG
     (std::strlen(extra_info) > 0)
