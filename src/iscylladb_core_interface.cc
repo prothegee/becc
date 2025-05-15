@@ -127,12 +127,17 @@ int32_t IScyllaDbCoreInterface::_IScyllaDb::initialize_constructor(const scyllad
     }
 
     if (cass_future_error_code(m_pCassFuture) != CASS_OK) {
-        std::cerr << "ERROR: \"IScyllaDbCoreInterface::_IScyllaDb::initialize_constructor\" fail to make connection on: \"" << extra_info << "\"\n";
+        std::cerr << "ERROR: \"IScyllaDbCoreInterface::_IScyllaDb::initialize_constructor\" fail to make connection\n";
+        print_error(m_pCassFuture, extra_info);
         return -2;
     }
 
 #if BECC_IS_DEBUG
-    std::cout << "DEBUG: \"IScyllaDbCoreInterface::_IScyllaDb::initialize_constructor\" connected \"" << extra_info << "\"\n";
+    (std::strlen(extra_info) > 0)
+        ? std::cout << "DEBUG: \
+        \"IScyllaDbCoreInterface::_IScyllaDb::initialize_constructor\" connected: " << extra_info << "\n"
+        : std::cout << "DEBUG: \
+        \"IScyllaDbCoreInterface::_IScyllaDb::initialize_constructor\" connected ( extra_info is not provided )\n";
 #endif // BECC_IS_DEBUG
 
     return 1;

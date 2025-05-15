@@ -137,5 +137,5 @@ int main() {
     delete pNativeRes;
 #endif // BECC_USING_SDL3
 
-    return 1;
+    return 0;
 }

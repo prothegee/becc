@@ -16,5 +16,5 @@ int main() {
     std::cout << "passed: argon2id verified\n";
 #endif // BECC_USING_ARGON2
 
-    return 1;
+    return 0;
 }

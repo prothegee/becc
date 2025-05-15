@@ -30,5 +30,5 @@ int main() {
     std::cout << "passed: example_out1_status\n";
 #endif // BECC_USING_OPENSSL
 
-    return 1;
+    return 0;
 }

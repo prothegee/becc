@@ -311,5 +311,5 @@ int main() {
     // finally
     table.cleanup();
 #endif // BECC_USING_SCYLLADB
-    return 1;
+    return 0;
 }

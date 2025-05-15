@@ -1,0 +1,9 @@
+// THIS IS DEFAULT
+{
+    "host": "http://127.0.0.1",
+    "username": "Administrator",
+    "password": "password",
+    "scope_name": "_default",
+    "bucket_name": "default",
+    "collection_name": "_default"
+}
