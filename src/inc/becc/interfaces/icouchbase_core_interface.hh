@@ -38,7 +38,10 @@ struct couchbase_connection_t {
     std::string bucket_name;
     std::string collection_name;
 
-    // reserved: multiple data center?
+    // reserved: multiple_dc?
+    // reserved: multiple_dc_configs?
+    // reserved: reinit_after_restart_by_default?
+    // reserved: reinit_after_restart_by_cluster_config?
 };
 
 /**
@@ -53,7 +56,7 @@ struct couchbase_connection_t {
 struct ICouchbaseCoreInterface {
     virtual ~ICouchbaseCoreInterface();
 
-    // skipped: initialize_table
+    // skipped: initialize_table; table/collection is dynamic (schemaless)
 
     /**
      * @brief initialize table index implementation
@@ -70,43 +73,112 @@ struct ICouchbaseCoreInterface {
     struct _ICouchbase {
         virtual ~_ICouchbase();
 
-        // print error?
+        void print_error(couchbase::error& error, const std::string& info = "");
 
         /**
-         * @brief 
+         * @brief immediately initialize connection/s for session & cluster
          * 
-         * @note couchbase_log_level will not appear in release build
+         * @note should be call in constructor before any usage
+         * @note after cluster hit contact point, you can do other thing/s
          * 
          * @param connection 
-         * @param couchbase_log_level 0:trace 1:debug 2:info 3:warn 4:error 5:critical 6:off
+         * @param couchbase_log_level 0:trace 1:debug 2:info 3:warn 4:error 5:critical 6:off // ( default 6 ) // will not appear in release build
          * @param extra_info 
          * @return int32_t 
          */
         int32_t initialize_constructor(const couchbase_connection_t& connection, const int32_t& couchbase_log_level = 6, const char* extra_info = "");
 
+        /**
+         * @brief get the scope name from active interface connection data
+         * 
+         * @return std::string 
+         */
         std::string get_scope_name() { return ICouchbaseCoreInterface::m_connection.scope_name; }
-
+        /**
+         * @brief get the bucket name from active interface connection data
+         * 
+         * @return std::string 
+         */
         std::string get_bucket_name() { return ICouchbaseCoreInterface::m_connection.bucket_name; }
-
+        /**
+         * @brief get the collection name from active interface connection data
+         * 
+         * @return std::string 
+         */
         std::string get_collection_name() { return ICouchbaseCoreInterface::m_connection.collection_name; }
         
+        /**
+         * @brief get the cluster object
+         * 
+         * @return couchbase::cluster 
+         */
         couchbase::cluster get_cluster() { return m_cluster; }
+        /**
+         * @brief get the cluster error object
+         * 
+         * @return couchbase::error 
+         */
         couchbase::error get_cluster_error() { return m_cluster_error; }
         
-        couchbase::collection get_cluster_collection() {
+        /**
+         * @brief get this interface connected cluster bucket
+         * 
+         * @return couchbase::bucket 
+         */
+        couchbase::bucket get_cluster_bucket() {
+            return m_cluster.bucket(get_bucket_name());
+        }
+        /**
+         * @brief get this interface connected cluster bucket scope
+         * 
+         * @return couchbase::scope 
+         */
+        couchbase::scope get_cluster_bucket_scope() {
+            return m_cluster.bucket(get_bucket_name())
+                .scope(get_scope_name());
+        }
+        /**
+         * @brief get this interface connected cluster bucket scope collection
+         * 
+         * @return couchbase::collection 
+         */
+        couchbase::collection get_cluster_bucket_scope_collection() {
             return m_cluster.bucket(get_bucket_name())
                 .scope(get_scope_name())
-                .collection(get_collection_name());
+                    .collection(get_collection_name());
         }
+
+        /**
+         * @brief get the current bucket is exists object
+         * 
+         * @return int32_t 1 mean ok
+         */
+        int32_t get_current_bucket_is_exists() { return m_current_bucket_exists; };
+        /**
+         * @brief get the current bucket scope is exists object
+         * 
+         * @return int32_t 1 mean ok
+         */
+        int32_t get_current_bucket_scope_is_exists() { return m_current_bucket_scope_exists; };
+        /**
+         * @brief get the current bucket scope collection is exists object
+         * 
+         * @return int32_t 1 mean ok
+         */
+        int32_t get_current_bucket_scope_collection_is_exists() { return m_current_bucket_scope_collection_exists; };
     private:
         couchbase::cluster m_cluster;
         couchbase::error m_cluster_error;
+
+        int32_t m_current_bucket_exists;
+        int32_t m_current_bucket_scope_exists;
+        int32_t m_current_bucket_scope_collection_exists;
     };
     // couchbase interface access
     _ICouchbase ICouchbase = _ICouchbase();
 
 private:
-    INLNSTTC couchbase_connection_t m_connection;
+    INLNSTTC couchbase_connection_t m_connection; // shouldn't be modify on the runtime
 };
 
 } // namespace becc

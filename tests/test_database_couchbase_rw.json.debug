@@ -1,10 +1,18 @@
-// THIS IS DEFAULT
-// bucket_name can't be empty
 {
-    "host": "couchbase://127.0.0.1",
-    "username": "Administrator",
-    "password": "password",
-    "scope_name": "_default",
-    "bucket_name": "default",
-    "collection_name": "_default"
+    // THIS IS DEFAULT
+    // bucket_name can't be empty
+    // collection determined from object, not from this config
+    // reinit_after_restart_by_default is postpone
+    // reinit_after_restart_by_cluster_config is postpone
+    "becc_test_couchbase": {
+        "host": "couchbase://127.0.0.1",
+        "username": "Administrator",
+        "password": "password",
+        "scope_name": "scope_test",
+        "bucket_name": "becc_test_couchbase",
+        "multiple_dc": false,
+        "multiple_dc_configs": [],
+        "reinit_after_restart_by_default": false,
+        "reinit_after_restart_by_cluster_config": false
+    }
 }

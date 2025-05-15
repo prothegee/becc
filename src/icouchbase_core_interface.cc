@@ -1,18 +1,24 @@
 #include <becc/interfaces/icouchbase_core_interface.hh>
 
+#include <couchbase/management/bucket_settings.hxx>
+
 #include <iostream>
 #include <utility>
 
 namespace becc {
 #if BECC_USING_COUCHBASE_CXX_CLIENT
 ICouchbaseCoreInterface::~ICouchbaseCoreInterface() {
-    // 
-    std::cout << "TMP: ~ICouchbaseCoreInterface()\n";
 }
 
 ICouchbaseCoreInterface::_ICouchbase::~_ICouchbase() {
+    m_cluster.close().get();
+}
+
+void ICouchbaseCoreInterface::_ICouchbase::print_error(couchbase::error& error, const std::string& info) {
     // 
-    std::cout << "TMP: ~ICouchbaseCoreInterface()\n";
+    (info.empty())
+        ? std::cerr << "ERROR: " << fmt::format("{}", error) << "\n- error info is not provided\n"
+        : std::cerr << "ERROR: " << fmt::format("{}", error) << "\n- error info: " <<  info << "\n";
 }
 
 int32_t ICouchbaseCoreInterface::_ICouchbase::initialize_constructor(const couchbase_connection_t& connection, const int32_t& couchbase_log_level, const char* extra_info) {
@@ -87,32 +93,102 @@ int32_t ICouchbaseCoreInterface::_ICouchbase::initialize_constructor(const couch
 
     option.apply_profile(couchbase_cluster_profiles::wan_development);
 
-    // // fine
-    // auto [error, cluster] = couchbase::cluster::connect(connection.host, option).get();
-
-    // if (error) {
-    //     std::cout << "error! " << error.ec().message() << "\n";
-    // } else {
-    //     std::cout << "continue!\n";
-    // }
-    // // fine
-
-    // do not use this again if first is 
     auto&& connection_result = couchbase::cluster::connect(connection.host, option).get();
 
     if (connection_result.first) {
 #if BECC_IS_DEBUG
     (std::strlen(extra_info) > 0)
-        ? std::cerr << "DEBUG: \"ICouchbaseCoreInterface::_ICouchbase::initialize_constructor\" fail to connect: " << extra_info << "\"\n"
+        ? std::cerr << "DEBUG: \"ICouchbaseCoreInterface::_ICouchbase::initialize_constructor\" fail to connect: \"" << extra_info << "\" | error code: " << connection_result.first.ec().message() << "\n"
         : std::cerr << "DEBUG: \"ICouchbaseCoreInterface::_ICouchbase::initialize_constructor\" fail to connect: ( extra_info is not provided )\n";
 #endif // BECC_IS_DEBUG
         return -9;
     }
 
+    m_current_bucket_exists = 0; // false
+    m_current_bucket_scope_exists = 0; // false
+    m_current_bucket_scope_collection_exists = 0; // false
+
+    // move connection_result where connection_result can't be used again
     m_cluster = std::forward<couchbase::cluster>(connection_result.second);
     m_cluster_error = std::forward<couchbase::error>(connection_result.first);
 
+    auto bucket_manager = m_cluster.buckets();
+
+    auto buckets = bucket_manager.get_all_buckets().get();
+    auto all_buckets = buckets.second;
+
+    const int8_t MAX_BUCKET_SIZE_WARN = 3;
+    // check all buckets size
+    if (all_buckets.size() >= MAX_BUCKET_SIZE_WARN) {
+        std::cout << "NOTE: the bucket size/list is " << all_buckets.size() << ", since it's grater or equal than " << MAX_BUCKET_SIZE_WARN << "\n";
+    }
+
+    for (auto& bucket : all_buckets) {
+        if (bucket.name == connection.bucket_name) {
+            m_current_bucket_exists = 1; // true
+            break;
+        }
+    }
+
+    if (!m_current_bucket_exists) {
+        try {
+            couchbase::management::cluster::bucket_settings settings;
+
+            // in debug it's empty, but in release it shouldn't reach here
+            if (connection.bucket_name.empty()) {
+        #if BECC_IS_DEBUG
+                std::cout << "WARNING: this seems a debug and bucket name is empty, set to \"bucket_default\"\n";
+
+                settings.name = "bucket_default";
+        #else
+                std::cerr << "ERROR: it's release build, but bucket name is still empty somehow\n";
+                exit(555666);
+        #endif // BECC_IS_DEBUG
+            } else {
+                settings.name = connection.bucket_name;
+            }
+
+            bucket_manager.create_bucket(settings).get();
+        } catch (const std::exception& e) {
+            std::cerr << "FATAL: can't create \"" << connection.bucket_name << "\" bucket: " << e.what() << "\n";
+            return -69;
+        }
+    }
+
+    PRAGMA_MESSAGE("TODO?: restart if exists and con config apply reinit?")
+
+    auto bucket = m_cluster.bucket(connection.bucket_name);
+
+    auto collection_manager = bucket.collections();
+    auto all_scopes = collection_manager.get_all_scopes().get();
+
+    // check current scope & collection
+    for (auto& scope : all_scopes.second) {
+        if (scope.name == connection.scope_name) {
+            m_current_bucket_scope_exists = 1; // true
+
+            for (auto& collection : scope.collections) {
+                if (collection.name == connection.collection_name) {
+                    m_current_bucket_scope_collection_exists = 1; // true
+                    break;
+                }
+            }
+            break;
+        }
+    }
+
+    // make faill if scope not exists? but it's okay if not valid
+    // make faill if collection not exists? but it's okay if not valid & collection depend on object who controlled it when using this interface
+    // just give note warning while in debug build
 #if BECC_IS_DEBUG
+    if (!m_current_bucket_scope_exists) {
+        std::cout << "DEBUG: be warn, scope of \"" << connection.scope_name << "\" it might be new\n";
+    }
+
+    if (!m_current_bucket_scope_collection_exists) {
+        std::cout << "DEBUG: be warn, colletion of \"" << connection.collection_name << "\" it might be new\n";
+    }
+
     (std::strlen(extra_info) > 0)
         ? std::cout << "DEBUG: \"ICouchbaseCoreInterface::_ICouchbase::initialize_constructor\" connected: " << extra_info << "\"\n"
         : std::cout << "DEBUG: \"ICouchbaseCoreInterface::_ICouchbase::initialize_constructor\" connected: ( extra_info is not provided )\n";

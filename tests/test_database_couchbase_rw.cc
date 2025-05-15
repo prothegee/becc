@@ -25,26 +25,7 @@ private:
     becc::couchbase_connection_t m_conn;
 
 public:
-    BasicDbTable() {
-        const auto CONFIG = becc::utility_functions::jsoncpp::from_json_file(CONFIG_FILE);
-
-        becc::couchbase_connection_t conn;
-
-        conn.host = CONFIG["host"].asString();
-        conn.username = CONFIG["username"].asString();
-        conn.password = CONFIG["password"].asString();
-        conn.scope_name = CONFIG["scope_name"].asString();
-        conn.bucket_name = CONFIG["bucket_name"].asString();
-        conn.collection_name = CONFIG["collection_name"].asString();
-
-        // ICouchbase.initialize_constructor(conn, 1); // trace
-        ICouchbase.initialize_constructor(conn, 6); // no log
-
-        m_conn = conn;
-    }
-    ~BasicDbTable() {
-        // 
-    }
+    INLNSTTCCNST std::string TABLE_NAME = "test_rw"; // this is equivalent to collection
 
     /////////////////////////////////////////////////////////////////
 
@@ -72,6 +53,25 @@ public:
         int64_t     created_timestamp;
         std::string created_timestring;
     }; // struct table_data
+
+    /////////////////////////////////////////////////////////////////
+
+    BasicDbTable() {
+        const auto CONFIG = becc::utility_functions::jsoncpp::from_json_file(CONFIG_FILE)["becc_test_couchbase"];
+
+        m_conn.host = CONFIG["host"].asString();
+        m_conn.username = CONFIG["username"].asString();
+        m_conn.password = CONFIG["password"].asString();
+        m_conn.scope_name = CONFIG["scope_name"].asString();
+        m_conn.bucket_name = CONFIG["bucket_name"].asString();
+        m_conn.collection_name = TABLE_NAME;
+
+        // ICouchbase.initialize_constructor(conn, 1); // trace
+        ICouchbase.initialize_constructor(m_conn, 6); // no log
+    }
+    ~BasicDbTable() {
+        // 
+    }
 
     /////////////////////////////////////////////////////////////////
 
@@ -110,7 +110,7 @@ public:
         }
 
         // TMP: hold
-        auto collection = ICouchbase.get_cluster_collection();
+        auto collection = ICouchbase.get_cluster_bucket_scope_collection();
 
         auto [err, resp] = collection.upsert(
             // primary key
