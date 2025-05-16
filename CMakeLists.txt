@@ -3,8 +3,8 @@ cmake_minimum_required(VERSION 3.15)
 # package
 set(BECC_VERSION_MAJOR 0)
 set(BECC_VERSION_MINOR 17)
-set(BECC_VERSION_PATCH 4)
-set(BECC_VERSION_RELEASE_DATE 20250515)
+set(BECC_VERSION_PATCH 5)
+set(BECC_VERSION_RELEASE_DATE 20250516)
 
 # package project
 project(becc
@@ -31,13 +31,12 @@ option(BECC_BUILD_VENDOR_NANOSVG                "build vendor nanosvg" OFF)
 option(BECC_BUILD_VENDOR_ZXING_CPP              "build vendor zxing-cpp" OFF)
 ## build vendor couchbase-cxx-client, default false/OFF
 option(BECC_BUILD_VENDOR_COUCHBASE_CXX_CLIENT   "build vendor couchbase-client-cxx" OFF)
-
 ### build use vcpkg, default false/OFF
 option(BECC_BUILD_VCPKG                         "build use vcpkg" OFF)
-### build vcpkg_triplet, default false/OFF, should be string value
-option(BECC_BUILD_VCPKG_TRIPLET                 "build triplet for vcpkg" OFF)
 
 ## rules of options
+### build vcpkg_triplet, default false/OFF, should be string value
+set(BECC_BUILD_VCPKG_TRIPLET)
 
 ## build tests as bool
 if(BECC_BUILD_TESTS)

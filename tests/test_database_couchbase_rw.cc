@@ -66,8 +66,8 @@ public:
         m_conn.bucket_name = CONFIG["bucket_name"].asString();
         m_conn.collection_name = TABLE_NAME;
 
-        // ICouchbase.initialize_constructor(conn, 1); // trace
-        ICouchbase.initialize_constructor(m_conn, 6); // no log
+        ICouchbase.initialize_constructor(m_conn, 1); // trace
+        // ICouchbase.initialize_constructor(m_conn, 6); // no log
     }
     ~BasicDbTable() {
         // 
@@ -150,6 +150,9 @@ public:
     // - drop collection
     void cleanup() {
         PRAGMA_MESSAGE("TODO: this bucket/collection need to be cleanup")
+        auto collection = ICouchbase.get_bucket_collection_manager();
+
+        collection.drop_collection(m_conn.scope_name, m_conn.collection_name).get();
     }
 };
 #endif // BECC_USING_COUCHBASE_CXX_CLIENT
