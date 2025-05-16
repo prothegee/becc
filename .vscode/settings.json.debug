@@ -2,6 +2,7 @@
     "cmake.generator": "Ninja",
     "cmake.buildDirectory": "${workspaceFolder}/build/${variant:buildType}",
     "cmake.configureSettings": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": true,
         /*
         windows:
         "/std:c++17 /EHsc"

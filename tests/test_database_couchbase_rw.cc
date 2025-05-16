@@ -59,15 +59,20 @@ public:
     BasicDbTable() {
         const auto CONFIG = becc::utility_functions::jsoncpp::from_json_file(CONFIG_FILE)["becc_test_couchbase"];
 
-        m_conn.host = CONFIG["host"].asString();
-        m_conn.username = CONFIG["username"].asString();
-        m_conn.password = CONFIG["password"].asString();
-        m_conn.scope_name = CONFIG["scope_name"].asString();
-        m_conn.bucket_name = CONFIG["bucket_name"].asString();
-        m_conn.collection_name = TABLE_NAME;
+        becc::couchbase_connection_t _conn;
 
-        ICouchbase.initialize_constructor(m_conn, 1); // trace
-        // ICouchbase.initialize_constructor(m_conn, 6); // no log
+        _conn.host = CONFIG["host"].asString();
+        _conn.username = CONFIG["username"].asString();
+        _conn.password = CONFIG["password"].asString();
+        _conn.scope_name = CONFIG["scope_name"].asString();
+        _conn.bucket_name = CONFIG["bucket_name"].asString();
+        _conn.collection_name = TABLE_NAME;
+
+        // copy it first
+        m_conn = _conn;
+
+        // ICouchbase.initialize_constructor(_conn, 1); // trace
+        ICouchbase.initialize_constructor(_conn, 6); // no log
     }
     ~BasicDbTable() {
         // 
@@ -149,10 +154,11 @@ public:
     // this function will:
     // - drop collection
     void cleanup() {
-        PRAGMA_MESSAGE("TODO: this bucket/collection need to be cleanup")
         auto collection = ICouchbase.get_bucket_collection_manager();
 
-        collection.drop_collection(m_conn.scope_name, m_conn.collection_name).get();
+        auto delres = collection.drop_collection(m_conn.scope_name, m_conn.collection_name).get();
+
+        std::cout << "cleanup: " << delres.ec().message() << "\n";
     }
 };
 #endif // BECC_USING_COUCHBASE_CXX_CLIENT
