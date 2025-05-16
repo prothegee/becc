@@ -1,0 +1,45 @@
+{
+    "version": 3,
+    "configurePresets": [
+        {
+            "name": "debug - linux full",
+            "displayName": "Debug",
+            "binaryDir": "${sourceDir}/build/debug",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "BECC_BUILD_TESTS": true,
+                "BECC_BUILD_TOOLS": true,
+                "BECC_BUILD_VENDOR_STB": true,
+                "BECC_BUILD_VENDOR_SDL3": true,
+                "BECC_BUILD_VENDOR_HARU": true,
+                "BECC_BUILD_VENDOR_NANOSVG": true,
+                "BECC_BUILD_VENDOR_ZXING_CPP": true,
+                "BECC_BUILD_VENDOR_COUCHBASE_CXX_CLIENT": true,
+                "BECC_BUILD_VCPKG": false,
+                "BECC_BUILD_VCPKG_TRIPLET": ""
+            }
+        },
+        {
+            "name": "debug - windows+vcpkg full",
+            "displayName": "Debug",
+            "binaryDir": "${sourceDir}/build/debug",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "BECC_BUILD_TESTS": true,
+                "BECC_BUILD_TOOLS": true,
+                "BECC_BUILD_VENDOR_STB": true,
+                "BECC_BUILD_VENDOR_SDL3": true,
+                "BECC_BUILD_VENDOR_HARU": true,
+                "BECC_BUILD_VENDOR_NANOSVG": true,
+                "BECC_BUILD_VENDOR_ZXING_CPP": true,
+                "BECC_BUILD_VENDOR_COUCHBASE_CXX_CLIENT": true,
+                "BECC_BUILD_VCPKG": true,
+                "BECC_BUILD_VCPKG_TRIPLET": "x64-windows"
+            }
+        }
+    ]
+}
