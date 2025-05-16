@@ -336,18 +336,18 @@ std::string to_string_second_offset(const int32_t& seconds_offset = 0);
 
 } // namespace YYYYMMDDhhmmssms
 
-namespace YYYYMMDDhhmmssµs {
+namespace YYYYMMDDhhmmssus {
 
 /**
- * @brief convert YYYYMMDDhhmmssµs to millis
+ * @brief convert YYYYMMDDhhmmssus to millis
  *
- * @param YYYYMMDDhhmmssµs
+ * @param YYYYMMDDhhmmssus
  * @return int64_t
  */
-int64_t to_millis(const std::string& YYYYMMDDhhmmssµs);
+int64_t to_millis(const std::string& YYYYMMDDhhmmssus);
 
 /**
- * @brief get YYYYMMDDhhmmssµs as millis
+ * @brief get YYYYMMDDhhmmssus as millis
  *
  * @param time_offset
  * @return int64_t
@@ -355,16 +355,16 @@ int64_t to_millis(const std::string& YYYYMMDDhhmmssµs);
 int64_t to_millis_now(const int32_t& time_offset = 0);
 
 /**
- * @brief YYYYMMDDhhmmssµs to milis timestring, as YYYY-MM-DDThh:mm:ss.xxxxxx or YYYY-MM-DD hh:mm:ss.xxxxx if use_time_sign = false
+ * @brief YYYYMMDDhhmmssus to milis timestring, as YYYY-MM-DDThh:mm:ss.xxxxxx or YYYY-MM-DD hh:mm:ss.xxxxx if use_time_sign = false
  *
- * @param YYYYMMDDhhmmssµs
+ * @param YYYYMMDDhhmmssus
  * @param use_time_sign
  * @return std::string
  */
-std::string to_millis_string(const int64_t& YYYYMMDDhhmmssµs, const bool& use_time_sign = false);
+std::string to_millis_string(const int64_t& YYYYMMDDhhmmssus, const bool& use_time_sign = false);
 
 /**
- * @brief get YYYYMMDDhhmmssµs as is string
+ * @brief get YYYYMMDDhhmmssus as is string
  *
  * @param time_offset
  * @return std::string
@@ -372,7 +372,7 @@ std::string to_millis_string(const int64_t& YYYYMMDDhhmmssµs, const bool& use_t
 std::string to_string(const int32_t& time_offset = 0);
 
 /**
- * @brief get YYYYMMDDhhmmssµs as YYYY-MM-DDThh:mm:ss.ssssss or YYYY-MM-DD hh:mm:ss.ssssss if use_time_sign = false
+ * @brief get YYYYMMDDhhmmssus as YYYY-MM-DDThh:mm:ss.ssssss or YYYY-MM-DD hh:mm:ss.ssssss if use_time_sign = false
  *
  * @param time_offset
  * @param use_time_sign
@@ -381,14 +381,14 @@ std::string to_string(const int32_t& time_offset = 0);
 std::string to_string_human(const int32_t& time_offset = 0, const bool& use_time_sign = false);
 
 /**
- * @brief get YYYYMMDDhhmmssµs without time offset limit
+ * @brief get YYYYMMDDhhmmssus without time offset limit
  *
  * @param seconds_offset
  * @return std::string
  */
 std::string to_string_second_offset(const int32_t& seconds_offset = 0);
 
-} // namespace YYYYMMDDhhmmssµs
+} // namespace YYYYMMDDhhmmssus
 
 namespace YYYYMMDDhhmmssns {
 

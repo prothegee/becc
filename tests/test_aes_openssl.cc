@@ -18,5 +18,5 @@ int main() {
     std::cout << "passed: message is original\n";
 #endif // BECC_USING_OPENSSL
 
-    return 1;
+    return 0;
 }

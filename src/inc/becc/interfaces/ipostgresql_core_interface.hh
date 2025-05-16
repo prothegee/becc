@@ -2,13 +2,14 @@
 #define BECC_IPOSTGRESQL_CORE_INTERFACE_HH
 #include <becc/becc.hh>
 
-namespace becc {
 #if BECC_USING_POSTGRESQL
 #if BECC_USING_VCPKG
 #include <libpq-fe.h>
 #else
 #include <postgresql/libpq-fe.h>
 #endif // BECC_USING_VCPKG
+
+namespace becc {
 
 /**
  * @brief postgresql connection type structure
@@ -87,14 +88,14 @@ struct IPostgreSqlCoreInterface {
     private:
         PGconn* m_pConn = nullptr;
     };
-    // postgresqk interface access
+    // postgresql interface access
     _IPostgreSQL IPostgreSQL = _IPostgreSQL();
 
 private:
     INLNSTTC postgresql_connection_t m_connection;
 };
 
-#endif // BECC_USING_POSTGRESQL
 } // namespace becc
+#endif // BECC_USING_POSTGRESQL
 
 #endif // BECC_IPOSTGRESQL_CORE_INTERFACE_HH

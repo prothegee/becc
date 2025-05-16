@@ -40,6 +40,20 @@ add_executable(test_date_and_time test_date_and_time.cc)
 target_link_libraries(test_date_and_time PRIVATE becc becc_static)
 message(NOTICE "-- becc: adding test_date_and_time")
 
+# test_database_couchbase_rw
+if(BECC_USING_COUCHBASE_CXX_CLIENT)
+    add_executable(test_database_couchbase_rw test_database_couchbase_rw.cc)
+    target_link_libraries(test_database_couchbase_rw becc becc_static)
+    message(NOTICE "-- becc: adding test_database_couchbase_rw")
+endif()
+
+# test_database_scylla_rw
+if(BECC_USING_SCYLLADB)
+    add_executable(test_database_scylla_rw test_database_scylla_rw.cc)
+    target_link_libraries(test_database_scylla_rw becc becc_static)
+    message(NOTICE "-- becc: adding test_database_scylla_rw")
+endif()
+
 # test_file_enc_dec
 if(BECC_USING_OPENSSL)
     add_executable(test_file_enc_dec test_file_enc_dec.cc)

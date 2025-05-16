@@ -127,12 +127,17 @@ int32_t IScyllaDbCoreInterface::_IScyllaDb::initialize_constructor(const scyllad
     }
 
     if (cass_future_error_code(m_pCassFuture) != CASS_OK) {
-        std::cerr << "ERROR: \"IScyllaDbCoreInterface::_IScyllaDb::initialize_constructor\" fail to make connection on: \"" << extra_info << "\"\n";
+        std::cerr << "ERROR: \"IScyllaDbCoreInterface::_IScyllaDb::initialize_constructor\" fail to make connection\n";
+        print_error(m_pCassFuture, extra_info);
         return -2;
     }
 
 #if BECC_IS_DEBUG
-    std::cout << "DEBUG: \"IScyllaDbCoreInterface::_IScyllaDb::initialize_constructor\" connected \"" << extra_info << "\"\n";
+    (std::strlen(extra_info) > 0)
+        ? std::cout << "DEBUG: \
+        \"IScyllaDbCoreInterface::_IScyllaDb::initialize_constructor\" connected: " << extra_info << "\n"
+        : std::cout << "DEBUG: \
+        \"IScyllaDbCoreInterface::_IScyllaDb::initialize_constructor\" connected ( extra_info is not provided )\n";
 #endif // BECC_IS_DEBUG
 
     return 1;
@@ -224,13 +229,18 @@ CassError IScyllaDbCoreInterface::_IScyllaDb::execute_cqlsh(CassSession* pCassSe
 
     if (status != CASS_OK) {
 #if BECC_IS_DEBUG
-        std::cout << "DEBUG: execute_cqlsh: fail, note \"" << note << "\"\n";
+        // std::cout << "DEBUG: execute_cqlsh: fail, note \"" << note << "\"\n";
+        (std::strlen(note) > 0)
+            ? std::cout << "DEBUG: execute_cqlsh: fail, note: " << note << "\n"
+            : std::cout << "DEBUG: execute_cqlsh: fail ( note is not provided )\n";
 #endif // BECC_IS_DEBUG
         print_error(pFuture, note);
         return status;
     } else {
 #if BECC_IS_DEBUG
-        std::cout << "DEBUG: execute_cqlsh: ok, note \"" << note << "\"\n";
+        (std::strlen(note) > 0)
+            ? std::cout << "DEBUG: execute_cqlsh: ok, note: " << note << "\n"
+            : std::cout << "DEBUG: execute_cqlsh: ok ( note is not provided )\n";
 #endif // BECC_IS_DEBUG
     }
 

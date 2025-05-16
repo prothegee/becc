@@ -2,11 +2,11 @@
 #define BECC_ISCYLLADB_CORE_INTERFACE_HH
 #include <becc/becc.hh>
 
-namespace becc {
 #if BECC_USING_SCYLLADB
+#include <cassandra.h>
 #include <becc/types/auth_type.hh>
 
-#include <cassandra.h>
+namespace becc {
 
 /**
  * @brief scylladb auth mode enum
@@ -90,6 +90,38 @@ INLNSTTCCNST std::string SCYLLADB_TOPOLOGY_STRAT_SIMPLE_STRATEGY_HINT = "SimpleS
 INLNSTTCCNST std::string SCYLLADB_TOPOLOGY_STRAT_NETWORK_TOPOLOGY_STRATEGY_HINT = "NetworkTopologyStrategy"; // NetworkTopologyStrategy
 INLNSTTCCNST std::string SCYLLADB_TOPOLOGY_STRAT_LOCAL_STRATEGY_HINT = "LocalStrategy";                      // LocalStrategy
 INLNSTTCCNST std::string SCYLLADB_TOPOLOGY_STRAT_EVERYWHERE_STRATEGY_HINT = "EverywhereStrategy";            // EverywhereStrategy
+
+/**
+ * @brief convert scylladb_topology_strat enum to string
+ * 
+ * @param topology_strat_enum 
+ * @return std::string 
+ */
+INLNSTTC std::string scylladb_topology_strat_to_string(const scylladb_topology_strat_e& topology_strat_enum) {
+    std::string result = "";
+
+    switch (topology_strat_enum) {
+    case SCYLLADB_TOPOLOGY_STRAT_SIMPLE_STRATEGY: {
+        result = SCYLLADB_TOPOLOGY_STRAT_SIMPLE_STRATEGY_HINT;
+    } break;
+    case SCYLLADB_TOPOLOGY_STRAT_NETWORK_TOPOLOGY_STRATEGY: {
+        result = SCYLLADB_TOPOLOGY_STRAT_NETWORK_TOPOLOGY_STRATEGY_HINT;
+    } break;
+    case SCYLLADB_TOPOLOGY_STRAT_LOCAL_STRATEGY: {
+        result = SCYLLADB_TOPOLOGY_STRAT_LOCAL_STRATEGY_HINT;
+    } break;
+    case SCYLLADB_TOPOLOGY_STRAT_EVERYWHERE_STRATEGY: {
+        result = SCYLLADB_TOPOLOGY_STRAT_EVERYWHERE_STRATEGY_HINT;
+    } break;
+    default: {
+        result = SCYLLADB_TOPOLOGY_STRAT_UNDEFINED_HINT;
+    } break;
+    }
+
+    return result;
+}
+
+// reserved: scylladb_topology_strat_to_enum
 
 ////////////////////////////////////////////////
 
@@ -271,7 +303,7 @@ struct IScyllaDbCoreInterface {
          * @param note
          * @return CassError
          */
-        CassError execute_cqlsh(CassSession* pCassSession, const char* query, const char* note);
+        CassError execute_cqlsh(CassSession* pCassSession, const char* query, const char* note = "");
 
     private:
         CassFuture* m_pCassFuture = nullptr;
@@ -287,7 +319,7 @@ private:
     INLNSTTC scylladb_connection_t m_connection;
 };
 
-#endif // BECC_USING_SCYLLADB
 } // namespace becc
+#endif // BECC_USING_SCYLLADB
 
 #endif // BECC_ISCYLLADB_CORE_INTERFACE_HH

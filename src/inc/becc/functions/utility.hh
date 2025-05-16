@@ -16,6 +16,11 @@
 #include <json/json.h>
 #endif // BECC_USING_JSONCPP
 
+#if BECC_USING_COUCHBASE_CXX_CLIENT
+#include <tao/json.hpp>
+#include <tao/json/contrib/traits.hpp>
+#endif // BECC_USING_COUCHBASE_CXX_CLIENT
+
 namespace becc {
 namespace utility_functions {
 
@@ -320,6 +325,74 @@ int32_t save_to_json(const Json::Value& input, const std::string& output_file_pa
 
 } // namespace jsoncpp
 #endif // BECC_USING_JSONCPP
+
+#if BECC_USING_COUCHBASE_CXX_CLIENT
+namespace jsontao {
+
+/**
+ * @brief read json input and convert to string
+ *
+ * @note jsontao doesn't provide precision
+ *
+ * @param input
+ * @param indent
+ * @param precision
+ * @return std::string
+ */
+std::string to_string(const tao::json::value& input, const int32_t& indent = 4, const int32_t& precision = 16);
+
+/**
+ * @brief read csv from file path and convert it to json array
+ *
+ * @param csv_file_path
+ * @return tao::json::value
+ */
+tao::json::value from_csv_file(const std::string& csv_file_path);
+
+/**
+ * @brief read json from file path and convert it to json object as is
+ *
+ * @param json_file_path
+ * @return tao::json::value
+ */
+tao::json::value from_json_file(const std::string& json_file_path);
+
+/**
+ * @brief convert json from json string input
+ *
+ * @note jsontao doesn't provide precision
+ *
+ * @param input
+ * @param indent
+ * @param precision
+ * @return tao::json::value
+ */
+tao::json::value from_string(const std::string& input, const int32_t& indent = 4, const int32_t& precision = 16);
+
+/**
+ * @brief save json input to output param as .csv
+ *
+ * @param input
+ * @param output_file_path literal required correct extension file
+ * @return int32_t 1 mean ok
+ */
+int32_t save_to_csv(const tao::json::value& input, const std::string& output_file_path);
+
+/**
+ * @brief save json input to output param as .
+ *
+ * @note jsontao doesn't provide precision
+ *
+ * @param input
+ * @param output_file_path literal required correct extension file
+ * @param indent
+ * @param precision
+ * @return int32_t 1 mean ok
+ */
+int32_t save_to_json(const tao::json::value& input, const std::string& output_file_path, const int32_t& indent = 4, const int32_t& precision = 16);
+
+} // namespace jsontao
+#endif // BECC_USING_COUCHBASE_CXX_CLIENT
 
 namespace read {
 

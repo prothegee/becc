@@ -1,0 +1,49 @@
+{
+    "becc_test_scylladb":
+    {
+        "keyspace": "becc_test_scylladb",
+        // 0:undefined 1:SimpleStrategy 2:NetworkTopologyStrategy 3:LocalStrategy 4:EverywhereStrategy
+        "strategy": 3,
+        "connection":
+        {
+            // 0:undefined 1:AllowAllAuthenticator 2:PasswordAuthenticator 3:com.scylladb.auth.TransitionalAuthenticator
+            "auth": 2,
+            "hosts":
+            [
+                "127.0.0.1"
+            ],
+            // CHANGE_THIS_IF_REQUIRED_OR_LET_IT_EMPTY
+            "username": "",
+            // CHANGE_THIS_IF_REQUIRED_OR_LET_IT_EMPTY
+            "password": "" 
+        },
+        "factors_configs": // array index is set by strategy
+        [
+            // expected for: undefined
+            [
+                ""
+            ],
+            // expected for: SimpleStrategy
+            [
+                "'replication_factor': 3"
+            ],
+            // expected for: NetworkTopologyStrategy
+            [
+                "'replication_factor': 1"
+            ],
+            // expected for: LocalStrategy
+            [
+                "'replication_factor': 3"
+            ],
+            // expected for: EverywhereStrategy
+            [
+                "'replication_factor': 3"
+            ]
+        ],
+        // if true, factors_configs_extra will be use
+        // replication factor need to be specific across datacenter/s
+        "multiple_datacenters": false,
+        // will ignore if length is 0 & only applied with multiple data center
+        "factors_configs_extra": "'dc1': 3, 'dc2': 3, 'dc3': 3"
+    }
+}

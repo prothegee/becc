@@ -1261,22 +1261,22 @@ std::string to_string_second_offset(const int32_t& seconds_offset) {
 
 } // namespace YYYYMMDDhhmmssms
 
-namespace YYYYMMDDhhmmssµs {
+namespace YYYYMMDDhhmmssus {
 
-int64_t to_millis(const std::string& YYYYMMDDhhmmssµs) {
+int64_t to_millis(const std::string& YYYYMMDDhhmmssus) {
     int64_t result;
 
     std::tm time = {};
-    std::istringstream ss(YYYYMMDDhhmmssµs);
+    std::istringstream ss(YYYYMMDDhhmmssus);
 
-    if (YYYYMMDDhhmmssµs.find("T") != std::string::npos) {
+    if (YYYYMMDDhhmmssus.find("T") != std::string::npos) {
         ss >> std::get_time(&time, "%Y-%m-%dT%H:%M:%S");
     } else {
         ss >> std::get_time(&time, "%Y-%m-%d %H:%M:%S");
     }
 
     if (ss.fail()) {
-        throw std::runtime_error("ERROR YYYYMMDDhhmmssµs: Failed to parse time string");
+        throw std::runtime_error("ERROR YYYYMMDDhhmmssus: Failed to parse time string");
     }
 
     time_t time_since_epoch = mktime(&time);
@@ -1296,8 +1296,8 @@ int64_t to_millis_now(const int32_t& time_offset) {
     return duration.count();
 }
 
-std::string to_millis_string(const int64_t& YYYYMMDDhhmmssµs, const bool& use_time_sign) {
-    std::chrono::system_clock::time_point tp{std::chrono::microseconds{YYYYMMDDhhmmssµs}};
+std::string to_millis_string(const int64_t& YYYYMMDDhhmmssus, const bool& use_time_sign) {
+    std::chrono::system_clock::time_point tp{std::chrono::microseconds{YYYYMMDDhhmmssus}};
     time_t tt = std::chrono::system_clock::to_time_t(tp);
     std::tm* tm = std::gmtime(&tt);
     std::stringstream ss;
@@ -1410,7 +1410,7 @@ std::string to_string_second_offset(const int32_t& seconds_offset) {
     return result;
 }
 
-} // namespace YYYYMMDDhhmmssµs
+} // namespace YYYYMMDDhhmmssus
 
 namespace YYYYMMDDhhmmssns {
 
