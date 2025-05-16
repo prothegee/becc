@@ -57,6 +57,9 @@
         "BECC_BUILD_VCPKG": false,
         "BECC_BUILD_VCPKG_TRIPLET": "",
 
+        // "CMAKE_C_COMPILER_LAUNCHER": "ccache", // optional, for historical record
+        // "CMAKE_CXX_COMPILER_LAUNCHER": "ccache", // optional, for historical record
+
         "_": "don't use me"
     },
     "workbench.colorCustomizations": {

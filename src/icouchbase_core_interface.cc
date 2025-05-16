@@ -170,17 +170,13 @@ int32_t ICouchbaseCoreInterface::_ICouchbase::initialize_constructor(couchbase_c
         }
     }
 
-    // make faill if scope not exists? but it's okay if not valid
-    // make faill if collection not exists? but it's okay if not valid & collection depend on object who controlled it when using this interface
-    // just give note warning while in debug build
-
     if (!m_current_bucket_scope_exists) {
-        std::cout << "DEBUG: be warn, scope of \"" << m_connection.scope_name << "\" not exists, creating the new one by default\n";
+        std::cout << "NOTE: be warn, scope of \"" << m_connection.scope_name << "\" not exists, creating the new one by default\n";
         collection_manager.create_scope(m_connection.scope_name).get();
     }
 
     if (!m_current_bucket_scope_collection_exists) {
-        std::cout << "DEBUG: be warn, colletion of \"" << m_connection.collection_name << "\" not exists, creating the new one by default\n";
+        std::cout << "NOTE: be warn, colletion of \"" << m_connection.collection_name << "\" not exists, creating the new one by default\n";
         collection_manager.create_collection(m_connection.scope_name, m_connection.collection_name).get();
     }
 
@@ -189,6 +185,39 @@ int32_t ICouchbaseCoreInterface::_ICouchbase::initialize_constructor(couchbase_c
         ? std::cout << "DEBUG: \"ICouchbaseCoreInterface::_ICouchbase::initialize_constructor\" connected: " << extra_info << "\"\n"
         : std::cout << "DEBUG: \"ICouchbaseCoreInterface::_ICouchbase::initialize_constructor\" connected: ( extra_info is not provided )\n";
 #endif // BECC_IS_DEBUG
+
+    return 1;
+}
+
+
+int32_t ICouchbaseCoreInterface::_ICouchbase::execute_sqlpp(const std::string& query, std::pair<couchbase::error, couchbase::query_result>& data_to_pass, const bool_t& consistent) {
+    try {
+        (!consistent)
+            ? data_to_pass = m_cluster.query(query, {}).get()
+            : data_to_pass = m_cluster.query(query, couchbase::query_options().scan_consistency(couchbase::query_scan_consistency::request_plus)).get();
+
+        if (data_to_pass.first) {
+            std::cerr << "ERROR: query fail ec " << data_to_pass.first.ec().message() << "\n";
+            return -1;
+        }
+
+    } catch(const std::exception& e) {
+        std::cerr << "ERROR execute_sqlpp: " << e.what() << '\n';
+        return -69;
+    }
+
+    return 1;
+}
+
+int32_t ICouchbaseCoreInterface::_ICouchbase::execute_sqlpp_future(const std::string& query, std::future<std::pair<couchbase::error, couchbase::query_result>>& data_to_pass, const bool_t& consistent) {
+    try {
+        (consistent)
+            ? data_to_pass = m_cluster.query(query, {})
+            : data_to_pass = m_cluster.query(query, couchbase::query_options().scan_consistency(couchbase::query_scan_consistency::request_plus));
+    } catch(const std::exception& e) {
+        std::cerr << "ERROR execute_sqlpp_future: " << e.what() << '\n';
+        return -69;
+    }
 
     return 1;
 }

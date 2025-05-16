@@ -191,6 +191,28 @@ struct ICouchbaseCoreInterface {
          * @return int32_t 1 mean ok
          */
         int32_t get_current_bucket_scope_collection_is_exists() { return m_current_bucket_scope_collection_exists; };
+
+        /**
+         * @brief immediately execute sql++ (N1QL)
+         * 
+         * @param query 
+         * @param data_to_pass 
+         * @param consistent default false, performance first | true, trade of with data scan consistency
+         * @return int32_t 1 mean ok
+         */
+        int32_t execute_sqlpp(const std::string& query, std::pair<couchbase::error, couchbase::query_result>& data_to_pass, const bool_t& consistent = false);
+        /**
+         * @brief execute sql++ (N1QL) with future object to pass
+         * 
+         * @note mostly true, unless exception happen
+         * @note you handle the future object at your implementation
+         * 
+         * @param query 
+         * @param data_to_pass future object
+         * @param consistent default false, performance first | true, trade of with data scan consistency
+         * @return int32_t 1 mean ok
+         */
+        int32_t execute_sqlpp_future(const std::string& query, std::future<std::pair<couchbase::error, couchbase::query_result>>& data_to_pass, const bool_t& consistent);
     private:
         couchbase_connection_t m_connection; // shouldn't be modify at the runtime
 
@@ -201,7 +223,11 @@ struct ICouchbaseCoreInterface {
         int32_t m_current_bucket_scope_exists;
         int32_t m_current_bucket_scope_collection_exists;
     };
-    // couchbase interface access
+    /**
+     * @brief couchbase interface access
+     * 
+     * @note if you want raw query, use get_cluster first then do .query
+     */
     _ICouchbase ICouchbase = _ICouchbase();
 };
 
