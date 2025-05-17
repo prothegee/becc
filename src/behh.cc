@@ -9,5 +9,5 @@
 #include <iostream>
 #include <system_error>
 
-namespace becc {
-} // namespace becc
+namespace behh {
+} // namespace behh

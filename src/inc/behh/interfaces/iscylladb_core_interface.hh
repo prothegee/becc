@@ -1,12 +1,12 @@
-#ifndef BECC_ISCYLLADB_CORE_INTERFACE_HH
-#define BECC_ISCYLLADB_CORE_INTERFACE_HH
-#include <becc/becc.hh>
+#ifndef BEHH_ISCYLLADB_CORE_INTERFACE_HH
+#define BEHH_ISCYLLADB_CORE_INTERFACE_HH
+#include "../pch.hh"
 
-#if BECC_USING_SCYLLADB
+#if BEHH_USING_SCYLLADB
 #include <cassandra.h>
-#include <becc/types/auth_type.hh>
+#include <behh/types/auth_type.hh>
 
-namespace becc {
+namespace behh {
 
 /**
  * @brief scylladb auth mode enum
@@ -319,7 +319,7 @@ private:
     INLNSTTC scylladb_connection_t m_connection;
 };
 
-} // namespace becc
-#endif // BECC_USING_SCYLLADB
+} // namespace behh
+#endif // BEHH_USING_SCYLLADB
 
-#endif // BECC_ISCYLLADB_CORE_INTERFACE_HH
+#endif // BEHH_ISCYLLADB_CORE_INTERFACE_HH

@@ -1,12 +1,12 @@
-#include <becc/interfaces/icouchbase_core_interface.hh>
+#include <behh/interfaces/icouchbase_core_interface.hh>
 
 #include <couchbase/management/bucket_settings.hxx>
 
 #include <iostream>
 #include <utility>
 
-namespace becc {
-#if BECC_USING_COUCHBASE_CXX_CLIENT
+namespace behh {
+#if BEHH_USING_COUCHBASE_CXX_CLIENT
 ICouchbaseCoreInterface::~ICouchbaseCoreInterface() {
 }
 
@@ -15,14 +15,14 @@ ICouchbaseCoreInterface::_ICouchbase::~_ICouchbase() {
 }
 
 int32_t ICouchbaseCoreInterface::_ICouchbase::initialize_constructor(couchbase_connection_t& conn, const int32_t& couchbase_log_level, const char* extra_info) {
-#if BECC_IS_DEBUG
+#if BEHH_IS_DEBUG
     if (couchbase_log_level > -1 || couchbase_log_level < 7) {
         couchbase::logger::initialize_console_logger();
         couchbase::logger::set_level((couchbase::logger::log_level)couchbase_log_level);
     }
-#endif // BECC_IS_DEBUG
+#endif // BEHH_IS_DEBUG
 
-#if BECC_IS_DEBUG
+#if BEHH_IS_DEBUG
     if (conn.host.empty()) {
         std::cout << "DEBUG: warning, conn.host is empty\n";
     }
@@ -36,8 +36,8 @@ int32_t ICouchbaseCoreInterface::_ICouchbase::initialize_constructor(couchbase_c
     if (conn.scope_name.empty()) {
         std::cout << "DEBUG: warning, conn.scope_name is empty\n";
     }
-    if (conn.bucket_name.empty()) {
-        std::cout << "DEBUG: warning, conn.bucket_name is empty\n";
+    if (conn.cluster_bucket_name.empty()) {
+        std::cout << "DEBUG: warning, conn.cluster_bucket_name is empty\n";
     }
     if (conn.collection_name.empty()) {
         std::cout << "DEBUG: warning, conn.collection_name is empty\n";
@@ -62,15 +62,15 @@ int32_t ICouchbaseCoreInterface::_ICouchbase::initialize_constructor(couchbase_c
         std::cerr << "ERROR: conn.scope_name can't empty\n";
         return -4;
     }
-    if (conn.bucket_name.empty()) {
-        std::cerr << "ERROR: conn.bucket_name can't empty\n";
+    if (conn.cluster_bucket_name.empty()) {
+        std::cerr << "ERROR: conn.cluster_bucket_name can't empty\n";
         return -5;
     }
     if (conn.collection_name.empty()) {
         std::cerr << "ERROR: conn.collection_name can't empty\n";
         return -7;
     }
-#endif // BECC_IS_DEBUG
+#endif // BEHH_IS_DEBUG
 
     // move connection paramater to member data
     { // std::forward<couchbase::cluster>(connection_result.second);
@@ -78,7 +78,7 @@ int32_t ICouchbaseCoreInterface::_ICouchbase::initialize_constructor(couchbase_c
         m_connection.username = std::forward<std::string>(conn.username);
         m_connection.password = std::forward<std::string>(conn.password);
         m_connection.scope_name = std::forward<std::string>(conn.scope_name);
-        m_connection.bucket_name = std::forward<std::string>(conn.bucket_name);
+        m_connection.cluster_bucket_name = std::forward<std::string>(conn.cluster_bucket_name);
         m_connection.collection_name = std::forward<std::string>(conn.collection_name);
     }
 
@@ -89,11 +89,11 @@ int32_t ICouchbaseCoreInterface::_ICouchbase::initialize_constructor(couchbase_c
     auto&& connection_result = couchbase::cluster::connect(m_connection.host, option).get();
 
     if (connection_result.first) {
-#if BECC_IS_DEBUG
+#if BEHH_IS_DEBUG
     (std::strlen(extra_info) > 0)
         ? std::cerr << "DEBUG: \"ICouchbaseCoreInterface::_ICouchbase::initialize_constructor\" fail to connect: \"" << extra_info << "\" | error code: " << connection_result.first.ec().message() << "\n"
         : std::cerr << "DEBUG: \"ICouchbaseCoreInterface::_ICouchbase::initialize_constructor\" fail to connect: ( extra_info is not provided )\n";
-#endif // BECC_IS_DEBUG
+#endif // BEHH_IS_DEBUG
         return -9;
     }
 
@@ -117,7 +117,7 @@ int32_t ICouchbaseCoreInterface::_ICouchbase::initialize_constructor(couchbase_c
     }
 
     for (auto& bucket : all_buckets) {
-        if (bucket.name == m_connection.bucket_name) {
+        if (bucket.name == m_connection.cluster_bucket_name) {
             m_current_bucket_exists = 1; // true
             break;
         }
@@ -128,29 +128,29 @@ int32_t ICouchbaseCoreInterface::_ICouchbase::initialize_constructor(couchbase_c
             couchbase::management::cluster::bucket_settings settings;
 
             // in debug it's empty, but in release it shouldn't reach here
-            if (m_connection.bucket_name.empty()) {
-        #if BECC_IS_DEBUG
+            if (m_connection.cluster_bucket_name.empty()) {
+        #if BEHH_IS_DEBUG
                 std::cout << "WARNING: this seems a debug and bucket name is empty, set to \"bucket_default\"\n";
 
                 settings.name = "bucket_default";
         #else
                 std::cerr << "ERROR: it's release build, but bucket name is still empty somehow\n";
                 exit(555666);
-        #endif // BECC_IS_DEBUG
+        #endif // BEHH_IS_DEBUG
             } else {
-                settings.name = m_connection.bucket_name;
+                settings.name = m_connection.cluster_bucket_name;
             }
 
             bucket_manager.create_bucket(settings).get();
         } catch (const std::exception& e) {
-            std::cerr << "FATAL: can't create \"" << m_connection.bucket_name << "\" bucket: " << e.what() << "\n";
+            std::cerr << "FATAL: can't create \"" << m_connection.cluster_bucket_name << "\" bucket: " << e.what() << "\n";
             return -69;
         }
     }
 
     PRAGMA_MESSAGE("TODO?: restart if exists and con config apply reinit?")
 
-    auto bucket = m_cluster.bucket(m_connection.bucket_name);
+    auto bucket = m_cluster.bucket(m_connection.cluster_bucket_name);
 
     auto collection_manager = bucket.collections();
     auto all_scopes = collection_manager.get_all_scopes().get();
@@ -180,11 +180,11 @@ int32_t ICouchbaseCoreInterface::_ICouchbase::initialize_constructor(couchbase_c
         collection_manager.create_collection(m_connection.scope_name, m_connection.collection_name).get();
     }
 
-#if BECC_IS_DEBUG
+#if BEHH_IS_DEBUG
     (std::strlen(extra_info) > 0)
         ? std::cout << "DEBUG: \"ICouchbaseCoreInterface::_ICouchbase::initialize_constructor\" connected: " << extra_info << "\"\n"
         : std::cout << "DEBUG: \"ICouchbaseCoreInterface::_ICouchbase::initialize_constructor\" connected: ( extra_info is not provided )\n";
-#endif // BECC_IS_DEBUG
+#endif // BEHH_IS_DEBUG
 
     return 1;
 }
@@ -221,5 +221,5 @@ int32_t ICouchbaseCoreInterface::_ICouchbase::execute_sqlpp_future(const std::st
 
     return 1;
 }
-#endif // BECC_USING_COUCHBASE_CXX_CLIENT
-} // namespace becc
+#endif // BEHH_USING_COUCHBASE_CXX_CLIENT
+} // namespace behh

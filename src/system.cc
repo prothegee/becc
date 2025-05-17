@@ -1,8 +1,8 @@
-#include <becc/functions/system.hh>
+#include <behh/functions/system.hh>
 
 #include <iostream>
 
-namespace becc {
+namespace behh {
 namespace system_functions {
 
 int32_t is_port_available(const int32_t& port) {
@@ -38,4 +38,4 @@ int32_t is_port_available(const int32_t& port) {
 }
 
 } // namespace system_functions
-} // namespace becc
+} // namespace behh

@@ -1,9 +1,9 @@
-#include <becc/becc.hh>
+#include <behh/pch.hh>
 
-#if BECC_USING_COUCHBASE_CXX_CLIENT
-#include <becc/functions/date_and_time.hh>
-#include <becc/functions/utility.hh>
-#include <becc/interfaces/icouchbase_core_interface.hh>
+#if BEHH_USING_COUCHBASE_CXX_CLIENT
+#include <behh/functions/date_and_time.hh>
+#include <behh/functions/utility.hh>
+#include <behh/interfaces/icouchbase_core_interface.hh>
 
 #include <spdlog/fmt/bundled/core.h>
 
@@ -20,9 +20,9 @@
 INLNSTTCCNST std::string CONFIG_FILE = "../../../tests/test_database_couchbase_rw.json";
 
 std::mutex print_mutex;
-class BasicDbTable : public becc::ICouchbaseCoreInterface {
+class BasicDbTable : public behh::ICouchbaseCoreInterface {
 private:
-    becc::couchbase_connection_t m_conn;
+    behh::couchbase_connection_t m_conn;
 
 public:
     INLNSTTCCNST std::string TABLE_NAME = "test_rw"; // this is equivalent to collection
@@ -57,16 +57,17 @@ public:
     /////////////////////////////////////////////////////////////////
 
     BasicDbTable() {
-        const auto CONFIG = becc::utility_functions::jsoncpp::from_json_file(CONFIG_FILE)["becc_test_couchbase"];
+        const auto CONFIG = behh::utility_functions::jsoncpp::from_json_file(CONFIG_FILE);
 
-        becc::couchbase_connection_t _conn;
+        behh::couchbase_connection_t _conn;
 
         _conn.host = CONFIG["host"].asString();
         _conn.username = CONFIG["username"].asString();
         _conn.password = CONFIG["password"].asString();
         _conn.scope_name = CONFIG["scope_name"].asString();
-        _conn.bucket_name = CONFIG["bucket_name"].asString();
         _conn.collection_name = TABLE_NAME;
+
+        _conn.cluster_bucket_name = CONFIG["bucket_name"].asString();
 
         // copy it first
         m_conn = _conn;
@@ -96,14 +97,14 @@ public:
         std::lock_guard<std::mutex> lock1(print_mutex);
 
         table_data data;
-        data.id = becc::utility_functions::generate::uuid::v4();
-        data.random_text = becc::utility_functions::generate::random_alphanumeric_with_special_character(32);
-        data.random_integer = becc::utility_functions::generate::random_number(10000000, 99999999);
-        data.random_big_integer = becc::utility_functions::generate::random_number(10000000000000, 99999999999999);
-        data.random_float = becc::utility_functions::generate::random_number(100.00000f, 999.99999f);
-        data.random_double = becc::utility_functions::generate::random_number(100000.00000000, 999999.99999999);
-        data.created_timestamp = becc::date_and_time_functions::utc::YYYYMMDDhhmmss::to_millis_now();
-        data.created_timestring = becc::date_and_time_functions::utc::YYYYMMDDhhmmss::to_millis_string(data.created_timestamp);
+        data.id = behh::utility_functions::generate::uuid::v4();
+        data.random_text = behh::utility_functions::generate::random_alphanumeric_with_special_character(32);
+        data.random_integer = behh::utility_functions::generate::random_number(10000000, 99999999);
+        data.random_big_integer = behh::utility_functions::generate::random_number(10000000000000, 99999999999999);
+        data.random_float = behh::utility_functions::generate::random_number(100.00000f, 999.99999f);
+        data.random_double = behh::utility_functions::generate::random_number(100000.00000000, 999999.99999999);
+        data.created_timestamp = behh::date_and_time_functions::utc::YYYYMMDDhhmmss::to_millis_now();
+        data.created_timestring = behh::date_and_time_functions::utc::YYYYMMDDhhmmss::to_millis_string(data.created_timestamp);
 
         // CHECK: cluster
         auto cluster_error = ICouchbase.get_cluster_error();
@@ -161,10 +162,10 @@ public:
         std::cout << "cleanup: " << delres.ec().message() << "\n";
     }
 };
-#endif // BECC_USING_COUCHBASE_CXX_CLIENT
+#endif // BEHH_USING_COUCHBASE_CXX_CLIENT
 
 int main() {
-#if BECC_USING_COUCHBASE_CXX_CLIENT
+#if BEHH_USING_COUCHBASE_CXX_CLIENT
     // base data table
     BasicDbTable table;
     table.initialize_table_index();
@@ -228,6 +229,6 @@ int main() {
 
     // cleanup?
     table.cleanup();
-#endif // BECC_USING_COUCHBASE_CXX_CLIENT
+#endif // BEHH_USING_COUCHBASE_CXX_CLIENT
     return 0;
 }

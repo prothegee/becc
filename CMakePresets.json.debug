@@ -1,0 +1,55 @@
+{
+    "version": 3,
+    "configurePresets": [
+        {
+            "name": "debug",
+            "displayName": "Debug",
+            "binaryDir": "${sourceDir}/build/debug",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+            }
+        },
+        {
+            "name": "debug - linux full",
+            "displayName": "Debug",
+            "binaryDir": "${sourceDir}/build/debug",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "BEHH_BUILD_TESTS": true,
+                "BEHH_BUILD_TOOLS": true,
+                "BEHH_BUILD_VENDOR_STB": true,
+                "BEHH_BUILD_VENDOR_SDL3": true,
+                "BEHH_BUILD_VENDOR_HARU": true,
+                "BEHH_BUILD_VENDOR_NANOSVG": true,
+                "BEHH_BUILD_VENDOR_ZXING_CPP": true,
+                "BEHH_BUILD_VENDOR_COUCHBASE_CXX_CLIENT": true,
+                "BEHH_BUILD_VCPKG": false,
+                "BEHH_BUILD_VCPKG_TRIPLET": ""
+            }
+        },
+        {
+            "name": "debug - windows+vcpkg full",
+            "displayName": "Debug",
+            "binaryDir": "${sourceDir}/build/debug",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "BEHH_BUILD_TESTS": true,
+                "BEHH_BUILD_TOOLS": true,
+                "BEHH_BUILD_VENDOR_STB": true,
+                "BEHH_BUILD_VENDOR_SDL3": true,
+                "BEHH_BUILD_VENDOR_HARU": true,
+                "BEHH_BUILD_VENDOR_NANOSVG": true,
+                "BEHH_BUILD_VENDOR_ZXING_CPP": true,
+                "BEHH_BUILD_VENDOR_COUCHBASE_CXX_CLIENT": true,
+                "BEHH_BUILD_VCPKG": true,
+                "BEHH_BUILD_VCPKG_TRIPLET": "x64-windows"
+            }
+        }
+    ]
+}

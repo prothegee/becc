@@ -1,15 +1,15 @@
-#include <becc/constants/string_const.hh>
-#include <becc/functions/cryptography.hh>
+#include <behh/constants/string_const.hh>
+#include <behh/functions/cryptography.hh>
 
 #include <iomanip>
 #include <iostream>
 #include <ostream>
 #include <sstream>
 
-namespace becc {
+namespace behh {
 namespace cryptography_functions {
 
-#if BECC_USING_OPENSSL
+#if BEHH_USING_OPENSSL
 std::string bytes_to_hex_openssl(const unsigned char* data, size_t length) {
     std::stringstream ss;
 
@@ -86,11 +86,11 @@ std::string string_from_custom_base36_openssl(const std::string& input) {
 
     return result;
 }
-#endif // BECC_USING_OPENSSL
+#endif // BEHH_USING_OPENSSL
 
 namespace hash {
 
-#if BECC_USING_OPENSSL
+#if BEHH_USING_OPENSSL
 std::string sha1_openssl(const std::string& input) {
     unsigned char hash[SHA_DIGEST_LENGTH];
 
@@ -130,9 +130,9 @@ std::string sha512_openssl(const std::string& input) {
 
     return bytes_to_hex_openssl(hash, SHA512_DIGEST_LENGTH);
 }
-#endif // BECC_USING_OPENSSL
+#endif // BEHH_USING_OPENSSL
 
-#if BECC_USING_ARGON2
+#if BEHH_USING_ARGON2
 int32_t argon2id(const std::string& input, const std::string& salt, std::string& result, const uint32_t& computation, const uint32_t& block, const uint32_t& parallelism, const uint32_t& derived_length) {
     if (input.length() < 6 || salt.length() < 1) {
         std::cerr << "hash::argon2id: input (min. 6 length) & salt (min. 16 length) required\n";
@@ -186,13 +186,13 @@ int32_t argon2id_verifier(const std::string& input, const std::string& hash_enco
 
     return 1;
 }
-#endif // BECC_USING_ARGON2
+#endif // BEHH_USING_ARGON2
 
 } // namespace hash
 
 namespace stream_cipher {
 
-#if BECC_USING_OPENSSL
+#if BEHH_USING_OPENSSL
 int32_t aes_cbc_encrypt_openssl(const std::string& input, std::string& output, const std::string& iv, const std::string& ik) {
     EVP_CIPHER_CTX* pCtx = EVP_CIPHER_CTX_new();
 
@@ -358,9 +358,9 @@ buffer_t aes_cbc_decrypt_to_buffer_openssl(const buffer_t& buffer, uchr_t* iv_bu
 
     return plaintext;
 }
-#endif // BECC_USING_OPENSSL
+#endif // BEHH_USING_OPENSSL
 
 } // namespace stream_cipher
 
 } // namespace cryptography_functions
-} // namespace becc
+} // namespace behh

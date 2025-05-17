@@ -1,9 +1,10 @@
-#ifndef BECC_GENERATE_HH
-#define BECC_GENERATE_HH
-#include <becc/becc.hh>
-#include <becc/constants/file_const.hh>
+#ifndef BEHH_GENERATE_HH
+#define BEHH_GENERATE_HH
+#include "../pch.hh"
 
-#if BECC_USING_ZXING_CPP
+#include <behh/constants/file_const.hh>
+
+#if BEHH_USING_ZXING_CPP
 #include <ZXing/BarcodeFormat.h>
 #include <ZXing/BitMatrix.h>
 #include <ZXing/BitMatrixIO.h>
@@ -20,18 +21,18 @@
 #endif // ZXING_EXPERIMENTAL_API
 
 using namespace ZXing;
-#endif // BECC_USING_ZXING_CPP
+#endif // BEHH_USING_ZXING_CPP
 
-#if BECC_USING_NANOSVG
+#if BEHH_USING_NANOSVG
 #include <nanosvg/nanosvg.h>
 #include <nanosvg/nanosvgrast.h>
-#endif // BECC_USING_NANOSVG
+#endif // BEHH_USING_NANOSVG
 
-namespace becc {
+namespace behh {
 namespace generate_functions {
 
 namespace image {
-#if BECC_USING_ZXING_CPP && BECC_USING_NANOSVG
+#if BEHH_USING_ZXING_CPP && BEHH_USING_NANOSVG
 /**
  * @brief generate svg from matrix
  *
@@ -43,9 +44,9 @@ namespace image {
  * @return int32_t 1 mean ok
  */
 int32_t matrix_to_svg(const std::string& file_output, const BitMatrix& matrix, const int32_t& width, const int32_t& height, const int32_t& margin);
-#endif // BECC_USING_ZXING_CPP && BECC_USING_NANOSVG
+#endif // BEHH_USING_ZXING_CPP && BEHH_USING_NANOSVG
 
-#if BECC_USING_STB
+#if BEHH_USING_STB
 /**
  * @brief create png image from buffer
  *
@@ -69,11 +70,11 @@ int32_t buffer_to_png(const std::string& file_output, const buffer_t& buffer, co
  * @return int32_t 1 mean ok
  */
 int32_t buffer_to_jpg(const std::string& file_output, const buffer_t& buffer, const int32_t& width, const int32_t& height, const int32_t& stb_comp = 4);
-#endif // BECC_USING_STB
+#endif // BEHH_USING_STB
 } // namespace image
 
 namespace rasterize {
-#if BECC_USING_NANOSVG
+#if BEHH_USING_NANOSVG
 /**
  * @brief rasterize file_path of svg to output
  *
@@ -84,11 +85,11 @@ namespace rasterize {
  * @return int32_t 1 mean ok
  */
 int32_t from_svg(const std::string& file_path, std::vector<uint8_t>& output, int32_t& width, int32_t& height);
-#endif // BECC_USING_NANOSVG
+#endif // BEHH_USING_NANOSVG
 } // namespace rasterize
 
 namespace barqr {
-#if BECC_USING_ZXING_CPP && BECC_USING_STB && BECC_USING_NANOSVG
+#if BEHH_USING_ZXING_CPP && BEHH_USING_STB && BEHH_USING_NANOSVG
 /**
  * @brief encode content to file_output
  *
@@ -119,10 +120,10 @@ int32_t encode(const std::string& content, const std::string& file_output, const
  * @return int32_t 1 mean ok
  */
 int32_t decode(const std::string& content, std::string& file_output, const BarcodeFormat& format, const bool& tryhard = true);
-#endif // BECC_USING_ZXING_CPP && BECC_USING_STB && BECC_USING_NANOSVG
+#endif // BEHH_USING_ZXING_CPP && BEHH_USING_STB && BEHH_USING_NANOSVG
 } // namespace barqr
 
 } // namespace generate_functions
-} // namespace becc
+} // namespace behh
 
-#endif // BECC_GENERATE_HH
+#endif // BEHH_GENERATE_HH

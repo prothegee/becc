@@ -1,20 +1,20 @@
-#include <becc/functions/cryptography.hh>
+#include <behh/functions/cryptography.hh>
 #include <cassert>
 #include <iostream>
 
 int main() {
-#if BECC_USING_ARGON2
+#if BEHH_USING_ARGON2
     std::string password = "strong123!", salt = "abcdefghijklmnop", result;
 
-    auto status = becc::cryptography_functions::hash::argon2id(password, salt, result);
+    auto status = behh::cryptography_functions::hash::argon2id(password, salt, result);
 
     assert(status == (int32_t)ARGON2_OK);
     std::cout << "passed: argon2id as " << result << "\n";
 
-    auto verify = becc::cryptography_functions::hash::argon2id_verifier(password, result);
+    auto verify = behh::cryptography_functions::hash::argon2id_verifier(password, result);
     assert(verify == ARGON2_OK);
     std::cout << "passed: argon2id verified\n";
-#endif // BECC_USING_ARGON2
+#endif // BEHH_USING_ARGON2
 
     return 0;
 }

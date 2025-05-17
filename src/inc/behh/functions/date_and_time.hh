@@ -1,8 +1,8 @@
 #ifndef BEC_DATE_AND_TIMES_HH
 #define BEC_DATE_AND_TIMES_HH
-#include <becc/becc.hh>
+#include "../pch.hh"
 
-namespace becc {
+namespace behh {
 namespace date_and_time_functions {
 
 /**
@@ -447,6 +447,6 @@ std::string to_string_second_offset(const int32_t& seconds_offset = 0);
 } // namespace utc
 
 } // namespace date_and_time_functions
-} // namespace becc
+} // namespace behh
 
 #endif // BEC_DATE_AND_TIMES_HH

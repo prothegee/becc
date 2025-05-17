@@ -1,8 +1,8 @@
-#ifndef BECC_ICOUCHBASE_CORE_INTERFACE_HH
-#define BECC_ICOUCHBASE_CORE_INTERFACE_HH
-#include <becc/becc.hh>
+#ifndef BEHH_ICOUCHBASE_CORE_INTERFACE_HH
+#define BEHH_ICOUCHBASE_CORE_INTERFACE_HH
+#include "../pch.hh"
 
-#if BECC_USING_COUCHBASE_CXX_CLIENT
+#if BEHH_USING_COUCHBASE_CXX_CLIENT
 #include <couchbase/cluster.hxx>
 #include <couchbase/codec/tao_json_serializer.hxx>
 #include <couchbase/logger.hxx>
@@ -11,7 +11,7 @@
 
 #include <couchbase/fmt/error.hxx>
 
-namespace becc {
+namespace behh {
 
 // reserved
 
@@ -28,6 +28,14 @@ struct couchbase_cluster_profiles {
 };
 
 /**
+ * @brief couchbase cluster type structure
+ * 
+ */
+struct couchbase_cluster_t {
+    std::string bucket_name;
+};
+
+/**
  * @brief couchbase connection type structure
  */
 struct couchbase_connection_t {
@@ -35,17 +43,13 @@ struct couchbase_connection_t {
     std::string username;
     std::string password;
     std::string scope_name;
-    std::string bucket_name;
     std::string collection_name;
 
-    // reserved: multiple_dc?
-    // reserved: multiple_dc_configs?
-    // reserved: reinit_after_restart_by_default?
-    // reserved: reinit_after_restart_by_cluster_config?
+    std::string cluster_bucket_name;
 };
 
 /**
- * @brief becc couchbase core interface structure
+ * @brief behh couchbase core interface structure
  *
  * @note this interface handle connection data while
  * @note child interface of ICouchbase is responsible to handle the cluster contact
@@ -106,7 +110,7 @@ struct ICouchbaseCoreInterface {
          * 
          * @return std::string 
          */
-        std::string get_bucket_name() { return m_connection.bucket_name; }
+        std::string get_bucket_name() { return m_connection.cluster_bucket_name; }
         /**
          * @brief get the collection name from active interface connection data
          * 
@@ -169,7 +173,7 @@ struct ICouchbaseCoreInterface {
          * @return couchbase::collection_manager 
          */
         couchbase::collection_manager get_bucket_collection_manager() {
-            return m_cluster.bucket(m_connection.bucket_name)
+            return m_cluster.bucket(m_connection.cluster_bucket_name)
                 .collections();
         }
 
@@ -231,7 +235,7 @@ struct ICouchbaseCoreInterface {
     _ICouchbase ICouchbase = _ICouchbase();
 };
 
-} // namespace becc
-#endif // BECC_USING_COUCHBASE_CXX_CLIENT
+} // namespace behh
+#endif // BEHH_USING_COUCHBASE_CXX_CLIENT
 
-#endif // BECC_ICOUCHBASE_CORE_INTERFACE_HH
+#endif // BEHH_ICOUCHBASE_CORE_INTERFACE_HH
