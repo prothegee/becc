@@ -91,6 +91,8 @@ project-build-release*.*
 ## exception [Internal Usage]
 ##
 !vendors/jsoncpp/include/json/config.h
+/.cache
 /CMakePresets.json
+/compile_commands.json
 /src/inc/becc/export_shared.hh
 /src/inc/becc/export_static.hh
