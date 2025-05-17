@@ -1,13 +1,13 @@
-#include <becc/functions/communication.hh>
-#include <becc/functions/utility.hh>
+#include <behh/functions/communication.hh>
+#include <behh/functions/utility.hh>
 
 #include <fstream>
 #include <iostream>
 
-namespace becc {
+namespace behh {
 namespace communication_functions {
 
-#if BECC_USING_CURL_EXECUTEABLE
+#if BEHH_USING_CURL_EXECUTEABLE
 namespace curl_cmd_impl {
 std::future<int32_t> smtps_send_mail_by_template_future(const std::string& template_html, const std::string& template_title, const std::string& template_recipient, const std::vector<look_and_replace_t>& template_look_and_teplace, const std::string& smtp_server, const std::string& smtp_port, const std::string& smtp_sender_address, const std::string& smtp_sender_name, const std::string& smtp_sender_password) {
     std::promise<int32_t> response_promise;
@@ -59,9 +59,9 @@ Content-Type: text/html; charset="UTF-8"
     utility_functions::find::and_replace_all(CMD, "{RECIPIENT_CONTENT}", RECIPIENT_CONTENT);
 
     if (std::thread::hardware_concurrency() >= 2) {
-#if BECC_IS_DEBUG
+#if BEHH_IS_DEBUG
         std::cout << "DEBUG: curl_cmd_impl::send_mail_by_template_future: system has multiple threads\n";
-#endif // BECC_IS_DEBUG
+#endif // BEHH_IS_DEBUG
 
         auto status = std::async(std::launch::async, system, CMD.c_str());
 
@@ -71,9 +71,9 @@ Content-Type: text/html; charset="UTF-8"
             response_promise.set_value(-2);
         }
     } else {
-#if BECC_IS_DEBUG
+#if BEHH_IS_DEBUG
         std::cout << "DEBUG: curl_cmd_impl::send_mail_by_template_future: system has single thread\n";
-#endif // BECC_IS_DEBUG
+#endif // BEHH_IS_DEBUG
 
         auto status = system(CMD.c_str());
 
@@ -88,9 +88,9 @@ Content-Type: text/html; charset="UTF-8"
     return response_future;
 }
 } // namespace curl_cmd_impl
-#endif // BECC_USING_CURL_EXECUTEABLE
+#endif // BEHH_USING_CURL_EXECUTEABLE
 
-#if BECC_USING_DROGON
+#if BEHH_USING_DROGON
 namespace drogon_sparkpost_impl {
 std::future<int32_t> send_mail_by_template_future(const std::string& template_html, const std::string& template_title, const std::string& template_recipient, const std::vector<look_and_replace_t>& template_look_and_replace, const std::string& sparkpost_api_key, const std::string& sparkpost_sender_name, const std::string& sparkpost_url, const std::string& sparkpost_endpoint, const std::string& sender_user_agent, const bool& enable_tracking) {
     std::promise<int32_t> response_promise;
@@ -140,13 +140,13 @@ std::future<int32_t> send_mail_by_template_future(const std::string& template_ht
 
     pClient->sendRequest(pRequest, [&response_promise](drogon::ReqResult result, const drogon::HttpResponsePtr& pResp) {
         if (result == drogon::ReqResult::Ok && pResp->getStatusCode() == drogon::k200OK) {
-#if BECC_IS_DEBUG
+#if BEHH_IS_DEBUG
             std::cout << "drogon_sparkpost_impl::send_mail_by_template_future: reponse ok\n";
 #endif // LIBPRCPP_IS_DEBUG
 
             response_promise.set_value(1);
         } else {
-#if BECC_IS_DEBUG
+#if BEHH_IS_DEBUG
             std::cout << "drogon_sparkpost_impl::send_mail_by_template_future: status code is " << pResp->getStatusCode() << "\n";
 #endif // LIBPRCPP_IS_DEBUG
             response_promise.set_value(-2);
@@ -158,7 +158,7 @@ std::future<int32_t> send_mail_by_template_future(const std::string& template_ht
     return response_future;
 }
 } // namespace drogon_sparkpost_impl
-#endif // BECC_USING_DROGON
+#endif // BEHH_USING_DROGON
 
 } // namespace communication_functions
-} // namespace becc
+} // namespace behh

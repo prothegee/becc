@@ -1,7 +1,7 @@
-#ifndef BECC_AUTH_TYPE_HH
-#define BECC_AUTH_TYPE_HH
+#ifndef BEHH_AUTH_TYPE_HH
+#define BEHH_AUTH_TYPE_HH
 
-namespace becc {
+namespace behh {
 
 /**
  * @brief auth basic type structure
@@ -11,6 +11,6 @@ struct auth_basic_t {
     const char* password;
 };
 
-} // namespace becc
+} // namespace behh
 
-#endif // BECC_AUTH_TYPE_HH
+#endif // BEHH_AUTH_TYPE_HH

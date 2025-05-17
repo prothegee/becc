@@ -1,23 +1,23 @@
-#include <becc/interfaces/iscylladb_core_interface.hh>
+#include <behh/interfaces/iscylladb_core_interface.hh>
 
 #include <cstring>
 #include <iostream>
 
-#if BECC_COMPILER_GNU
+#if BEHH_COMPILER_GNU
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
-#endif // BECC_COMPILER_GNU
-#if BECC_COMPILER_MSVC
-#endif // BECC_COMPILER_MSVC
-#if BECC_COMPILER_CLANG
+#endif // BEHH_COMPILER_GNU
+#if BEHH_COMPILER_MSVC
+#endif // BEHH_COMPILER_MSVC
+#if BEHH_COMPILER_CLANG
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-parameter"
-#endif // BECC_COMPILER_CLANG
+#endif // BEHH_COMPILER_CLANG
 
-namespace becc {
-#if BECC_USING_SCYLLADB
+namespace behh {
+#if BEHH_USING_SCYLLADB
 void IScyllaDbCoreInterface::OnAuth::initialize(CassAuthenticator* pCassAuth, void* pVoidData) {
-    const becc::auth_basic_t* pCredential = (const becc::auth_basic_t*)new becc::auth_basic_t({IScyllaDbCoreInterface::m_connection.username.c_str(),
+    const behh::auth_basic_t* pCredential = (const behh::auth_basic_t*)new behh::auth_basic_t({IScyllaDbCoreInterface::m_connection.username.c_str(),
                                                                                                IScyllaDbCoreInterface::m_connection.password.c_str()});
 
     size_t username_size = std::strlen(pCredential->username);
@@ -88,7 +88,7 @@ int32_t IScyllaDbCoreInterface::_IScyllaDb::initialize_constructor(const scyllad
         m_pCassSession = cass_session_new();
     }
 
-    becc::auth_basic_t* pAuth = new becc::auth_basic_t({IScyllaDbCoreInterface::m_connection.username.c_str(),
+    behh::auth_basic_t* pAuth = new behh::auth_basic_t({IScyllaDbCoreInterface::m_connection.username.c_str(),
                                                         IScyllaDbCoreInterface::m_connection.password.c_str()});
 
     CassAuthenticatorCallbacks authCallbacks = {
@@ -132,13 +132,13 @@ int32_t IScyllaDbCoreInterface::_IScyllaDb::initialize_constructor(const scyllad
         return -2;
     }
 
-#if BECC_IS_DEBUG
+#if BEHH_IS_DEBUG
     (std::strlen(extra_info) > 0)
         ? std::cout << "DEBUG: \
         \"IScyllaDbCoreInterface::_IScyllaDb::initialize_constructor\" connected: " << extra_info << "\n"
         : std::cout << "DEBUG: \
         \"IScyllaDbCoreInterface::_IScyllaDb::initialize_constructor\" connected ( extra_info is not provided )\n";
-#endif // BECC_IS_DEBUG
+#endif // BEHH_IS_DEBUG
 
     return 1;
 }
@@ -228,20 +228,20 @@ CassError IScyllaDbCoreInterface::_IScyllaDb::execute_cqlsh(CassSession* pCassSe
     auto status = cass_future_error_code(pFuture);
 
     if (status != CASS_OK) {
-#if BECC_IS_DEBUG
+#if BEHH_IS_DEBUG
         // std::cout << "DEBUG: execute_cqlsh: fail, note \"" << note << "\"\n";
         (std::strlen(note) > 0)
             ? std::cout << "DEBUG: execute_cqlsh: fail, note: " << note << "\n"
             : std::cout << "DEBUG: execute_cqlsh: fail ( note is not provided )\n";
-#endif // BECC_IS_DEBUG
+#endif // BEHH_IS_DEBUG
         print_error(pFuture, note);
         return status;
     } else {
-#if BECC_IS_DEBUG
+#if BEHH_IS_DEBUG
         (std::strlen(note) > 0)
             ? std::cout << "DEBUG: execute_cqlsh: ok, note: " << note << "\n"
             : std::cout << "DEBUG: execute_cqlsh: ok ( note is not provided )\n";
-#endif // BECC_IS_DEBUG
+#endif // BEHH_IS_DEBUG
     }
 
     cass_future_free(pFuture);
@@ -249,14 +249,14 @@ CassError IScyllaDbCoreInterface::_IScyllaDb::execute_cqlsh(CassSession* pCassSe
 
     return status;
 }
-#endif // BECC_USING_SCYLLADB
-} // namespace becc
+#endif // BEHH_USING_SCYLLADB
+} // namespace behh
 
-#if BECC_COMPILER_GNU
+#if BEHH_COMPILER_GNU
 #pragma GCC diagnostic pop
-#endif // BECC_COMPILER_GNU
-#if BECC_COMPILER_MSVC
-#endif // BECC_COMPILER_MSVC
-#if BECC_COMPILER_CLANG
+#endif // BEHH_COMPILER_GNU
+#if BEHH_COMPILER_MSVC
+#endif // BEHH_COMPILER_MSVC
+#if BEHH_COMPILER_CLANG
 #pragma clang diagnostic pop
-#endif // BECC_COMPILER_CLANG
+#endif // BEHH_COMPILER_CLANG

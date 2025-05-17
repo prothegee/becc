@@ -1,9 +1,9 @@
-#include <becc/functions/generate.hh>
+#include <behh/functions/generate.hh>
 #include <cassert>
 #include <iostream>
 
 int main() {
-#if BECC_USING_STB && BECC_USING_NANOSVG && BECC_USING_ZXING_CPP
+#if BEHH_USING_STB && BEHH_USING_NANOSVG && BEHH_USING_ZXING_CPP
     // barcode
     {
         std::string in_1 = "my barcode in 1";
@@ -11,7 +11,7 @@ int main() {
         std::string out_1_file = "my barcode out 1.svg";
         BarcodeFormat format = BarcodeFormat::Code128;
 
-        auto encode = becc::generate_functions::barqr::encode(
+        auto encode = behh::generate_functions::barqr::encode(
             in_1,
             out_1_file,
             256,
@@ -21,7 +21,7 @@ int main() {
         assert(encode == 0);
         std::cout << "passed: encode barcode\n";
 
-        auto decode = becc::generate_functions::barqr::decode(
+        auto decode = behh::generate_functions::barqr::decode(
             out_1_file,
             out_1,
             format);
@@ -36,7 +36,7 @@ int main() {
         std::string out_1_file = "my qrcode out 1.svg";
         BarcodeFormat format = BarcodeFormat::QRCode;
 
-        auto encode = becc::generate_functions::barqr::encode(
+        auto encode = behh::generate_functions::barqr::encode(
             in_1,
             out_1_file,
             256,
@@ -46,7 +46,7 @@ int main() {
         assert(encode == 0);
         std::cout << "passed: encode qrcode\n";
 
-        auto decode = becc::generate_functions::barqr::decode(
+        auto decode = behh::generate_functions::barqr::decode(
             out_1_file,
             out_1,
             format);
@@ -55,7 +55,7 @@ int main() {
     }
 
 // encode decode batch?
-#endif // BECC_USING_STB && BECC_USING_NANOSVG && BECC_USING_ZXING_CPP
+#endif // BEHH_USING_STB && BEHH_USING_NANOSVG && BEHH_USING_ZXING_CPP
 
     return 0;
 }

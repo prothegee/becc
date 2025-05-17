@@ -94,5 +94,5 @@ project-build-release*.*
 /.cache
 /CMakePresets.json
 /compile_commands.json
-/src/inc/becc/export_shared.hh
-/src/inc/becc/export_static.hh
+/src/inc/behh/export_shared.hh
+/src/inc/behh/export_static.hh

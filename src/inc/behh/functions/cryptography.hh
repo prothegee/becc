@@ -1,23 +1,23 @@
-#ifndef BECC_CRYPTOGRAPHY_HH
-#define BECC_CRYPTOGRAPHY_HH
-#include <becc/becc.hh>
+#ifndef BEHH_CRYPTOGRAPHY_HH
+#define BEHH_CRYPTOGRAPHY_HH
+#include "../pch.hh"
 
-#if BECC_USING_OPENSSL
+#if BEHH_USING_OPENSSL
 #include <openssl/aes.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>
 #include <openssl/rand.h>
 #include <openssl/sha.h>
-#endif // BECC_USING_OPENSSL
+#endif // BEHH_USING_OPENSSL
 
-#if BECC_USING_ARGON2
+#if BEHH_USING_ARGON2
 #include <argon2.h>
-#endif // BECC_USING_ARGON2
+#endif // BEHH_USING_ARGON2
 
-namespace becc {
+namespace behh {
 namespace cryptography_functions {
 
-#if BECC_USING_OPENSSL
+#if BEHH_USING_OPENSSL
 /**
  * @brief regenerate data to hex string
  *
@@ -54,7 +54,7 @@ std::string string_from_custom_base36_openssl(const std::string& input);
 
 namespace hash {
 
-#if BECC_USING_OPENSSL
+#if BEHH_USING_OPENSSL
 /**
  * @brief generate sha1
  *
@@ -104,9 +104,9 @@ std::string sha384_openssl(const std::string& input);
  * @return std::string
  */
 std::string sha512_openssl(const std::string& input);
-#endif // BECC_USING_OPENSSL
+#endif // BEHH_USING_OPENSSL
 
-#if BECC_USING_ARGON2
+#if BEHH_USING_ARGON2
 /**
  * @brief hash using argon2id
  *
@@ -131,13 +131,13 @@ int32_t argon2id(const std::string& input, const std::string& salt, std::string&
  * @return int32_t 1 mean ok
  */
 int32_t argon2id_verifier(const std::string& input, const std::string& hash_encoded);
-#endif // BECC_USING_ARGON2
+#endif // BEHH_USING_ARGON2
 
 } // namespace hash
 
 namespace stream_cipher {
 
-#if BECC_USING_OPENSSL
+#if BEHH_USING_OPENSSL
 /**
  * @brief aes cbc encrypt input
  *
@@ -179,11 +179,11 @@ buffer_t aes_cbc_encrypt_to_buffer_openssl(const buffer_t& buffer, uchr_t* iv_bu
  * @return buffer_t
  */
 buffer_t aes_cbc_decrypt_to_buffer_openssl(const buffer_t& buffer, uchr_t* iv_buffer, uchr_t* ik_buffer);
-#endif // BECC_USING_OPENSSL
+#endif // BEHH_USING_OPENSSL
 
 } // namespace stream_cipher
 
 } // namespace cryptography_functions
-} // namespace becc
+} // namespace behh
 
-#endif // BECC_CRYPTOGRAPHY_HH
+#endif // BEHH_CRYPTOGRAPHY_HH

@@ -1,4 +1,4 @@
-#include <becc/becc.hh>
+#include <behh/pch.hh>
 
 #include <SDL3/SDL.h>
 
@@ -10,11 +10,11 @@
 #include <utility>
 #include <vector>
 
-using namespace becc;
+using namespace behh;
 
 //////////////////////////////////////////////////////////////////
 
-#if BECC_USING_SDL3
+#if BEHH_USING_SDL3
 struct TDisplayResolutionData {
     int32_t width;
     int32_t height;
@@ -107,10 +107,10 @@ class CTestNativeResolution {
         return m_displayResolutionsData;
     }
 };
-#endif // BECC_USING_SDL3
+#endif // BEHH_USING_SDL3
 
 int main() {
-#if BECC_USING_SDL3
+#if BEHH_USING_SDL3
     CTestNativeResolution* pNativeRes = new CTestNativeResolution();
 
     pNativeRes->initialize();
@@ -135,7 +135,7 @@ int main() {
     pNativeRes->terminateAndShutdown();
 
     delete pNativeRes;
-#endif // BECC_USING_SDL3
+#endif // BEHH_USING_SDL3
 
     return 0;
 }

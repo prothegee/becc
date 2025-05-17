@@ -1,10 +1,10 @@
-#include <becc/functions/date_and_time.hh>
+#include <behh/functions/date_and_time.hh>
 
 #include <chrono>
 #include <iomanip>
 #include <sstream>
 
-namespace becc {
+namespace behh {
 namespace date_and_time_functions {
 
 int32_t local_timezone() {
@@ -1574,4 +1574,4 @@ std::string to_string_second_offset(const int32_t& seconds_offset) {
 } // namespace utc
 
 } // namespace date_and_time_functions
-} // namespace becc
+} // namespace behh

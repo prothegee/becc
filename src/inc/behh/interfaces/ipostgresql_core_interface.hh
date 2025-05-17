@@ -1,15 +1,15 @@
-#ifndef BECC_IPOSTGRESQL_CORE_INTERFACE_HH
-#define BECC_IPOSTGRESQL_CORE_INTERFACE_HH
-#include <becc/becc.hh>
+#ifndef BEHH_IPOSTGRESQL_CORE_INTERFACE_HH
+#define BEHH_IPOSTGRESQL_CORE_INTERFACE_HH
+#include "../pch.hh"
 
-#if BECC_USING_POSTGRESQL
-#if BECC_USING_VCPKG
+#if BEHH_USING_POSTGRESQL
+#if BEHH_USING_VCPKG
 #include <libpq-fe.h>
 #else
 #include <postgresql/libpq-fe.h>
-#endif // BECC_USING_VCPKG
+#endif // BEHH_USING_VCPKG
 
-namespace becc {
+namespace behh {
 
 /**
  * @brief postgresql connection type structure
@@ -23,7 +23,7 @@ struct postgresql_connection_t {
 };
 
 /**
- * @brief becc postgresql core interface structure
+ * @brief behh postgresql core interface structure
  *
  * @note meant to use on drogon-framework project
  * @note still don't have test & not much functionalities
@@ -95,7 +95,7 @@ private:
     INLNSTTC postgresql_connection_t m_connection;
 };
 
-} // namespace becc
-#endif // BECC_USING_POSTGRESQL
+} // namespace behh
+#endif // BEHH_USING_POSTGRESQL
 
-#endif // BECC_IPOSTGRESQL_CORE_INTERFACE_HH
+#endif // BEHH_IPOSTGRESQL_CORE_INTERFACE_HH

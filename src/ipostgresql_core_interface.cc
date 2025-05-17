@@ -1,9 +1,9 @@
-#include <becc/interfaces/ipostgresql_core_interface.hh>
+#include <behh/interfaces/ipostgresql_core_interface.hh>
 
 #include <iostream>
 
-namespace becc {
-#if BECC_USING_POSTGRESQL
+namespace behh {
+#if BEHH_USING_POSTGRESQL
 IPostgreSqlCoreInterface::_IPostgreSQL::~_IPostgreSQL() {
     if (m_pConn != nullptr) {
         PQfinish(m_pConn);
@@ -42,9 +42,9 @@ int32_t IPostgreSqlCoreInterface::_IPostgreSQL::initialize_database(const postgr
                 if (PQresultStatus(pRes) != PGRES_COMMAND_OK) {
                     std::cerr << PQerrorMessage(m_pConn) << "\n";
                 } else {
-#if BECC_IS_DEBUG
+#if BEHH_IS_DEBUG
                     std::cout << "DEBUG: database created\n";
-#endif // BECC_IS_DEBUG
+#endif // BEHH_IS_DEBUG
                 }
             }
 
@@ -93,5 +93,5 @@ std::string IPostgreSqlCoreInterface::_IPostgreSQL::generate_uuid_v4_as_string()
 
     return result;
 }
-#endif // BECC_USING_POSTGRESQL
-} // namespace becc
+#endif // BEHH_USING_POSTGRESQL
+} // namespace behh

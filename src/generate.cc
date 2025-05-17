@@ -1,7 +1,7 @@
-#include <becc/functions/generate.hh>
-#include <becc/functions/utility.hh>
+#include <behh/functions/generate.hh>
+#include <behh/functions/utility.hh>
 
-#if BECC_USING_STB
+#if BEHH_USING_STB
 #ifndef STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
@@ -10,18 +10,18 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb/stb_image_write.h>
 #endif // STB_IMAGE_WRITE_IMPLEMENTATION
-#endif // BECC_USING_STB
+#endif // BEHH_USING_STB
 
 #include <fstream>
 #include <future>
 #include <iostream>
 #include <thread>
 
-namespace becc {
+namespace behh {
 namespace generate_functions {
 
 namespace image {
-#if BECC_USING_ZXING_CPP && BECC_USING_NANOSVG
+#if BEHH_USING_ZXING_CPP && BEHH_USING_NANOSVG
 int32_t matrix_to_svg(const std::string& file_output, const BitMatrix& matrix, const int32_t& width, const int32_t& height, const int32_t& margin) {
     int32_t svg_width = width + 2 * margin;
     int32_t svg_height = height + 2 * margin;
@@ -58,9 +58,9 @@ int32_t matrix_to_svg(const std::string& file_output, const BitMatrix& matrix, c
 
     return 1;
 }
-#endif // BECC_USING_ZXING_CPP && BECC_USING_NANOSVG
+#endif // BEHH_USING_ZXING_CPP && BEHH_USING_NANOSVG
 
-#if BECC_USING_STB
+#if BEHH_USING_STB
 
 int32_t buffer_to_png(const std::string& file_output, const buffer_t& buffer, const int32_t& width, const int32_t& height, const int32_t& stb_comp) {
     if (!utility_functions::find::input_ends_with(file_output, FILE_EXTENSION_PNG_HINT) != 0) {
@@ -77,11 +77,11 @@ int32_t buffer_to_jpg(const std::string& file_output, const buffer_t& buffer, co
 
     return stbi_write_jpg(file_output.c_str(), width, height, stb_comp, buffer.data(), (width * 4));
 }
-#endif // BECC_USING_STB
+#endif // BEHH_USING_STB
 } // namespace image
 
 namespace rasterize {
-#if BECC_USING_NANOSVG
+#if BEHH_USING_NANOSVG
 int32_t from_svg(const std::string& file_path, std::vector<uint8_t>& output, int32_t& width, int32_t& height) {
     if (utility_functions::find::input_ends_with(file_path, FILE_EXTENSION_SVG_HINT) != 0) {
         std::cerr << "rasterize::from_svg: file is not ended with .svg\n";
@@ -138,11 +138,11 @@ int32_t from_svg(const std::string& file_path, std::vector<uint8_t>& output, int
 
     return 1;
 }
-#endif // BECC_USING_NANOSVG
+#endif // BEHH_USING_NANOSVG
 } // namespace rasterize
 
 namespace barqr {
-#if BECC_USING_ZXING_CPP && BECC_USING_STB && BECC_USING_NANOSVG
+#if BEHH_USING_ZXING_CPP && BEHH_USING_STB && BEHH_USING_NANOSVG
 int32_t encode(const std::string& content, const std::string& file_output, const int32_t& width, const int32_t& height, const int32_t& margin, const BarcodeFormat& format, const int32_t& channels) {
     try {
         int32_t _width = width, _height = height, _margin = margin, _channels = channels;
@@ -284,8 +284,8 @@ int32_t decode(const std::string& content, std::string& file_output, const Barco
 
     return 1;
 }
-#endif // BECC_USING_ZXING_CPP && BECC_USING_STB && BECC_USING_NANOSVG
+#endif // BEHH_USING_ZXING_CPP && BEHH_USING_STB && BEHH_USING_NANOSVG
 } // namespace barqr
 
 } // namespace generate_functions
-} // namespace becc
+} // namespace behh

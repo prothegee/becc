@@ -1,9 +1,9 @@
-#include <becc/becc.hh>
+#include <behh/pch.hh>
 
-#if BECC_USING_SCYLLADB
-#include <becc/functions/date_and_time.hh>
-#include <becc/functions/utility.hh>
-#include <becc/interfaces/iscylladb_core_interface.hh>
+#if BEHH_USING_SCYLLADB
+#include <behh/functions/date_and_time.hh>
+#include <behh/functions/utility.hh>
+#include <behh/interfaces/iscylladb_core_interface.hh>
 
 #include <mutex>
 #include <thread>
@@ -17,9 +17,9 @@
 INLNSTTCCNST std::string CONFIG_FILE = "../../../tests/test_database_scylla_rw.json";
 
 std::mutex print_mutex;
-class BasicDbTable : public becc::IScyllaDbCoreInterface {
+class BasicDbTable : public behh::IScyllaDbCoreInterface {
 private:
-    becc::scylladb_connection_t m_conn; // connection data
+    behh::scylladb_connection_t m_conn; // connection data
 
 public:
     INLNSTTCCNST std::string TABLE_NAME = "test_rw";
@@ -55,31 +55,31 @@ create table if not exists {KEYSPACE}.{TABLE_NAME} (
     /////////////////////////////////////////////////////////////////
 
     BasicDbTable() {
-        const auto CONFIG = becc::utility_functions::jsoncpp::from_json_file(CONFIG_FILE);
+        const auto CONFIG = behh::utility_functions::jsoncpp::from_json_file(CONFIG_FILE);
 
-        const int32_t CONN_AUTH = CONFIG["becc_test_scylladb"]["connection"]["auth"].asInt();
+        const int32_t CONN_AUTH = CONFIG["behh_test_scylladb"]["connection"]["auth"].asInt();
 
-        becc::scylladb_connection_t conn;
+        behh::scylladb_connection_t conn;
 
-        conn.auth_mode = (becc::scylladb_auth_mode_e)CONN_AUTH;
+        conn.auth_mode = (behh::scylladb_auth_mode_e)CONN_AUTH;
 
         conn.host.clear();
-        for (auto& host : CONFIG["becc_test_scylladb"]["connection"]["hosts"]) {
+        for (auto& host : CONFIG["behh_test_scylladb"]["connection"]["hosts"]) {
             auto this_host = host.asString() + ",";
             conn.host += this_host;
         }
         conn.host.resize(conn.host.size() - 1); // remove last , (coma)
 
-        conn.username = CONFIG["becc_test_scylladb"]["connection"]["username"].asString();
-        conn.password = CONFIG["becc_test_scylladb"]["connection"]["password"].asString();
+        conn.username = CONFIG["behh_test_scylladb"]["connection"]["username"].asString();
+        conn.password = CONFIG["behh_test_scylladb"]["connection"]["password"].asString();
 
-        conn.keyspace = CONFIG["becc_test_scylladb"]["keyspace"].asString();
-        conn.strategy = (becc::scylladb_topology_strat_e)CONFIG["becc_test_scylladb"]["strategy"].asInt();
+        conn.keyspace = CONFIG["behh_test_scylladb"]["keyspace"].asString();
+        conn.strategy = (behh::scylladb_topology_strat_e)CONFIG["behh_test_scylladb"]["strategy"].asInt();
 
-        conn.multiple_datacenters = CONFIG["becc_test_scylladb"]["multiple_datacenters"].asBool();
+        conn.multiple_datacenters = CONFIG["behh_test_scylladb"]["multiple_datacenters"].asBool();
 
-        conn.factors_configs = CONFIG["becc_test_scylladb"]["factors_configs"][CONN_AUTH][0].asString();
-        conn.factors_configs_extra = CONFIG["becc_test_scylladb"]["factors_configs_extra"].asString();
+        conn.factors_configs = CONFIG["behh_test_scylladb"]["factors_configs"][CONN_AUTH][0].asString();
+        conn.factors_configs_extra = CONFIG["behh_test_scylladb"]["factors_configs_extra"].asString();
 
         IScyllaDb.initialize_constructor(conn);
 
@@ -96,8 +96,8 @@ create table if not exists {KEYSPACE}.{TABLE_NAME} (
         //
         std::string query = "create keyspace if not exists {KEYSPACE} with replication = { 'class': '{TOPOLOGY_STRATEGY}' };";
 
-        becc::utility_functions::find::and_replace_all(query, "{KEYSPACE}", m_conn.keyspace);
-        becc::utility_functions::find::and_replace_all(query, "{TOPOLOGY_STRATEGY}", becc::scylladb_topology_strat_to_string(m_conn.strategy));
+        behh::utility_functions::find::and_replace_all(query, "{KEYSPACE}", m_conn.keyspace);
+        behh::utility_functions::find::and_replace_all(query, "{TOPOLOGY_STRATEGY}", behh::scylladb_topology_strat_to_string(m_conn.strategy));
 
         std::string note = "creating keypace " + m_conn.keyspace;
 
@@ -117,8 +117,8 @@ create table if not exists {KEYSPACE}.{TABLE_NAME} (
     void initialize_table() {
         std::string query = TABLE_GEN_1ST;
 
-        becc::utility_functions::find::and_replace_all(query, "{KEYSPACE}", m_conn.keyspace);
-        becc::utility_functions::find::and_replace_all(query, "{TABLE_NAME}", TABLE_NAME);
+        behh::utility_functions::find::and_replace_all(query, "{KEYSPACE}", m_conn.keyspace);
+        behh::utility_functions::find::and_replace_all(query, "{TABLE_NAME}", TABLE_NAME);
 
         if (IScyllaDb.execute_cqlsh(IScyllaDb.get_cass_session(), query.c_str(), "BasicDbTable::initialize_table") != CASS_OK) {
             IScyllaDb.print_error(
@@ -149,14 +149,14 @@ create table if not exists {KEYSPACE}.{TABLE_NAME} (
         std::lock_guard<std::mutex> lock1(print_mutex);
 
         table_data data;
-        data.id = becc::utility_functions::generate::uuid::v4();
-        data.random_text = becc::utility_functions::generate::random_alphanumeric_with_special_character(32);
-        data.random_integer = becc::utility_functions::generate::random_number(10000000, 99999999);
-        data.random_big_integer = becc::utility_functions::generate::random_number(10000000000000, 99999999999999);
-        data.random_float = becc::utility_functions::generate::random_number(100.00000f, 999.99999f);
-        data.random_double = becc::utility_functions::generate::random_number(100000.00000000, 999999.99999999);
-        data.created_timestamp = becc::date_and_time_functions::utc::YYYYMMDDhhmmss::to_millis_now();
-        data.created_timestring = becc::date_and_time_functions::utc::YYYYMMDDhhmmss::to_millis_string(data.created_timestamp);
+        data.id = behh::utility_functions::generate::uuid::v4();
+        data.random_text = behh::utility_functions::generate::random_alphanumeric_with_special_character(32);
+        data.random_integer = behh::utility_functions::generate::random_number(10000000, 99999999);
+        data.random_big_integer = behh::utility_functions::generate::random_number(10000000000000, 99999999999999);
+        data.random_float = behh::utility_functions::generate::random_number(100.00000f, 999.99999f);
+        data.random_double = behh::utility_functions::generate::random_number(100000.00000000, 999999.99999999);
+        data.created_timestamp = behh::date_and_time_functions::utc::YYYYMMDDhhmmss::to_millis_now();
+        data.created_timestring = behh::date_and_time_functions::utc::YYYYMMDDhhmmss::to_millis_string(data.created_timestamp);
 
         std::string query = R"(insert into {KEYSPACE}.{TABLE_NAME} (
     id, random_text,
@@ -170,8 +170,8 @@ create table if not exists {KEYSPACE}.{TABLE_NAME} (
     ?, ?
 ); -- don't use if not exists
 )";
-        becc::utility_functions::find::and_replace_all(query, "{KEYSPACE}", m_conn.keyspace);
-        becc::utility_functions::find::and_replace_all(query, "{TABLE_NAME}", TABLE_NAME);
+        behh::utility_functions::find::and_replace_all(query, "{KEYSPACE}", m_conn.keyspace);
+        behh::utility_functions::find::and_replace_all(query, "{TABLE_NAME}", TABLE_NAME);
 
         size_t query_params = 8;
 
@@ -229,8 +229,8 @@ create table if not exists {KEYSPACE}.{TABLE_NAME} (
     void cleanup() {
         std::string query = "drop table if exists {KEYSPACE}.{TABLE_NAME};";
 
-        becc::utility_functions::find::and_replace_all(query, "{KEYSPACE}", m_conn.keyspace);
-        becc::utility_functions::find::and_replace_all(query, "{TABLE_NAME}", TABLE_NAME);
+        behh::utility_functions::find::and_replace_all(query, "{KEYSPACE}", m_conn.keyspace);
+        behh::utility_functions::find::and_replace_all(query, "{TABLE_NAME}", TABLE_NAME);
 
         if (IScyllaDb.execute_cqlsh(IScyllaDb.get_cass_session(), query.c_str(), "BasicDbTable::cleanup") != CASS_OK) {
             IScyllaDb.print_error(
@@ -240,10 +240,10 @@ create table if not exists {KEYSPACE}.{TABLE_NAME} (
     }
 }; // class SyllaDbRW
 
-#endif // BECC_USING_SCYLLADB
+#endif // BEHH_USING_SCYLLADB
 
 int main() {
-#if BECC_USING_SCYLLADB
+#if BEHH_USING_SCYLLADB
     // base data table
     BasicDbTable table;
     table.initialize();
@@ -311,6 +311,6 @@ int main() {
 
     // finally
     table.cleanup();
-#endif // BECC_USING_SCYLLADB
+#endif // BEHH_USING_SCYLLADB
     return 0;
 }

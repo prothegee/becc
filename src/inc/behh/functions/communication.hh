@@ -1,22 +1,23 @@
-#ifndef BECC_COMMUNICATION_HH
-#define BECC_COMMUNICATION_HH
-#include <becc/becc.hh>
-#include <becc/types/look_type.hh>
+#ifndef BEHH_COMMUNICATION_HH
+#define BEHH_COMMUNICATION_HH
+#include "../pch.hh"
 
-#if BECC_USING_JSONCPP
+#include <behh/types/look_type.hh>
+
+#if BEHH_USING_JSONCPP
 #include <json/json.h>
-#endif // BECC_USING_JSONCPP
+#endif // BEHH_USING_JSONCPP
 
-#if BECC_USING_DROGON
+#if BEHH_USING_DROGON
 #include <drogon/drogon.h>
-#endif // BECC_USING_DROGON
+#endif // BEHH_USING_DROGON
 
 #include <future>
 
-namespace becc {
+namespace behh {
 namespace communication_functions {
 
-#if BECC_USING_CURL_EXECUTEABLE
+#if BEHH_USING_CURL_EXECUTEABLE
 namespace curl_cmd_impl {
 /**
  * @brief secure smtp send email by template using curl executeable
@@ -34,9 +35,9 @@ namespace curl_cmd_impl {
  */
 std::future<int32_t> smtps_send_mail_by_template_future(const std::string& template_html, const std::string& template_title, const std::string& template_recipient, const std::vector<look_and_replace_t>& template_look_and_teplace, const std::string& smtp_server, const std::string& smtp_port, const std::string& smtp_sender_address, const std::string& smtp_sender_name, const std::string& smtp_sender_password);
 } // namespace curl_cmd_impl
-#endif // BECC_USING_CURL_EXECUTEABLE
+#endif // BEHH_USING_CURL_EXECUTEABLE
 
-#if BECC_USING_DROGON
+#if BEHH_USING_DROGON
 namespace drogon_sparkpost_impl {
 /**
  * @brief send mail by template future using drogon to sparkpost
@@ -55,9 +56,9 @@ namespace drogon_sparkpost_impl {
  */
 std::future<int32_t> send_mail_by_template_future(const std::string& template_html, const std::string& template_title, const std::string& template_recipient, const std::vector<look_and_replace_t>& template_look_and_replace, const std::string& sparkpost_api_key, const std::string& sparkpost_sender_name, const std::string& sparkpost_url, const std::string& sparkpost_endpoint, const std::string& sender_user_agent = "org.drogon-sparkpost", const bool& enable_tracking = false);
 } // namespace drogon_sparkpost_impl
-#endif // BECC_USING_DROGON
+#endif // BEHH_USING_DROGON
 
 } // namespace communication_functions
-} // namespace becc
+} // namespace behh
 
-#endif // BECC_COMMUNICATION_HH
+#endif // BEHH_COMMUNICATION_HH

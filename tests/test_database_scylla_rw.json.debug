@@ -1,7 +1,7 @@
 {
-    "becc_test_scylladb":
+    "behh_test_scylladb":
     {
-        "keyspace": "becc_test_scylladb",
+        "keyspace": "behh_test_scylladb",
         // 0:undefined 1:SimpleStrategy 2:NetworkTopologyStrategy 3:LocalStrategy 4:EverywhereStrategy
         "strategy": 3,
         "connection":

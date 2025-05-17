@@ -15,17 +15,17 @@
         "-std=c++20 -fcoroutines -fPIC"
         */
         // "CMAKE_CXX_FLAGS": "-std=c++17 -lm -fPIC",
-        "BECC_BUILD_TESTS": true,
-        "BECC_BUILD_TOOLS": true,
+        "BEHH_BUILD_TESTS": true,
+        "BEHH_BUILD_TOOLS": true,
 
-        "BECC_BUILD_VENDOR_STB": true,
-        "BECC_BUILD_VENDOR_SDL3": true,
-        "BECC_BUILD_VENDOR_HARU": true,
-        "BECC_BUILD_VENDOR_NANOSVG": true,
-        "BECC_BUILD_VENDOR_ZXING_CPP": true,
-        "BECC_BUILD_VENDOR_COUCHBASE_CXX_CLIENT": true,
+        "BEHH_BUILD_VENDOR_STB": true,
+        "BEHH_BUILD_VENDOR_SDL3": true,
+        "BEHH_BUILD_VENDOR_HARU": true,
+        "BEHH_BUILD_VENDOR_NANOSVG": true,
+        "BEHH_BUILD_VENDOR_ZXING_CPP": true,
+        "BEHH_BUILD_VENDOR_COUCHBASE_CXX_CLIENT": true,
 
-        "BECC_BUILD_TARGET": 1, // 0:undefined 1:linux 2:windows 3:osx 4:android 5:ios (supported: 1)
+        "BEHH_BUILD_TARGET": 1, // 0:undefined 1:linux 2:windows 3:osx 4:android 5:ios (supported: 1)
 
         /*
         default false/OFF
@@ -54,8 +54,8 @@
         - arm-ios
         - arm64-ios
         */
-        "BECC_BUILD_VCPKG": false,
-        "BECC_BUILD_VCPKG_TRIPLET": "",
+        "BEHH_BUILD_VCPKG": false,
+        "BEHH_BUILD_VCPKG_TRIPLET": "",
 
         // "CMAKE_C_COMPILER_LAUNCHER": "ccache", // optional, for historical record
         // "CMAKE_CXX_COMPILER_LAUNCHER": "ccache", // optional, for historical record

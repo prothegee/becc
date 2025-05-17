@@ -1,0 +1,85 @@
+#ifndef BEHH_CONFIG_HH
+#define BEHH_CONFIG_HH
+
+#define BEHH_IS_DEBUG @BEHH_IS_DEBUG@
+
+#define BEHH_CPP_STANDARD @CMAKE_CXX_STANDARD@
+
+#define BEHH_VERSION_MAJOR @BEHH_VERSION_MAJOR@
+
+#define BEHH_VERSION_MINOR @BEHH_VERSION_MINOR@
+
+#define BEHH_VERSION_PATCH @BEHH_VERSION_PATCH@
+
+#define BEHH_VERSION_RELEASE_DATE @BEHH_VERSION_RELEASE_DATE@
+
+#define BEHH_USING_VCPKG @BEHH_USING_VCPKG@
+
+#define BEHH_USING_CURL_EXECUTEABLE @BEHH_USING_CURL_EXECUTEABLE@
+
+#define BEHH_USING_JSONCPP @BEHH_USING_JSONCPP@
+
+#define BEHH_USING_OPENSSL @BEHH_USING_OPENSSL@
+
+#define BEHH_USING_DROGON @BEHH_USING_DROGON@
+
+#define BEHH_USING_ARGON2 @BEHH_USING_ARGON2@
+
+#define BEHH_USING_POSTGRESQL @BEHH_USING_POSTGRESQL@
+
+#define BEHH_USING_SCYLLADB @BEHH_USING_SCYLLADB@
+
+#define BEHH_USING_STB @BEHH_USING_STB@
+
+#define BEHH_USING_SDL3 @BEHH_USING_SDL3@
+
+#define BEHH_USING_HARU @BEHH_USING_HARU@
+
+#define BEHH_USING_NANOSVG @BEHH_USING_NANOSVG@
+
+#define BEHH_USING_ZXING_CPP @BEHH_USING_ZXING_CPP@
+
+#define BEHH_USING_COUCHBASE_CXX_CLIENT @BEHH_USING_COUCHBASE_CXX_CLIENT@
+
+#ifndef INLNSTTC
+#define INLNSTTC inline static
+#endif // INLNSTTC
+
+#ifndef INLNSTTCCNST
+#define INLNSTTCCNST inline static const
+#endif // INLNSTTCCNST
+
+#define BEHH_COMPILER_ID @BEHH_COMPILER_ID@
+
+#define BEHH_COMPILER_GNU @BEHH_COMPILER_GNU@
+#define BEHH_COMPILER_MSVC @BEHH_COMPILER_MSVC@
+#define BEHH_COMPILER_CLANG @BEHH_COMPILER_CLANG@
+
+////////////////////////////////////////////////////////////////////////
+
+#if defined(__GNUC__) || defined(__clang__)
+#ifndef DEPRECATED
+#define DEPRECATED(msg) __attribute__((deprecated(msg)))
+#endif // DEPRECATED
+
+#ifndef PRAGMA_MESSAGE_IMPL
+#ifndef PRAGMA_MESSAGE
+#define PRAGMA_MESSAGE_IMPL(str) _Pragma(#str)
+// compiler independetn message
+#define PRAGMA_MESSAGE(msg) PRAGMA_MESSAGE_IMPL(message msg)
+#endif // PRAGMA_MESSAGE
+#endif // PRAGMA_MESSAGE_IMPL
+#elif defined(_MSC_VER)
+#ifndef DEPRECATED
+#define DEPRECATED(msg) __declspec(deprecated(msg))
+#endif // DEPRECATED
+
+#ifndef PRAGMA_MESSAGE
+// compiler independetn message
+#define PRAGMA_MESSAGE(msg) __pragma(message(msg))
+#endif // PRAGMA_MESSAGE
+#else
+// n/a
+#endif
+
+#endif // BEHH_CONFIG_HH

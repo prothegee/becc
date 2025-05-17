@@ -1,27 +1,28 @@
-#ifndef BECC_UTILITY_HH
-#define BECC_UTILITY_HH
-#include <becc/becc.hh>
-#include <becc/constants/string_const.hh>
+#ifndef BEHH_UTILITY_HH
+#define BEHH_UTILITY_HH
+#include "../pch.hh"
 
-#if BECC_USING_OPENSSL
+#include <behh/constants/string_const.hh>
+
+#if BEHH_USING_OPENSSL
 #include <openssl/aes.h>
 #include <openssl/buffer.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>
 #include <openssl/rand.h>
 #include <openssl/types.h>
-#endif // BECC_USING_OPENSSL
+#endif // BEHH_USING_OPENSSL
 
-#if BECC_USING_JSONCPP
+#if BEHH_USING_JSONCPP
 #include <json/json.h>
-#endif // BECC_USING_JSONCPP
+#endif // BEHH_USING_JSONCPP
 
-#if BECC_USING_COUCHBASE_CXX_CLIENT
+#if BEHH_USING_COUCHBASE_CXX_CLIENT
 #include <tao/json.hpp>
 #include <tao/json/contrib/traits.hpp>
-#endif // BECC_USING_COUCHBASE_CXX_CLIENT
+#endif // BEHH_USING_COUCHBASE_CXX_CLIENT
 
-namespace becc {
+namespace behh {
 namespace utility_functions {
 
 /**
@@ -81,7 +82,7 @@ std::string base64encode(const std::string& input);
  */
 std::string base64decode(const std::string& input);
 
-#if BECC_USING_OPENSSL
+#if BEHH_USING_OPENSSL
 /**
  * @brief encode base64 using openssl
  *
@@ -97,7 +98,7 @@ std::string base64encode_openssl(const std::string& input);
  * @return std::string
  */
 std::string base64decode_openssl(const std::string& input);
-#endif // BECC_USING_OPENSSL
+#endif // BEHH_USING_OPENSSL
 
 namespace find {
 
@@ -264,7 +265,7 @@ std::string to_another_letter_case(const std::string& input, const int32_t& mode
 
 } // namespace string
 
-#if BECC_USING_JSONCPP
+#if BEHH_USING_JSONCPP
 namespace jsoncpp {
 
 /**
@@ -324,9 +325,9 @@ int32_t save_to_csv(const Json::Value& input, const std::string& output_file_pat
 int32_t save_to_json(const Json::Value& input, const std::string& output_file_path, const int32_t& indent = 4, const int32_t& precision = 16);
 
 } // namespace jsoncpp
-#endif // BECC_USING_JSONCPP
+#endif // BEHH_USING_JSONCPP
 
-#if BECC_USING_COUCHBASE_CXX_CLIENT
+#if BEHH_USING_COUCHBASE_CXX_CLIENT
 namespace jsontao {
 
 /**
@@ -392,7 +393,7 @@ int32_t save_to_csv(const tao::json::value& input, const std::string& output_fil
 int32_t save_to_json(const tao::json::value& input, const std::string& output_file_path, const int32_t& indent = 4, const int32_t& precision = 16);
 
 } // namespace jsontao
-#endif // BECC_USING_COUCHBASE_CXX_CLIENT
+#endif // BEHH_USING_COUCHBASE_CXX_CLIENT
 
 namespace read {
 
@@ -423,7 +424,7 @@ int32_t file_from_buffer(const std::string& file_path, const buffer_t& buffer_da
 
 namespace file {
 
-#if BECC_USING_OPENSSL // could be using or later on
+#if BEHH_USING_OPENSSL // could be using or later on
 /**
  * @brief ecnrypt file with mode based on input file & save to output file
  *
@@ -453,11 +454,11 @@ int32_t encrypt(const int32_t& mode, const std::string& file_input, const std::s
  * @return int32_t 1 mean ok
  */
 int32_t decrypt(const int32_t& mode, const std::string& file_input, const std::string& file_output, const std::string& iv, const std::string& ik, const size_t& chunk_size = 1 * 1024 * 1024);
-#endif // BECC_USING_OPENSSL
+#endif // BEHH_USING_OPENSSL
 
 } // namespace file
 
 } // namespace utility_functions
-} // namespace becc
+} // namespace behh
 
-#endif // BECC_UTILITY_HH
+#endif // BEHH_UTILITY_HH

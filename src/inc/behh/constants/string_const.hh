@@ -1,8 +1,8 @@
-#ifndef BECC_STRING_CONST_HH
-#define BECC_STRING_CONST_HH
-#include <becc/becc.hh>
+#ifndef BEHH_STRING_CONST_HH
+#define BEHH_STRING_CONST_HH
+#include "../pch.hh"
 
-namespace becc {
+namespace behh {
 
 // ABCDEFGHIJKLMNOPQRSTUVWXYZ
 // abcdefghijklmnopqrstuvwxyz
@@ -38,6 +38,6 @@ INLNSTTCCNST std::string BASE36_DIGITS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 // 0123456789
 INLNSTTCCNST char HEX_DIGITS[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
-} // namespace becc
+} // namespace behh
 
-#endif // BECC_STRING_CONST_HH
+#endif // BEHH_STRING_CONST_HH

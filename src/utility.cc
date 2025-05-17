@@ -1,5 +1,5 @@
-#include <becc/functions/cryptography.hh>
-#include <becc/functions/utility.hh>
+#include <behh/functions/cryptography.hh>
+#include <behh/functions/utility.hh>
 
 #include <algorithm>
 #include <array>
@@ -11,7 +11,7 @@
 #include <random>
 #include <unordered_map>
 
-namespace becc {
+namespace behh {
 namespace utility_functions {
 
 int32_t file_exists(const std::string& file_path) {
@@ -179,7 +179,7 @@ std::string base64decode(const std::string& input) {
     return decoded;
 }
 
-#if BECC_USING_OPENSSL
+#if BEHH_USING_OPENSSL
 std::string base64encode_openssl(const std::string& input) {
     BIO *bio, *b64;
     BUF_MEM* bufferPtr;
@@ -222,7 +222,7 @@ std::string base64decode_openssl(const std::string& input) {
 
     return result;
 }
-#endif // BECC_USING_OPENSSL
+#endif // BEHH_USING_OPENSSL
 
 namespace find {
 
@@ -489,7 +489,7 @@ std::string to_another_letter_case(const std::string& input, const int32_t& mode
 
 } // namespace string
 
-#if BECC_USING_JSONCPP
+#if BEHH_USING_JSONCPP
 namespace jsoncpp {
 
 std::string to_string(const Json::Value& input, const int32_t& indent, const int32_t& precision) {
@@ -743,10 +743,10 @@ int32_t save_to_json(const Json::Value& input, const std::string& output_file_pa
 }
 
 } // namespace jsoncpp
-#endif // BECC_USING_JSONCPP
+#endif // BEHH_USING_JSONCPP
 
-#if BECC_USING_COUCHBASE_CXX_CLIENT
-PRAGMA_MESSAGE("maybe there will be if using BECC_USING_JSONTAO")
+#if BEHH_USING_COUCHBASE_CXX_CLIENT
+PRAGMA_MESSAGE("maybe there will be if using BEHH_USING_JSONTAO")
 namespace jsontao {
 
 std::string to_string(const tao::json::value& input, const int32_t& indent, const int32_t& precision) {
@@ -968,7 +968,7 @@ int32_t save_to_json(const tao::json::value& input, const std::string& output_fi
 }
 
 } // namespace jsontao
-#endif // BECC_USING_COUCHBASE_CXX_CLIENT
+#endif // BEHH_USING_COUCHBASE_CXX_CLIENT
 
 namespace read {
 
@@ -1021,7 +1021,7 @@ int32_t file_from_buffer(const std::string& file_path, const buffer_t& buffer_da
 
 namespace file {
 
-#if BECC_USING_OPENSSL
+#if BEHH_USING_OPENSSL
 int32_t encrypt(const int32_t& mode, const std::string& file_input, const std::string& file_output, const std::string& iv, const std::string& ik, const size_t& chunk_size) {
     bool isOk = true;
 
@@ -1125,9 +1125,9 @@ int32_t decrypt(const int32_t& mode, const std::string& file_input, const std::s
 
     return 1;
 }
-#endif // BECC_USING_OPENSSL
+#endif // BEHH_USING_OPENSSL
 
 } // namespace file
 
 } // namespace utility_functions
-} // namespace becc
+} // namespace behh
