@@ -57,29 +57,29 @@ create table if not exists {KEYSPACE}.{TABLE_NAME} (
     BasicDbTable() {
         const auto CONFIG = behh::utility_functions::jsoncpp::from_json_file(CONFIG_FILE);
 
-        const int32_t CONN_AUTH = CONFIG["behh_test_scylladb"]["connection"]["auth"].asInt();
+        const int32_t CONN_AUTH = CONFIG["connection"]["auth"].asInt();
 
         behh::scylladb_connection_t conn;
 
         conn.auth_mode = (behh::scylladb_auth_mode_e)CONN_AUTH;
 
         conn.host.clear();
-        for (auto& host : CONFIG["behh_test_scylladb"]["connection"]["hosts"]) {
+        for (auto& host : CONFIG["connection"]["hosts"]) {
             auto this_host = host.asString() + ",";
             conn.host += this_host;
         }
         conn.host.resize(conn.host.size() - 1); // remove last , (coma)
 
-        conn.username = CONFIG["behh_test_scylladb"]["connection"]["username"].asString();
-        conn.password = CONFIG["behh_test_scylladb"]["connection"]["password"].asString();
+        conn.username = CONFIG["connection"]["username"].asString();
+        conn.password = CONFIG["connection"]["password"].asString();
 
-        conn.keyspace = CONFIG["behh_test_scylladb"]["keyspace"].asString();
-        conn.strategy = (behh::scylladb_topology_strat_e)CONFIG["behh_test_scylladb"]["strategy"].asInt();
+        conn.keyspace = CONFIG["keyspace"].asString();
+        conn.strategy = (behh::scylladb_topology_strat_e)CONFIG["strategy"].asInt();
 
-        conn.multiple_datacenters = CONFIG["behh_test_scylladb"]["multiple_datacenters"].asBool();
+        conn.multiple_datacenters = CONFIG["multiple_datacenters"].asBool();
 
-        conn.factors_configs = CONFIG["behh_test_scylladb"]["factors_configs"][CONN_AUTH][0].asString();
-        conn.factors_configs_extra = CONFIG["behh_test_scylladb"]["factors_configs_extra"].asString();
+        conn.factors_configs = CONFIG["factors_configs"][CONN_AUTH][0].asString();
+        conn.factors_configs_extra = CONFIG["factors_configs_extra"].asString();
 
         IScyllaDb.initialize_constructor(conn);
 

@@ -67,7 +67,7 @@ public:
         _conn.scope_name = CONFIG["scope_name"].asString();
         _conn.collection_name = TABLE_NAME;
 
-        _conn.cluster_bucket_name = CONFIG["bucket_name"].asString();
+        _conn.cluster_bucket_name = CONFIG["cluster"]["bucket_name"].asString();
 
         // copy it first
         m_conn = _conn;
