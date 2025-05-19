@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.15)
 set(BEHH_VERSION_MAJOR 0)
 set(BEHH_VERSION_MINOR 18)
 set(BEHH_VERSION_PATCH 0)
-set(BEHH_VERSION_RELEASE_DATE 20250517)
+set(BEHH_VERSION_RELEASE_DATE 20250520)
 
 # package project
 project(behh
@@ -319,7 +319,7 @@ endif()
 ## curl executeable
 set(BEHH_USING_CURL_EXECUTEABLE false)
 set(BEHH_USING_CURL_EXECUTEABLE_PATH)
-if(MSVC)
+if(WIN32)
     find_file(BEHH_USING_CURL_EXECUTEABLE_PATH "curl.exe")
 else()
     # assume unix stlye
