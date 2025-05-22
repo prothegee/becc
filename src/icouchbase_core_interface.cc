@@ -1,12 +1,12 @@
 #include <behh/interfaces/icouchbase_core_interface.hh>
 
+#if BEHH_USING_COUCHBASE_CXX_CLIENT
 #include <couchbase/management/bucket_settings.hxx>
 
 #include <iostream>
 #include <utility>
 
 namespace behh {
-#if BEHH_USING_COUCHBASE_CXX_CLIENT
 ICouchbaseCoreInterface::~ICouchbaseCoreInterface() {
 }
 
