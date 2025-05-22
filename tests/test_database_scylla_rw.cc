@@ -68,7 +68,8 @@ create table if not exists {KEYSPACE}.{TABLE_NAME} (
             auto this_host = host.asString() + ",";
             conn.host += this_host;
         }
-        conn.host.resize(conn.host.size() - 1); // remove last , (coma)
+        std::cout << "conn.host: " << conn.host << "\n";
+        conn.host.resize(conn.host.size() - 1); // remove last , (coma) // error in msvc, it said 
 
         conn.username = CONFIG["connection"]["username"].asString();
         conn.password = CONFIG["connection"]["password"].asString();
@@ -83,9 +84,6 @@ create table if not exists {KEYSPACE}.{TABLE_NAME} (
 
         IScyllaDb.initialize_constructor(conn);
 
-        // // check table gen
-        // std::cout << "table gen: " << TABLE_GEN_1ST << "\n";
-
         // finally
         m_conn = conn;
     }
@@ -93,8 +91,9 @@ create table if not exists {KEYSPACE}.{TABLE_NAME} (
 
     void initialize() {
         // create keyspace if not exists
+        // - SimpleStrategy: required replication factor
         //
-        std::string query = "create keyspace if not exists {KEYSPACE} with replication = { 'class': '{TOPOLOGY_STRATEGY}' };";
+        std::string query = "create keyspace if not exists {KEYSPACE} with replication = { 'class': '{TOPOLOGY_STRATEGY}', 'replication_factor': 3 };";
 
         behh::utility_functions::find::and_replace_all(query, "{KEYSPACE}", m_conn.keyspace);
         behh::utility_functions::find::and_replace_all(query, "{TOPOLOGY_STRATEGY}", behh::scylladb_topology_strat_to_string(m_conn.strategy));
@@ -111,7 +110,9 @@ create table if not exists {KEYSPACE}.{TABLE_NAME} (
             );
         }
 
-        cleanup();
+        // note: multiple_datacenters might need to check
+
+        cleanup(); // remove existing table
     }
 
     void initialize_table() {

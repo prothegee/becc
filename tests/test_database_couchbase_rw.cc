@@ -81,8 +81,7 @@ public:
 
     /////////////////////////////////////////////////////////////////
 
-    PRAGMA_MESSAGE("TODO: initialize_table / initialize_bucket")
-
+    // equivalent initialize_bucket
     void initialize_table_index() {
         /* not implemented */
     }

@@ -411,19 +411,31 @@ endif()
 ## scylladb
 set(BEHH_USING_SCYLLADB false)
 set(BEHH_CASSANDRA_HEADER)
-set(BEHH_SCYLLA_EXECUTEABLE)
+set(BEHH_SCYLLA_CPP_LIB)
 
-if(LINUX)
-    find_file(BEHH_CASSANDRA_HEADER "cassandra.h")
-    find_file(BEHH_SCYLLA_EXECUTEABLE "scylla")
+find_file(BEHH_CASSANDRA_HEADER "cassandra.h")
 
-    if(BEHH_CASSANDRA_HEADER AND BEHH_SCYLLA_EXECUTEABLE)
-        set(BEHH_USING_SCYLLADB true)
-        message(NOTICE "-- ${PROJECT_NAME}: adding scylladb since deps found")
-    endif()
+if(WIN32)
+    find_file(BEHH_SCYLLA_CPP_LIB "scylla-cpp-driver.lib")
 else()
-    message(NOTICE "-- ${PROJECT_NAME}: skipping scylladb deps, system not supported")
+    find_file(BEHH_SCYLLA_CPP_LIB "libscylla-cpp-driver.so")
 endif()
+
+if(BEHH_CASSANDRA_HEADER AND BEHH_SCYLLA_CPP_LIB)
+    set(BEHH_USING_SCYLLADB true)
+    message(NOTICE "-- ${PROJECT_NAME}: adding scylladb since deps found")
+endif()
+
+if(BEHH_USING_SCYLLADB)
+    get_filename_component(BEHH_SCYLLA_CPP_LIB_DIR "${BEHH_SCYLLA_CPP_LIB}" DIRECTORY)
+    get_filename_component(BEHH_CASSANDRA_HEADER_DIR "${BEHH_CASSANDRA_HEADER}" DIRECTORY)
+
+    include_directories(${BEHH_SCYLLA_CPP_LIB_DIR})
+    include_directories(${BEHH_CASSANDRA_HEADER_DIR})
+
+    link_directories(BEFORE "${BEHH_SCYLLA_CPP_LIB_DIR}")
+    link_directories(BEFORE "${BEHH_CASSANDRA_HEADER_DIR}")
+endif(BEHH_USING_SCYLLADB)
 ##
 ## stb
 set(BEHH_USING_STB false)
