@@ -428,6 +428,20 @@ std::string v4() {
 
     return oss.str();
 }
+
+std::string format_uuid_to_ref(const std::string& uuid_string) {
+    std::string result = uuid_string;
+    result.erase(std::remove(result.begin(), result.end(), '-'), result.end());
+    return result;
+}
+
+std::string format_ref_to_uuid(const std::string& uuid_string) {
+    return uuid_string.substr(0, 8) + "-" 
+         + uuid_string.substr(8, 4) + "-" 
+         + uuid_string.substr(12, 4) + "-" 
+         + uuid_string.substr(16, 4) + "-" 
+         + uuid_string.substr(20, 12);
+}
 } // namespace uuid
 
 } // namespace generate
