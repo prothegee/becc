@@ -835,7 +835,7 @@ foreach(BEHH_TARGET behh_static behh_shared)
             -fPIC
         )
     else()
-        message(NOTICE "-- ${PROJECT_NAME}: -DCMAKE_CXX_COMPILER_ID is not supported as ${CMAKE_CXX_COMPILER_ID}")
+        message(NOTICE "-- ${BEHH_TARGET}: -DCMAKE_CXX_COMPILER_ID is not supported as ${CMAKE_CXX_COMPILER_ID}")
     endif()
 
     ## jsoncpp
