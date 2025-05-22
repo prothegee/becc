@@ -65,7 +65,7 @@ void IScyllaDbCoreInterface::_IScyllaDb::print_error(CassFuture* pCassFuture, co
 
     cass_future_error_message(pCassFuture, &message, &messageSize);
 
-    std::fprintf(stderr, "ERROR: \"%s\":\n%.*s\n", info, (int)messageSize, message);
+    std::fprintf(stderr, "\nERROR: \"%s\":\n%.*s\n", info, (int)messageSize, message);
 }
 
 int32_t IScyllaDbCoreInterface::_IScyllaDb::initialize_constructor(const scylladb_connection_t& connection, const char* extra_info) {
